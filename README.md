@@ -1,5 +1,5 @@
 # mint
-A math interpreter.
+A math interpreter. Use either via command line or write a script.
 
 ## Functionality
 So the idea is that the interpreter can interpret files or stdin
@@ -28,4 +28,4 @@ For the lexer I'm thinking have some struct for a token w/enum field (token type
 optional value field, and then a pointer field to the next token (it's going to be a linked list)
 
 
-The language should be follow math associativity and precedence rules
+The language should follow math associativity and precedence rules (obviously)
