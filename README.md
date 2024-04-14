@@ -1,5 +1,5 @@
 # mint
-A math interpreter. Use either via command line or write a script.
+Currently WIP. A math interpreter. Use either via command line or write a script.
 
 ## Functionality
 So the idea is that the interpreter can interpret files or stdin
