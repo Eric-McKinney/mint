@@ -7,7 +7,8 @@ So the idea is that the interpreter can interpret files or stdin
 
 Inputs look something like this:
 
-`x = 3;
+```
+x = 3;
 
 y = 4;
 
@@ -15,7 +16,8 @@ z = x + y;
 
 fn f(x, y) = x^(y+3);
 
-f(4,1);`
+f(4,1);
+```
 (maybe try without semicolon?)
 
 
