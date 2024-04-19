@@ -2,26 +2,23 @@
 Currently WIP. A math interpreter. Use either via command line or write a script.
 
 ## Functionality
-So the idea is that the interpreter can interpret files or stdin
+So the idea is that the interpreter can interpret files or stdin. I'm thinking actually there's little point to just interpreting a file in a vacuum. It would be more useful to be able to interpret a file and load the environment, results, etc. into the command line interpreter session.
 
 
 Inputs look something like this:
 
 ```
-x = 3;
+x = 3
+y = 4
 
-y = 4;
+z = x + y
 
-z = x + y;
+fn f(x, y) = x^(y+3)
 
-fn f(x, y) = x^(y+3);
-
-f(4,1);
+f(4,1)
 ```
-(maybe try without semicolon?)
 
-
-I'm thinking bare minimum I cover int/float arithmetic and function definitions. Built in functions can come later.
+I'm thinking bare minimum I cover int/float arithmetic and function definitions. Built in functions can come later. I want to cover things like factorial, maybe sums and products, and relevant constants like pi and e. If I'm feelign adventurous I might try to implement complex numbers.
 
 ## Implementation
 For the lexer I'm thinking have some struct for a token w/enum field (token type), 
