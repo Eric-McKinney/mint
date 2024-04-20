@@ -64,4 +64,4 @@ ID -> `string which matches the following regex: ^[a-zA-Z][a-zA-Z0-9_]*$`
     - [ ] Write various parse functions for each level of CFG
 - [ ] Write evaluator
 - [ ] Lots of testing
-- [ ] Move makefile to project root and update accordingly
+- [x] Move makefile to project root and update accordingly
