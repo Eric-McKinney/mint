@@ -19,7 +19,7 @@ f(4,1)
 f(1,1+1)!
 ```
 
-I'm thinking bare minimum I cover int/float arithmetic and function definitions. Built in functions can come later. I want to cover things like factorial, maybe sums and products, and relevant constants like pi and e. If I'm feelign adventurous I might try to implement complex numbers.
+I'm thinking bare minimum I cover int/float arithmetic and function definitions. Built in functions can come later. I want to cover things like factorial, maybe sums and products, and relevant constants like pi and e. If I'm feeling adventurous I might try to implement complex numbers.
 
 ## Implementation
 For the lexer I'm thinking have some struct for a token w/enum field (token type), 
@@ -52,3 +52,16 @@ ArgExpr -> AdditiveExpr`,` ArgExpr | AdditiveExpr
 PrimaryExpr -> `int` | `float` | ID | `(`AdditiveExpr`)`
 
 ID -> `string which matches the following regex: ^[a-zA-Z][a-zA-Z0-9_]*$`
+
+# TODO
+- [ ] Write lexer
+    - [ ] Define token type
+    - [ ] Determine list of all valid tokens
+    - [ ] Write tokenize function
+    - [ ] Put types and function prototypes in a header file
+- [ ] Write parser
+    - [ ] Verify that CFG is correct (aligns with math rules)
+    - [ ] Write various parse functions for each level of CFG
+- [ ] Write evaluator
+- [ ] Lots of testing
+- [ ] Move makefile to project root and update accordingly
