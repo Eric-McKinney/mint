@@ -16,6 +16,7 @@ z = x + y
 fn f(x, y) = x^(y+3)
 
 f(4,1)
+f(1,1+1)!
 ```
 
 I'm thinking bare minimum I cover int/float arithmetic and function definitions. Built in functions can come later. I want to cover things like factorial, maybe sums and products, and relevant constants like pi and e. If I'm feelign adventurous I might try to implement complex numbers.
@@ -26,3 +27,17 @@ optional value field, and then a pointer field to the next token (it's going to 
 
 
 The language should follow math associativity and precedence rules (obviously)
+
+## CFG
+Expr -> FunctionExpr | AssignmentExpr | AdditiveExpr
+FunctionExpr -> `fn` ID `(` ParamExpr `)` `=` AdditiveExpr
+ParamExpr -> ID`,` ParamExpr | ID
+AssignmentExpr -> ID `=` AdditiveExpr
+AdditiveExpr -> AdditiveExpr AdditiveOperator MultiplicativeExpr | MultiplicativeExpr
+AdditiveOperator -> `+` | `-`
+MultiplicativeExpr -> MultiplicativeExpr MultiplicativeOperator ApplicationExpr | ApplicationExpr
+MultiplicativeOperator -> `*` | `/`
+ApplicationExpr -> ID`(`ArgExpr`)` | PrimaryExpr
+ArgExpr -> AdditiveExpr`,` ArgExpr | AdditiveExpr
+PrimaryExpr -> `int` | `float` | ID | `(`AdditiveExpr`)`
+ID -> `string which matches the following regex: ^[a-zA-Z][a-zA-Z0-9_]*$`
