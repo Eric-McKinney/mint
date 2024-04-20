@@ -30,14 +30,25 @@ The language should follow math associativity and precedence rules (obviously)
 
 ## CFG
 Expr -> FunctionExpr | AssignmentExpr | AdditiveExpr
+
 FunctionExpr -> `fn` ID `(` ParamExpr `)` `=` AdditiveExpr
+
 ParamExpr -> ID`,` ParamExpr | ID
+
 AssignmentExpr -> ID `=` AdditiveExpr
+
 AdditiveExpr -> AdditiveExpr AdditiveOperator MultiplicativeExpr | MultiplicativeExpr
+
 AdditiveOperator -> `+` | `-`
+
 MultiplicativeExpr -> MultiplicativeExpr MultiplicativeOperator ApplicationExpr | ApplicationExpr
+
 MultiplicativeOperator -> `*` | `/`
+
 ApplicationExpr -> ID`(`ArgExpr`)` | PrimaryExpr
+
 ArgExpr -> AdditiveExpr`,` ArgExpr | AdditiveExpr
+
 PrimaryExpr -> `int` | `float` | ID | `(`AdditiveExpr`)`
+
 ID -> `string which matches the following regex: ^[a-zA-Z][a-zA-Z0-9_]*$`
