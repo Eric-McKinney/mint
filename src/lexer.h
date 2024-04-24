@@ -27,6 +27,6 @@ typedef struct token {
     token *next;
 } TokenList;
 
-TokenList *tokenize(char **input);
+TokenList *tokenize(const char *input);
 
 #endif
