@@ -24,9 +24,10 @@ typedef struct token {
         double d;
         char *id;
     } value;
-    token *next;
+    struct token *next;
 } TokenList;
 
 TokenList *tokenize(const char *input);
+void free_token_list(TokenList *tok_l);
 
 #endif
