@@ -55,13 +55,15 @@ ID -> `string which matches the following regex: ^[a-zA-Z][a-zA-Z0-9_]*$`
 
 # TODO
 - [ ] Write lexer
-    - [ ] Define token type
-    - [ ] Determine list of all valid tokens
-    - [ ] Write tokenize function
-    - [ ] Put types and function prototypes in a header file
+    - [x] ~~Define token type~~
+    - [x] ~~Determine list of all valid tokens~~ (might add more later)
+    - [x] ~~Write tokenize function~~
+    - [x] Put types and function prototypes in a header file
+    - [ ] Do lots of testing
 - [ ] Write parser
     - [ ] Verify that CFG is correct (aligns with math rules)
     - [ ] Write various parse functions for each level of CFG
 - [ ] Write evaluator
 - [ ] Lots of testing
 - [x] Move makefile to project root and update accordingly
+    - [ ] Write rules to build tests
