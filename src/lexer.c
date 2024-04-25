@@ -55,20 +55,6 @@ static TokenList *tok(const char *input, unsigned int pos, unsigned int length) 
         strncpy(t->value.id, str, match_length);
         t->next = tok(input, pos + match_length, length);
         return t;
-    } else if (regexec(&int_re, str, 1, &re_match, 0) == 0) {
-        int match_length = re_match.rm_eo - re_match.rm_so;
-        int num;
-        char *int_str = calloc(1, match_length + 1);
-
-        strncpy(int_str, str, match_length);
-        num = atoi(int_str);
-        free(int_str);
-        t = malloc(sizeof(TokenList));
-
-        t->token = TOK_INT;
-        t->value.i = num;
-        t->next = tok(input, pos + match_length, length);
-        return t;
     } else if (regexec(&float_re, str, 1, &re_match, 0) == 0) {
         int match_length = re_match.rm_eo - re_match.rm_so;
         double num;
@@ -81,6 +67,20 @@ static TokenList *tok(const char *input, unsigned int pos, unsigned int length) 
 
         t->token = TOK_FLOAT;
         t->value.d = num;
+        t->next = tok(input, pos + match_length, length);
+        return t;
+    } else if (regexec(&int_re, str, 1, &re_match, 0) == 0) {
+        int match_length = re_match.rm_eo - re_match.rm_so;
+        int num;
+        char *int_str = calloc(1, match_length + 1);
+
+        strncpy(int_str, str, match_length);
+        num = atoi(int_str);
+        free(int_str);
+        t = malloc(sizeof(TokenList));
+
+        t->token = TOK_INT;
+        t->value.i = num;
         t->next = tok(input, pos + match_length, length);
         return t;
     } else if (regexec(&l_paren_re, str, 0, NULL, 0) == 0) {
