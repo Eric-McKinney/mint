@@ -5,29 +5,33 @@ CFLAGS= -ansi -Wall -g -O0 -Wwrite-strings -Wshadow -pedantic-errors \
 SRC=src
 OBJ=obj
 BIN=bin
+TEST=tests
 
 _OBJS= main.o lexer.o parser.o eval.o
 OBJS=$(patsubst %,$(OBJ)/%,$(_OBJS))
 
-.PHONY: test clean
-
-test:
-	@echo $(OBJS)
+.PHONY: test tests clean
 
 $(BIN)/mint: $(OBJS)
 	mkdir -p $(BIN)
 	$(CC) -o $@ $^
 
-$(OBJ)/main.o: main.c lexer.h parser.h eval.h $(OBJ)
+test: runtests
+runtests: lexer_tests parser_tests eval_tests
+
+lexer_tests: $(OBJ)/lexer_tests.o $(OBJ)/lexer.o
+	$(CC) -o lexer_tests 
+
+$(OBJ)/main.o: $(SRC)/main.c $(SRC)/lexer.h $(SRC)/parser.h $(SRC)/eval.h $(OBJ)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(OBJ)/lexer.o: lexer.c lexer.h $(OBJ)
+$(OBJ)/lexer.o: $(SRC)/lexer.c $(SRC)/lexer.h $(OBJ)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(OBJ)/parser.o: parser.c parser.h lexer.h $(OBJ)
+$(OBJ)/parser.o: $(SRC)/parser.c $(SRC)/parser.h $(SRC)/lexer.h $(OBJ)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(OBJ)/eval.o: eval.c eval.h $(OBJ)
+$(OBJ)/eval.o: $(SRC)/eval.c $(SRC)/eval.h $(OBJ)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(OBJ):
