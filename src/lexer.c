@@ -205,6 +205,33 @@ void print_token_list(TokenList *tok_l) {
             case TOK_EQUAL:
                 printf("TOK_EQUAL");
                 break;
+            case TOK_ADD:
+                printf("TOK_ADD");
+                break;
+            case TOK_SUB:
+                printf("TOK_SUB");
+                break;
+            case TOK_MULT:
+                printf("TOK_MULT");
+                break;
+            case TOK_DIV:
+                printf("TOK_DIV");
+                break;
+            case TOK_FUN:
+                printf("TOK_FUN");
+                break;
+            case TOK_ENDLN:
+                printf("TOK_ENDLN");
+                break;
+            case TOK_INT:
+                printf("TOK_INT %d", tok_l->value.i);
+                break;
+            case TOK_FLOAT:
+                printf("TOK_FLOAT %f", tok_l->value.d);
+                break;
+            case TOK_ID:
+                printf("TOK_ID %s", tok_l->value.id);
+                break;
             default:
                 printf("Unrecognized token");
         }
