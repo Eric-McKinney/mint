@@ -4,8 +4,6 @@
 #include <regex.h>
 #include "lexer.h"
 
-#define REG_COMP_FLAGS REG_EXTENDED | REG_NOSUB
-
 regex_t l_paren_re, r_paren_re, dot_re, equal_re, add_re, sub_re, mult_re;
 regex_t div_re, fun_re, endln_re, int_re, float_re, id_re, whitespace_re;
 static void compile_regexs();
@@ -14,6 +12,7 @@ static TokenList *tok(const char *input, unsigned int pos, unsigned int length);
 
 TokenList *tokenize(const char *input) {
     TokenList *tok_l = NULL;
+    int len;
 
     compile_regexs();
 
@@ -21,8 +20,9 @@ TokenList *tokenize(const char *input) {
         fprintf(stderr, "lexer: input is NULL\n");
         exit(1);
     }
-
-    tok_l = tok(input, 0, (unsigned int) strlen(input));
+    
+    len = strlen(input);
+    tok_l = tok(input, 0, len);
     free_regexs();
 
     return tok_l;
@@ -51,14 +51,14 @@ static TokenList *tok(const char *input, unsigned int pos, unsigned int length) 
         }
 
         t->token = TOK_ID;
-        t->value.id = malloc(match_length + 1);
+        t->value.id = calloc(1, match_length + 1);
         strncpy(t->value.id, str, match_length);
         t->next = tok(input, pos + match_length, length);
         return t;
     } else if (regexec(&int_re, str, 1, &re_match, 0) == 0) {
         int match_length = re_match.rm_eo - re_match.rm_so;
         int num;
-        char *int_str = malloc(match_length + 1);
+        char *int_str = calloc(1, match_length + 1);
 
         strncpy(int_str, str, match_length);
         num = atoi(int_str);
@@ -72,7 +72,7 @@ static TokenList *tok(const char *input, unsigned int pos, unsigned int length) 
     } else if (regexec(&float_re, str, 1, &re_match, 0) == 0) {
         int match_length = re_match.rm_eo - re_match.rm_so;
         double num;
-        char *float_str = malloc(match_length + 1);
+        char *float_str = calloc(1, match_length + 1);
 
         strncpy(float_str, str, match_length);
         num = atof(float_str);
@@ -137,20 +137,20 @@ static TokenList *tok(const char *input, unsigned int pos, unsigned int length) 
 }
 
 static void compile_regexs() {
-    regcomp(&l_paren_re,    "^\\(",                     REG_COMP_FLAGS);
-    regcomp(&r_paren_re,    "^\\)",                     REG_COMP_FLAGS);
-    regcomp(&dot_re,        "^\\.",                     REG_COMP_FLAGS);
-    regcomp(&equal_re,      "^=",                       REG_COMP_FLAGS);
-    regcomp(&add_re,        "^\\+",                     REG_COMP_FLAGS);
-    regcomp(&sub_re,        "^-",                       REG_COMP_FLAGS);
-    regcomp(&mult_re,       "^\\*",                     REG_COMP_FLAGS);
-    regcomp(&div_re,        "^/",                       REG_COMP_FLAGS);
-    regcomp(&fun_re,        "^fn",                      REG_COMP_FLAGS);
-    regcomp(&endln_re,      "^\\n",                     REG_COMP_FLAGS);
-    regcomp(&int_re,        "^(-?[0-9]+)",              REG_COMP_FLAGS);
-    regcomp(&float_re,      "^(-?[0-9]+\\.[0-9]*)",     REG_COMP_FLAGS);
-    regcomp(&id_re,         "^([a-zA-Z][a-zA-Z0-9_]*)", REG_COMP_FLAGS);
-    regcomp(&whitespace_re, "^([ \\t])+",               REG_COMP_FLAGS);
+    regcomp(&l_paren_re,    "^\\(",                     REG_EXTENDED);
+    regcomp(&r_paren_re,    "^\\)",                     REG_EXTENDED);
+    regcomp(&dot_re,        "^\\.",                     REG_EXTENDED);
+    regcomp(&equal_re,      "^=",                       REG_EXTENDED);
+    regcomp(&add_re,        "^\\+",                     REG_EXTENDED);
+    regcomp(&sub_re,        "^-",                       REG_EXTENDED);
+    regcomp(&mult_re,       "^\\*",                     REG_EXTENDED);
+    regcomp(&div_re,        "^/",                       REG_EXTENDED);
+    regcomp(&fun_re,        "^fn",                      REG_EXTENDED);
+    regcomp(&endln_re,      "^\n",                      REG_EXTENDED);
+    regcomp(&int_re,        "^(-?[0-9]+)",              REG_EXTENDED);
+    regcomp(&float_re,      "^(-?[0-9]+\\.[0-9]*)",     REG_EXTENDED);
+    regcomp(&id_re,         "^([a-zA-Z][a-zA-Z0-9_]*)", REG_EXTENDED);
+    regcomp(&whitespace_re, "^([ \t])+",                REG_EXTENDED);
 }
 
 static void free_regexs() {
@@ -188,55 +188,80 @@ void free_token_list(TokenList *tok_l) {
 }
 
 void print_token_list(TokenList *tok_l) {
-    TokenList *curr = tok_l;
+    printf("%s\n", token_list_to_str(tok_l));
+}
 
-    printf("[");
+char *token_list_to_str(TokenList *tok_l) {
+    TokenList *curr = tok_l;
+    char *str;
+    int num_tok = 0;
+    const int MAX_TOK_STR_LEN = 50; /* arbitrary upper limit on tok_str size */
+
     while (curr != NULL) {
+        num_tok++;
+        curr = curr->next;
+    }
+
+    str = calloc(1, num_tok * MAX_TOK_STR_LEN + 1);
+
+    curr = tok_l;
+    strcat(str, "[");
+    while (curr != NULL) {
+        char s[50] = {0};
         switch (curr->token) {
             case TOK_LPAREN: 
-                printf("TOK_LPAREN");
+                strcat(str, "TOK_LPAREN");
                 break;
             case TOK_RPAREN:
-                printf("TOK_RPAREN");
+                strcat(str, "TOK_RPAREN");
                 break;
             case TOK_DOT:
-                printf("TOK_DOT");
+                strcat(str, "TOK_DOT");
                 break;
             case TOK_EQUAL:
-                printf("TOK_EQUAL");
+                strcat(str, "TOK_EQUAL");
                 break;
             case TOK_ADD:
-                printf("TOK_ADD");
+                strcat(str, "TOK_ADD");
                 break;
             case TOK_SUB:
-                printf("TOK_SUB");
+                strcat(str, "TOK_SUB");
                 break;
             case TOK_MULT:
-                printf("TOK_MULT");
+                strcat(str, "TOK_MULT");
                 break;
             case TOK_DIV:
-                printf("TOK_DIV");
+                strcat(str, "TOK_DIV");
                 break;
             case TOK_FUN:
-                printf("TOK_FUN");
+                strcat(str, "TOK_FUN");
                 break;
             case TOK_ENDLN:
-                printf("TOK_ENDLN");
+                strcat(str, "TOK_ENDLN");
                 break;
             case TOK_INT:
-                printf("TOK_INT %d", tok_l->value.i);
+                sprintf(s, "TOK_INT %d", curr->value.i);
+                strcat(str, s);
                 break;
             case TOK_FLOAT:
-                printf("TOK_FLOAT %f", tok_l->value.d);
+                sprintf(s, "TOK_FLOAT %f", curr->value.d);
+                strcat(str, s);
                 break;
             case TOK_ID:
-                printf("TOK_ID %s", tok_l->value.id);
+                sprintf(s, "TOK_ID %s", curr->value.id);
+                strcat(str, s);
                 break;
             default:
-                printf("Unrecognized token");
+                strcat(str, "Unrecognized token");
         }
 
-        printf(", ");
+        if (curr->next != NULL) {
+            strcat(str, ", ");
+        }
+
+        curr = curr->next;
     }
-    printf("]\n");
+
+    strcat(str, "]");
+    return str;
 }
