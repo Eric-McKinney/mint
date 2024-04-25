@@ -7,7 +7,7 @@
 #define FAILURE 0
 #define PASSED "\033[1;32mPASSED\033[0m"
 #define FAILED "\033[1;31mFAILED\033[0m"
-#define SEP "|------------------------------|\n"
+#define SEP "|------------------------------------------------------------|\n"
 
 typedef struct {
     char name[80];
@@ -25,9 +25,11 @@ int main(int argc, char **argv) {
         {"other_toks", "().=\n", "[TOK_LPAREN, TOK_RPAREN, TOK_DOT, TOK_EQUAL, TOK_ENDLN]"},
         {"fn_tok", "fn", "[TOK_FUN]"},
         {"basic_addition", "1 + 3", "[TOK_INT 1, TOK_ADD, TOK_INT 3]"},
-        {"float + int + float", "2.20 + 5+5.", "[TOK_FLOAT 2.200000, TOK_ADD, TOK_INT 5, TOK_ADD, TOK_FLOAT 5.000000]"}
+        {"float + int + float", "2.20 + 5+5.", "[TOK_FLOAT 2.200000, TOK_ADD, TOK_INT 5, TOK_ADD, TOK_FLOAT 5.000000]"},
+        {"big ints", "232342 4444", "[TOK_INT 232342, TOK_INT 4444]"},
+        {"negative nums", "-23 - -33.4563", "[TOK_INT -23, TOK_SUB, TOK_FLOAT -33.456300]"}
     };
-    int num_tests = sizeof(tests) / sizeof(Test), i;
+    int num_tests = sizeof(tests) / sizeof(Test), i, num_passed = 0;
 
     if (argc == 2 && (strcmp(argv[1], "-v") == 0 
                    || strcmp(argv[1], "--verbose") == 0)) {
@@ -43,6 +45,7 @@ int main(int argc, char **argv) {
         }
 
         t_result = run_test(t);
+        num_passed += t_result == SUCCESS ? 1 : 0;
         
         if (verbose) {
             printf("|\n");
@@ -54,6 +57,14 @@ int main(int argc, char **argv) {
         if (verbose) {
             printf(SEP);
         }
+    }
+
+    printf("|\n| Ran (%d/%d) tests successfully\n", num_passed, num_tests);
+    printf("| Test suite %s\n", num_passed == num_tests ? PASSED : FAILED);
+
+    if (verbose) {
+        printf("|\n");
+        printf(SEP);
     }
     
     return 0;
