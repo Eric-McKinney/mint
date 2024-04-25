@@ -24,7 +24,8 @@ int main(int argc, char **argv) {
         {"arithmetic_toks", "+ - /*", "[TOK_ADD, TOK_SUB, TOK_DIV, TOK_MULT]"},
         {"other_toks", "().=\n", "[TOK_LPAREN, TOK_RPAREN, TOK_DOT, TOK_EQUAL, TOK_ENDLN]"},
         {"fn_tok", "fn", "[TOK_FUN]"},
-        {"basic_addition", "1 + 3", "[TOK_INT 1, TOK_ADD, TOK_INT 3]"}
+        {"basic_addition", "1 + 3", "[TOK_INT 1, TOK_ADD, TOK_INT 3]"},
+        {"float + int + float", "2.20 + 5+5.", "[TOK_FLOAT 2.200000, TOK_ADD, TOK_INT 5, TOK_ADD, TOK_FLOAT 5.000000]"}
     };
     int num_tests = sizeof(tests) / sizeof(Test), i;
 
@@ -73,6 +74,7 @@ int run_test(Test *test) {
     if (verbose) {
         printf("| tokenize return val: %p\n", (void *) tok_l);
         printf("| token list: %s\n", tok_l_str);
+        printf("| expected:   %s\n", test->ans);
     }
     
     t_result = strcmp(tok_l_str, test->ans) == 0 ? SUCCESS : FAILURE;
