@@ -204,7 +204,12 @@ char *token_list_to_str(TokenList *tok_l) {
         curr = curr->next;
     }
 
-    str = malloc(num_tok * MAX_TOK_STR_LEN + 1);
+    str = malloc(num_tok * MAX_TOK_STR_LEN + 3);
+
+    if (str == NULL) {
+        fprintf(stderr, "lexer:token_list_to_str: Could not allocate space for tok_l_str\n");
+    }
+
     str[0] = '\0';
 
     curr = tok_l;
