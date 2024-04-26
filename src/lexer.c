@@ -188,7 +188,9 @@ void free_token_list(TokenList *tok_l) {
 }
 
 void print_token_list(TokenList *tok_l) {
-    printf("%s\n", token_list_to_str(tok_l));
+    char *tok_l_str = token_list_to_str(tok_l);
+    printf("%s\n", tok_l_str);
+    free(tok_l_str);
 }
 
 char *token_list_to_str(TokenList *tok_l) {
@@ -202,7 +204,8 @@ char *token_list_to_str(TokenList *tok_l) {
         curr = curr->next;
     }
 
-    str = calloc(1, num_tok * MAX_TOK_STR_LEN + 1);
+    str = malloc(num_tok * MAX_TOK_STR_LEN + 1);
+    str[0] = '\0';
 
     curr = tok_l;
     strcat(str, "[");
