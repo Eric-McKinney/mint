@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "lexer.h"
 
 #define PROMPT "\033[38;5;49mmint\033[0m|> "
 #define BUF_SIZE 1024
@@ -22,13 +23,17 @@ int main(int argc, char **argv) {
 
     if (argc == 1) {
         printf(PROMPT);
+        fflush(stdout);
     }
 
     while(fgets(line, BUF_SIZE, input)) {
-        /* processing goes here */
+        TokenList *tok_l = tokenize(line);
+        print_token_list(tok_l);
+        free_token_list(tok_l);
 
         if (argc == 1) {
             printf(PROMPT);
+            fflush(stdout);
         }
     }
     
