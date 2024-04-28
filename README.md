@@ -58,4 +58,5 @@ ID -> `string which matches the following regex: ^[a-zA-Z][a-zA-Z0-9_]*$`
 - [ ] Write evaluator
 - [ ] Lots of testing
 - [x] ~~Move makefile to project root and update accordingly~~
-    - [ ] Write rules to build tests
+    - [x] ~~Write rules to build tests~~
+- [ ] Figure out why makefile compiles tests even when object files are up to date
