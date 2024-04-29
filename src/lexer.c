@@ -18,7 +18,7 @@ TokenList *tokenize(const char *input) {
 
     if (!input) {
         fprintf(stderr, "lexer: input is NULL\n");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     
     len = strlen(input);
@@ -130,7 +130,7 @@ static TokenList *tok(const char *input, unsigned int pos, unsigned int length) 
         return t;
     } else {
         fprintf(stderr, "Invalid token starting with \"%c\" at position %u\n", str[pos], pos);
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     
     return t;
