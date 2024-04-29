@@ -83,6 +83,7 @@ int run_test(Test *test) {
     tok_l_str = token_list_to_str(tok_l);
 
     if (verbose) {
+        printf("| input: \"%s\"\n", test->input);
         printf("| tokenize return val: %p\n", (void *) tok_l);
         printf("| token list: %s\n", tok_l_str);
         printf("| expected:   %s\n", test->ans);
