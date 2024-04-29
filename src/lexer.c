@@ -175,16 +175,13 @@ void free_token_list(TokenList *tok_l) {
         return;
     }
 
-    if (tok_l->next == NULL) {
-        if (tok_l->token == TOK_ID) {
-            free(tok_l->value.id);
-        }
+    free_token_list(tok_l->next);
 
-        free(tok_l);
-        return;
+    if (tok_l->token == TOK_ID) {
+        free(tok_l->value.id);
     }
 
-    free_token_list(tok_l->next);
+    free(tok_l);
 }
 
 void print_token_list(TokenList *tok_l) {
