@@ -48,8 +48,7 @@ ID -> `string which matches the following regex: ^[a-zA-Z][a-zA-Z0-9_]*$`
     - [x] ~~Determine list of all valid tokens~~ (might add more later)
     - [x] ~~Write tokenize function~~
     - [x] ~~Put types and function prototypes in a header file~~
-    - [ ] Do lots of testing
-        - [ ] Investigate memory errors
+    - [x] ~~Do lots of testing~~
     - [ ] Instead of exiting when there is an unrecognized token, return 1 or something
         - [ ] In main handle this error (stdin->keep going) (script->exit(1))
 - [ ] Write parser
