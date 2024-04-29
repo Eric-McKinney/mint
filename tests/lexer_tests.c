@@ -27,7 +27,8 @@ int main(int argc, char **argv) {
         {"basic_addition", "1 + 3", "[TOK_INT 1, TOK_ADD, TOK_INT 3]"},
         {"float + int + float", "2.20 + 5+5.", "[TOK_FLOAT 2.200000, TOK_ADD, TOK_INT 5, TOK_ADD, TOK_FLOAT 5.000000]"},
         {"big ints", "232342 4444", "[TOK_INT 232342, TOK_INT 4444]"},
-        {"negative nums", "-23 - -33.4563", "[TOK_INT -23, TOK_SUB, TOK_FLOAT -33.456300]"}
+        {"negative nums", "-23 - -33.4563", "[TOK_INT -23, TOK_SUB, TOK_FLOAT -33.456300]"},
+        {"ids", "id1 snake_case CamelCase", "[TOK_ID id1, TOK_ID snake_case, TOK_ID CamelCase]"}
     };
     int num_tests = sizeof(tests) / sizeof(Test), i, num_passed = 0;
 
