@@ -4,6 +4,10 @@
 #include <regex.h>
 #include "lexer.h"
 
+#define MAX_TOK_LEN 10     /* longest tok is TOK_LPAREN = 10 chars                        */
+#define MAX_TOK_VAL_LEN 50 /* arbitrary upper limit on token value size (e.g. an integer) */
+#define MAX_TOK_STR_LEN MAX_TOK_LEN + MAX_TOK_VAL_LEN + 1 /* + 1 for null terminator      */
+
 regex_t l_paren_re, r_paren_re, dot_re, equal_re, add_re, sub_re, mult_re;
 regex_t div_re, fun_re, endln_re, int_re, float_re, id_re, whitespace_re;
 static void compile_regexs();
@@ -190,75 +194,89 @@ void print_token_list(TokenList *tok_l) {
     free(tok_l_str);
 }
 
+char *token_to_str(TokenList *tok_l) {
+    char *str = malloc(MAX_TOK_STR_LEN + 1);
+    char s[MAX_TOK_VAL_LEN] = {0};
+
+    if (tok_l == NULL) {
+        str[0] = '\0';
+        return str;
+    }
+    
+    switch (tok_l->token) {
+        case TOK_LPAREN: 
+            strcpy(str, "TOK_LPAREN");
+            break;
+        case TOK_RPAREN:
+            strcpy(str, "TOK_RPAREN");
+            break;
+        case TOK_DOT:
+            strcpy(str, "TOK_DOT");
+            break;
+        case TOK_EQUAL:
+            strcpy(str, "TOK_EQUAL");
+            break;
+        case TOK_ADD:
+            strcpy(str, "TOK_ADD");
+            break;
+        case TOK_SUB:
+            strcpy(str, "TOK_SUB");
+            break;
+        case TOK_MULT:
+            strcpy(str, "TOK_MULT");
+            break;
+        case TOK_DIV:
+            strcpy(str, "TOK_DIV");
+            break;
+        case TOK_FUN:
+            strcpy(str, "TOK_FUN");
+            break;
+        case TOK_ENDLN:
+            strcpy(str, "TOK_ENDLN");
+            break;
+        case TOK_INT:
+            sprintf(s, "TOK_INT %d", tok_l->value.i);
+            strcpy(str, s);
+            break;
+        case TOK_FLOAT:
+            sprintf(s, "TOK_FLOAT %f", tok_l->value.d);
+            strcpy(str, s);
+            break;
+        case TOK_ID:
+            sprintf(s, "TOK_ID %s", tok_l->value.id);
+            strcpy(str, s);
+            break;
+        default:
+            strcpy(str, "Unrecognized token");
+    }
+
+    return str;
+}
+
 char *token_list_to_str(TokenList *tok_l) {
     TokenList *curr = tok_l;
     char *str;
     int num_tok = 0;
-    const int MAX_TOK_STR_LEN = 50; /* arbitrary upper limit on tok_str size */
 
     while (curr != NULL) {
         num_tok++;
         curr = curr->next;
     }
 
-    str = malloc(num_tok * MAX_TOK_STR_LEN + 3);
+    /* + 2 for brackets [] and then + 1 for null terminator (for empty list case) */
+    str = malloc(num_tok * MAX_TOK_STR_LEN + 3); 
 
     if (str == NULL) {
         fprintf(stderr, "lexer:token_list_to_str: Could not allocate space for tok_l_str\n");
     }
 
-    str[0] = '\0';
-
     curr = tok_l;
-    strcat(str, "[");
+    strcpy(str, "[");
     while (curr != NULL) {
-        char s[50] = {0};
-        switch (curr->token) {
-            case TOK_LPAREN: 
-                strcat(str, "TOK_LPAREN");
-                break;
-            case TOK_RPAREN:
-                strcat(str, "TOK_RPAREN");
-                break;
-            case TOK_DOT:
-                strcat(str, "TOK_DOT");
-                break;
-            case TOK_EQUAL:
-                strcat(str, "TOK_EQUAL");
-                break;
-            case TOK_ADD:
-                strcat(str, "TOK_ADD");
-                break;
-            case TOK_SUB:
-                strcat(str, "TOK_SUB");
-                break;
-            case TOK_MULT:
-                strcat(str, "TOK_MULT");
-                break;
-            case TOK_DIV:
-                strcat(str, "TOK_DIV");
-                break;
-            case TOK_FUN:
-                strcat(str, "TOK_FUN");
-                break;
-            case TOK_ENDLN:
-                strcat(str, "TOK_ENDLN");
-                break;
-            case TOK_INT:
-                sprintf(s, "TOK_INT %d", curr->value.i);
-                strcat(str, s);
-                break;
-            case TOK_FLOAT:
-                sprintf(s, "TOK_FLOAT %f", curr->value.d);
-                strcat(str, s);
-                break;
-            case TOK_ID:
-                sprintf(s, "TOK_ID %s", curr->value.id);
-                strcat(str, s);
-                break;
-            default:
-                strcat(str, "Unrecognized token");
-        }
+        char *token_str = token_to_str(curr);
+
+        strcat(str, token_str);
+        free(token_str);
 
         if (curr->next != NULL) {
             strcat(str, ", ");
