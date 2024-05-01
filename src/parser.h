@@ -25,6 +25,7 @@ typedef struct expr_tree {
         int i;
         double d;
         char *id;
+        Operator_t binop;
     } value;
     struct expr_tree *left;
     struct expr_tree *right;
