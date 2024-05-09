@@ -2,6 +2,11 @@
 #include "parser.h"
 #include "lexer.h"
 
+typedef struct {
+    ExprTree *ast;
+    TokenList *tok_l;
+} Parse_t;
+
 static TokenList* match_token(TokenList *tok_l, TokenList *tok) {
     char *expected, *input, *arg;
     
@@ -47,6 +52,11 @@ static Tok_t lookahead(TokenList *tok_l) {
     return tok_l->token;
 }
 
-ExprTree *parse_expr(TokenList *tok_l) {
+ExprTree *parse(TokenList *tok_l) {
+    ExprTree *ast;
+    return parse_expr(&ast, tok_l)->ast;
+}
+
+static Parse_t *parse_expr(ExprTree **ast, TokenList *tok_l) {
     return NULL;
 }
