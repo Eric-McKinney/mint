@@ -28,6 +28,7 @@ typedef struct token {
 } TokenList;
 
 TokenList *tokenize(const char *input);
+void free_token(TokenList *tok_l);
 void free_token_list(TokenList *tok_l);
 void print_token_list(TokenList *tok_l);
 char *token_to_str(TokenList *tok_l);

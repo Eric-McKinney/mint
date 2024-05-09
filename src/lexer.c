@@ -174,18 +174,21 @@ static void free_regexs() {
     regfree(&whitespace_re);
 }
 
+void free_token(TokenList *tok_l) {
+    if (tok_l->token == TOK_ID) {
+        free(tok_l->value.id);
+    }
+
+    free(tok_l);
+}
+
 void free_token_list(TokenList *tok_l) {
     if (tok_l == NULL) {
         return;
     }
 
     free_token_list(tok_l->next);
-
-    if (tok_l->token == TOK_ID) {
-        free(tok_l->value.id);
-    }
-
-    free(tok_l);
+    free_token(tok_l);
 }
 
 void print_token_list(TokenList *tok_l) {
