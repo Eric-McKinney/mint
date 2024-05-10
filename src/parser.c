@@ -3,8 +3,8 @@
 #include "lexer.h"
 
 typedef struct {
-    ExprTree *ast;
-    TokenList *tok_l;
+    TokenList *t;
+    ExprTree *e;
 } Parse_t;
 
 static TokenList* match_token(TokenList *tok_l, TokenList *tok) {
@@ -53,10 +53,24 @@ static Tok_t lookahead(TokenList *tok_l) {
 }
 
 ExprTree *parse(TokenList *tok_l) {
-    ExprTree *ast;
-    return parse_expr(&ast, tok_l)->ast;
+    Parse_t p = parse_expr(tok_l);
+    ExprTree *e = p->e;
+    free(p);
+
+    return e;
 }
 
-static Parse_t *parse_expr(ExprTree **ast, TokenList *tok_l) {
-    return NULL;
+static Parse_t *parse_expr(TokenList *tok_l) {
+    switch(lookahead(tok_l)) {
+        case TOK_FUN:
+            return parse_function_expr(tok_l);
+        case TOK_ID:
+            return parse_assignment_expr(tok_l);
+        default:
+            return parse_additive_expr(tok_l);
+    }
 }
+
+static Parse_t parse_function_expr(TokenList *tok_l) {}
+static Parse_t parse_assignment_expr(TokenList *tok_l) {}
+static Parse_t parse_additive_expr(TokenList *tok_l) {}
