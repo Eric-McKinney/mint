@@ -43,19 +43,15 @@ PrimaryExpr -> `int` | `float` | ID | `(`AdditiveExpr`)`\
 ID -> `string which matches the following regex: ^[a-zA-Z][a-zA-Z0-9_]*$`
 
 # TODO
-- [ ] Write lexer
+- [x] ~~Write lexer~~
     - [x] ~~Define token type~~
     - [x] ~~Determine list of all valid tokens~~ (might add more later)
     - [x] ~~Write tokenize function~~
     - [x] ~~Put types and function prototypes in a header file~~
     - [x] ~~Do lots of testing~~
-    - [ ] Instead of exiting when there is an unrecognized token, return 1 or something
-        - [ ] In main handle this error (stdin->keep going) (script->exit(1))
 - [ ] Write parser
     - [ ] Verify that CFG is correct (aligns with math rules)
     - [ ] Write various parse functions for each level of CFG
+    - [ ] Do lots of testing
 - [ ] Write evaluator
-- [ ] Lots of testing
-- [x] ~~Move makefile to project root and update accordingly~~
-    - [x] ~~Write rules to build tests~~
-- [ ] Figure out why makefile compiles tests even when object files are up to date
+- [x] ~~Figure out why makefile compiles tests even when object files are up to date~~
