@@ -1,7 +1,7 @@
 #ifndef Parser_h
 #define Parser_h
 
-#include "parser.h"
+#include "lexer.h"
 
 typedef enum {
     Add,
