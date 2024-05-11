@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include "parser.h"
 #include "lexer.h"
 
@@ -52,8 +53,14 @@ static Tok_t lookahead(TokenList *tok_l) {
     return tok_l->token;
 }
 
+static Parse_t parse_expr(TokenList *tok_l);
+static Parse_t parse_function_expr(TokenList *tok_l);
+static Parse_t parse_parameter_expr(TokenList *tok_l);
+static Parse_t parse_assignment_expr(TokenList *tok_l);
+static Parse_t parse_additive_expr(TokenList *tok_l);
+
 ExprTree *parse(TokenList *tok_l) {
-    Parse_t p = parse_expr(tok_l);
+    Parse_t *p = parse_expr(tok_l);
     ExprTree *e = p->e;
     free(p);
 
@@ -71,6 +78,48 @@ static Parse_t *parse_expr(TokenList *tok_l) {
     }
 }
 
-static Parse_t parse_function_expr(TokenList *tok_l) {}
+static Parse_t parse_function_expr(TokenList *tok_l) {
+    TokenList *t, *t2, *t3, *t4, *t5, *t6, *t7, *t8;
+    Parse_t *p, *p2, *p3; 
+    ExprTree *param_exp, *body_exp;
+    char *id, *id_cpy;
+
+    t = match_token(tok_l, TOK_FUN);
+
+    id = t->value.id;
+    id_cpy = malloc(strlen(id) + 1);
+    strcpy(id_cpy, id);
+
+    t2 = match_token(t, TOK_ID);
+    t3 = match_token(t2, TOK_LPAREN);
+
+    p2 = parse_parameter_expr(t3);
+    t4 = p2->t;
+    param_exp = p2->e;
+    free(p2);
+
+    t5 = match_token(t4, TOK_RPAREN);
+    t6 = match_token(t5, TOK_EQUAL);
+
+    p3 = parse_additive_expr(t6);
+    t7 = p3->t;
+    body_exp = p3->e;
+    free(p3);
+
+    t8 = match_token(t7, TOK_ENDLN);
+
+    p = malloc(sizeof(Parse_t));
+    p->t = t8;
+    p->e = malloc(sizeof(ExprTree));
+    p->e->expr = Fun;
+    p->e->value.id = id_cpy;
+    p->left = param_exp;
+    p->right = body_exp;
+
+    return p;
+}
+
+static Parse_t parse_parameter_expr(TokenList *tok_l) {}
 static Parse_t parse_assignment_expr(TokenList *tok_l) {}
 static Parse_t parse_additive_expr(TokenList *tok_l) {}
+void free_expr_tree(ExprTree *tree) {}
