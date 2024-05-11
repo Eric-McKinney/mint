@@ -14,30 +14,30 @@ OBJS=$(patsubst %,$(OBJ)/%,$(_OBJS))
 .PHONY: tests runtests clean
 .PRECIOUS: $(OBJ)/%_tests.o
 
-$(BIN)/mint: $(OBJS)
+$(BIN)/mint: $(OBJ) $(OBJS)
 	mkdir -p $(BIN)
 	$(CC) -o $@ $^
 
-tests: $(TEST_BIN) $(TEST_BIN)/lexer_tests
+tests: $(OBJ) $(TEST_BIN) $(TEST_BIN)/lexer_tests
 runtests: tests
 	@$(TEST_BIN)/lexer_tests
 
 $(TEST_BIN)/%_tests: $(OBJ)/%_tests.o $(OBJ)/%.o
 	$(CC) -o $@ $^
 
-$(OBJ)/%_tests.o: $(TEST_SRC)/%_tests.c $(SRC)/%.h $(OBJ)
+$(OBJ)/%_tests.o: $(TEST_SRC)/%_tests.c $(SRC)/%.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(OBJ)/main.o: $(SRC)/main.c $(SRC)/lexer.h $(SRC)/parser.h $(SRC)/eval.h $(OBJ)
+$(OBJ)/main.o: $(SRC)/main.c $(SRC)/lexer.h $(SRC)/parser.h $(SRC)/eval.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(OBJ)/lexer.o: $(SRC)/lexer.c $(SRC)/lexer.h $(OBJ)
+$(OBJ)/lexer.o: $(SRC)/lexer.c $(SRC)/lexer.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(OBJ)/parser.o: $(SRC)/parser.c $(SRC)/parser.h $(SRC)/lexer.h $(OBJ)
+$(OBJ)/parser.o: $(SRC)/parser.c $(SRC)/parser.h $(SRC)/lexer.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(OBJ)/eval.o: $(SRC)/eval.c $(SRC)/eval.h $(OBJ)
+$(OBJ)/eval.o: $(SRC)/eval.c $(SRC)/eval.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(OBJ):
