@@ -14,7 +14,8 @@ typedef enum {
     TOK_ENDLN,
     TOK_INT,
     TOK_FLOAT,
-    TOK_ID
+    TOK_ID,
+    TOK_COMMA
 } Tok_t;
 
 typedef struct token {

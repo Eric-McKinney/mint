@@ -9,7 +9,7 @@
 #define MAX_TOK_STR_LEN MAX_TOK_LEN + MAX_TOK_VAL_LEN + 1 /* + 1 for null terminator      */
 
 regex_t l_paren_re, r_paren_re, dot_re, equal_re, add_re, sub_re, mult_re;
-regex_t div_re, fun_re, endln_re, int_re, float_re, id_re, whitespace_re;
+regex_t div_re, fun_re, endln_re, int_re, float_re, id_re, comma_re, whitespace_re;
 static void compile_regexs();
 static void free_regexs();
 static TokenList *tok(const char *input, unsigned int pos, unsigned int length);
@@ -132,6 +132,10 @@ static TokenList *tok(const char *input, unsigned int pos, unsigned int length) 
         t->token = TOK_ENDLN;
         t->next = tok(input, pos + 1, length);
         return t;
+    } else if (regexec(&comma_re, str, 0, NULL, 0) == 0) {
+        t = malloc(sizeof(TokenList));
+        t->token = TOK_COMMA;
+        t->next = tok(input, pos + 1, length);
     } else {
         fprintf(stderr, "Invalid token starting with \"%c\" at position %u\n", str[pos], pos);
         exit(EXIT_FAILURE);
@@ -154,6 +158,7 @@ static void compile_regexs() {
     regcomp(&int_re,        "^(-?[0-9]+)",              REG_EXTENDED);
     regcomp(&float_re,      "^(-?[0-9]+\\.[0-9]*)",     REG_EXTENDED);
     regcomp(&id_re,         "^([a-zA-Z][a-zA-Z0-9_]*)", REG_EXTENDED);
+    regcomp(&comma_re,      "^,",                       REG_EXTENDED);
     regcomp(&whitespace_re, "^([ \t])+",                REG_EXTENDED);
 }
 
@@ -171,6 +176,7 @@ static void free_regexs() {
     regfree(&int_re);
     regfree(&float_re);
     regfree(&id_re);
+    regfree(&comma_re);
     regfree(&whitespace_re);
 }
 
@@ -249,6 +255,9 @@ char *token_to_str(TokenList *tok_l) {
             sprintf(s, "TOK_ID %s", tok_l->value.id);
             strcpy(str, s);
             break;
+        case TOK_COMMA:
+            strcpy(str, "TOK_COMMA");
+            break;
         default:
             strcpy(str, "Unrecognized token");
     }
@@ -268,10 +277,6 @@ char *token_list_to_str(TokenList *tok_l) {
 
     /* + 2 for brackets [] and then + 1 for null terminator (for empty list case) */
     str = malloc(num_tok * MAX_TOK_STR_LEN + 3); 
-
-    if (str == NULL) {
-        fprintf(stderr, "lexer:token_list_to_str: Could not allocate space for tok_l_str\n");
-    }
 
     curr = tok_l;
     strcpy(str, "[");
