@@ -30,7 +30,10 @@ int main(int argc, char **argv) {
         {"negative nums", "-23 - -33.4563", "[TOK_INT -23, TOK_SUB, TOK_FLOAT -33.456300]"},
         {"ids", "id1 snake_case CamelCase", "[TOK_ID id1, TOK_ID snake_case, TOK_ID CamelCase]"},
         {"real use", "R = 500\nR*5", "[TOK_ID R, TOK_EQUAL, TOK_INT 500, TOK_ENDLN, TOK_ID R, TOK_MULT, TOK_INT 5]"},
-        {"all whitespace", "      \t\t \n \t\t\t  ", "[TOK_ENDLN]"}
+        {"all whitespace", "      \t\t \n \t\t\t  ", "[TOK_ENDLN]"},
+        {"comma", ",,,", "[TOK_COMMA, TOK_COMMA, TOK_COMMA]"},
+        {"function", "fn f(a, b) = a + b", 
+         "[TOK_FUN, TOK_ID f, TOK_LPAREN, TOK_ID a, TOK_COMMA, TOK_ID b, TOK_RPAREN, TOK_EQUAL, TOK_ID a, TOK_ADD, TOK_ID b]"}
     };
     int num_tests = sizeof(tests) / sizeof(Test), i, num_passed = 0;
 
