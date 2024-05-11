@@ -119,7 +119,40 @@ static Parse_t parse_function_expr(TokenList *tok_l) {
     return p;
 }
 
-static Parse_t parse_parameter_expr(TokenList *tok_l) {}
+static Parse_t parse_parameter_expr(TokenList *tok_l) {
+    TokenList *t, *t2, *t3;
+    Parse_t *p, *p2;
+    ExprTree *param_exp;
+    char *id, *id_cpy;
+
+    id = tok_l->value.id;
+    id_cpy = malloc(strlen(id) + 1);
+    strcpy(id_cpy, id);
+
+    t = match_token(tok_l, TOK_ID)
+
+    p = malloc(sizeof(Parse_t));
+    p->t = t;
+    p->e->expr = ID;
+    p->e->value.id = id_cpy;
+    p->e->left = NULL;
+    p->e->right = NULL;
+
+    if (lookahead(t) == TOK_COMMA) {
+        t2 = match_token(t, TOK_COMMA);
+
+        p2 = parse_parameter_expr(t2);
+        t3 = p2->t;
+        param_exp = p2->e;
+        free(p2);
+
+        p->t = t3;
+        p->e->right = param_exp;
+    }
+
+    return p;
+}
+
 static Parse_t parse_assignment_expr(TokenList *tok_l) {}
 static Parse_t parse_additive_expr(TokenList *tok_l) {}
 void free_expr_tree(ExprTree *tree) {}
