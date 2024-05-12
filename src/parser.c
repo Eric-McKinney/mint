@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include "parser.h"
 #include "lexer.h"
@@ -8,19 +9,20 @@ typedef struct {
     ExprTree *e;
 } Parse_t;
 
-static TokenList* match_token(TokenList *tok_l, TokenList *tok) {
+/* TODO: currently have to make a whole token list node to match (maybe have params tok and val?) */
+static TokenList *match_token(TokenList *tok_l, TokenList *tok) {
     char *expected, *input, *arg;
     
     if (tok_l->token == tok->token) {
         int vals_equal;
         switch (tok_l->token) {
-            TOK_INT:
+            case TOK_INT:
                 vals_equal = tok_l->value.i == tok->value.i;
                 break;
-            TOK_FLOAT:
+            case TOK_FLOAT:
                 vals_equal = tok_l->value.d == tok->value.d;
                 break;
-            TOK_ID:
+            case TOK_ID:
                 vals_equal = strcmp(tok_l->value.id, tok->value.id) == 0;
                 break;
             default:
@@ -45,6 +47,7 @@ static TokenList* match_token(TokenList *tok_l, TokenList *tok) {
     exit(EXIT_FAILURE);
 }
 
+/* TODO: currently return types don't match, so rewrite */
 static Tok_t lookahead(TokenList *tok_l) {
     if (tok_l == NULL) {
         return NULL;
@@ -53,11 +56,11 @@ static Tok_t lookahead(TokenList *tok_l) {
     return tok_l->token;
 }
 
-static Parse_t parse_expr(TokenList *tok_l);
-static Parse_t parse_function_expr(TokenList *tok_l);
-static Parse_t parse_parameter_expr(TokenList *tok_l);
-static Parse_t parse_assignment_expr(TokenList *tok_l);
-static Parse_t parse_additive_expr(TokenList *tok_l);
+static Parse_t *parse_expr(TokenList *tok_l);
+static Parse_t *parse_function_expr(TokenList *tok_l);
+static Parse_t *parse_parameter_expr(TokenList *tok_l);
+static Parse_t *parse_assignment_expr(TokenList *tok_l);
+static Parse_t *parse_additive_expr(TokenList *tok_l);
 
 ExprTree *parse(TokenList *tok_l) {
     Parse_t *p = parse_expr(tok_l);
@@ -78,12 +81,15 @@ static Parse_t *parse_expr(TokenList *tok_l) {
     }
 }
 
-static Parse_t parse_function_expr(TokenList *tok_l) {
+static Parse_t *parse_function_expr(TokenList *tok_l) {
     TokenList *t, *t2, *t3, *t4, *t5, *t6, *t7, *t8;
+    TokenList fun;
     Parse_t *p, *p2, *p3; 
     ExprTree *param_exp, *body_exp;
     char *id, *id_cpy;
 
+    fun.token = TOK_FUN;
+    
     t = match_token(tok_l, TOK_FUN);
 
     id = t->value.id;
@@ -113,13 +119,13 @@ static Parse_t parse_function_expr(TokenList *tok_l) {
     p->e = malloc(sizeof(ExprTree));
     p->e->expr = Fun;
     p->e->value.id = id_cpy;
-    p->left = param_exp;
-    p->right = body_exp;
+    p->e->left = param_exp;
+    p->e->right = body_exp;
 
     return p;
 }
 
-static Parse_t parse_parameter_expr(TokenList *tok_l) {
+static Parse_t *parse_parameter_expr(TokenList *tok_l) {
     TokenList *t, *t2, *t3;
     Parse_t *p, *p2;
     ExprTree *param_exp;
@@ -129,7 +135,7 @@ static Parse_t parse_parameter_expr(TokenList *tok_l) {
     id_cpy = malloc(strlen(id) + 1);
     strcpy(id_cpy, id);
 
-    t = match_token(tok_l, TOK_ID)
+    t = match_token(tok_l, TOK_ID);
 
     p = malloc(sizeof(Parse_t));
     p->t = t;
@@ -153,6 +159,6 @@ static Parse_t parse_parameter_expr(TokenList *tok_l) {
     return p;
 }
 
-static Parse_t parse_assignment_expr(TokenList *tok_l) {}
-static Parse_t parse_additive_expr(TokenList *tok_l) {}
+static Parse_t *parse_assignment_expr(TokenList *tok_l) {}
+static Parse_t *parse_additive_expr(TokenList *tok_l) {}
 void free_expr_tree(ExprTree *tree) {}
