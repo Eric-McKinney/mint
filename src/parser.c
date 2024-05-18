@@ -47,15 +47,6 @@ static TokenList *match_token(TokenList *tok_l, TokenList *tok) {
     exit(EXIT_FAILURE);
 }
 
-/* TODO: currently return types don't match, so rewrite */
-static Tok_t lookahead(TokenList *tok_l) {
-    if (tok_l == NULL) {
-        return NULL;
-    }
-
-    return tok_l->token;
-}
-
 static Parse_t *parse_expr(TokenList *tok_l);
 static Parse_t *parse_function_expr(TokenList *tok_l);
 static Parse_t *parse_parameter_expr(TokenList *tok_l);
@@ -71,7 +62,12 @@ ExprTree *parse(TokenList *tok_l) {
 }
 
 static Parse_t *parse_expr(TokenList *tok_l) {
-    switch(lookahead(tok_l)) {
+    if (tok_l == NULL) {
+        fprintf(stderr, "Empty input\n");
+        exit(1);
+    }
+
+    switch(tok_l->token) {
         case TOK_FUN:
             return parse_function_expr(tok_l);
         case TOK_ID:
@@ -144,7 +140,7 @@ static Parse_t *parse_parameter_expr(TokenList *tok_l) {
     p->e->left = NULL;
     p->e->right = NULL;
 
-    if (lookahead(t) == TOK_COMMA) {
+    if (t->token == TOK_COMMA) {
         t2 = match_token(t, TOK_COMMA);
 
         p2 = parse_parameter_expr(t2);
