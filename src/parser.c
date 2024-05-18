@@ -9,32 +9,17 @@ typedef struct {
     ExprTree *e;
 } Parse_t;
 
-/* TODO: currently have to make a whole token list node to match (maybe have params tok and val?) */
-static TokenList *match_token(TokenList *tok_l, TokenList *tok) {
+static TokenList *match_token(TokenList *tok_l, Tok_t tok) {
+    TokenList expected_token = {0}; /* only for token_to_str call below */
     char *expected, *input, *arg;
     
-    if (tok_l->token == tok->token) {
-        int vals_equal;
-        switch (tok_l->token) {
-            case TOK_INT:
-                vals_equal = tok_l->value.i == tok->value.i;
-                break;
-            case TOK_FLOAT:
-                vals_equal = tok_l->value.d == tok->value.d;
-                break;
-            case TOK_ID:
-                vals_equal = strcmp(tok_l->value.id, tok->value.id) == 0;
-                break;
-            default:
-                vals_equal = 1;
-        }
-        
-        if (vals_equal) {
-            return tok_l->next;
-        }
+    if (tok_l->token == tok) {
+        return tok_l->next;
     }
 
-    expected = token_to_str(tok);
+    expected_token.token = tok;
+
+    expected = token_to_str(&expected_token);
     input = token_list_to_str(tok_l);
     arg = token_to_str(tok_l);
 
@@ -64,7 +49,7 @@ ExprTree *parse(TokenList *tok_l) {
 static Parse_t *parse_expr(TokenList *tok_l) {
     if (tok_l == NULL) {
         fprintf(stderr, "Empty input\n");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     switch(tok_l->token) {
@@ -79,13 +64,10 @@ static Parse_t *parse_expr(TokenList *tok_l) {
 
 static Parse_t *parse_function_expr(TokenList *tok_l) {
     TokenList *t, *t2, *t3, *t4, *t5, *t6, *t7, *t8;
-    TokenList fun;
     Parse_t *p, *p2, *p3; 
     ExprTree *param_exp, *body_exp;
     char *id, *id_cpy;
 
-    fun.token = TOK_FUN;
-    
     t = match_token(tok_l, TOK_FUN);
 
     id = t->value.id;
