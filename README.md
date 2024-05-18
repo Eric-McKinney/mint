@@ -2,7 +2,7 @@
 Currently WIP. A math interpreter. Use either via command line or write a script.
 
 ## Functionality
-So the idea is that the interpreter can interpret files or stdin. I'm thinking actually there's little point to just interpreting a file in a vacuum. It would be more useful to be able to interpret a file and load the environment, results, etc. into the command line interpreter session.
+The idea is that mint will be able to interpret (and evaluate) any valid mathematical expression either in an interactive command line session or by being invoked on a script. I also plan to allow for loading/including scripts into the command line session to have access to variables and functions defined in that environment. This should also work for scripts, but I'm not sure yet how I'll avoid circular imports.
 
 
 Inputs look something like this:
@@ -11,15 +11,28 @@ Inputs look something like this:
 x = 3
 y = 4
 
-z = x + y
+// a comment (must occur on its own line)
 
+z = x + y
+z2 = x+y
+
+// x and y are shadowed
 fn f(x, y) = x^(y+3)
 
+// z is used from outer scope
+fn f2(a) = 2*a - z
+
+// this also updates the z used by f2
+z = 22
+
 f(4,1)
-f(1,1+1)!
+f(1,1+1) * (2 + 1)
 ```
 
-I'm thinking bare minimum I cover int/float arithmetic and function definitions. Built in functions can come later. I want to cover things like factorial, maybe sums and products, and relevant constants like pi and e. If I'm feeling adventurous I might try to implement complex numbers.
+Right now I'm focusing on covering int/float arithmetic and function definitions. 
+I will implement more functionality after. 
+I plan on adding built in functions (sqrt, factorial, etc.), maybe sums and products, and relevant constants like pi and e.
+If I'm feeling adventurous I might try to implement complex numbers.
 
 ## Implementation
 For the lexer I'm thinking have some struct for a token w/enum field (token type), 
@@ -29,10 +42,10 @@ optional value field, and then a pointer field to the next token (it's going to 
 The language should follow math associativity and precedence rules (obviously)
 
 ## CFG
-Expr -> FunctionExpr | AssignmentExpr | AdditiveExpr\
-FunctionExpr -> `fn` ID `(` ParamExpr `)` `=` AdditiveExpr\
+Expr -> FunctionExpr | AssignmentExpr | AdditiveExpr `\n`\
+FunctionExpr -> `fn` ID `(` ParamExpr `)` `=` AdditiveExpr `\n`\
 ParamExpr -> ID`,` ParamExpr | ID\
-AssignmentExpr -> ID `=` AdditiveExpr\
+AssignmentExpr -> ID `=` AdditiveExpr `\n`\
 AdditiveExpr -> AdditiveExpr AdditiveOperator MultiplicativeExpr | MultiplicativeExpr\
 AdditiveOperator -> `+` | `-`\
 MultiplicativeExpr -> MultiplicativeExpr MultiplicativeOperator ApplicationExpr | ApplicationExpr\
@@ -44,14 +57,8 @@ ID -> `string which matches the following regex: ^[a-zA-Z][a-zA-Z0-9_]*$`
 
 # TODO
 - [x] ~~Write lexer~~
-    - [x] ~~Define token type~~
-    - [x] ~~Determine list of all valid tokens~~ (might add more later)
-    - [x] ~~Write tokenize function~~
-    - [x] ~~Put types and function prototypes in a header file~~
-    - [x] ~~Do lots of testing~~
 - [ ] Write parser
     - [ ] Verify that CFG is correct (aligns with math rules)
     - [ ] Write various parse functions for each level of CFG
     - [ ] Do lots of testing
 - [ ] Write evaluator
-- [x] ~~Figure out why makefile compiles tests even when object files are up to date~~
