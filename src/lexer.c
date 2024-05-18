@@ -180,7 +180,7 @@ static void free_regexs() {
     regfree(&whitespace_re);
 }
 
-void free_token(TokenList *tok_l) {
+static void free_token(TokenList *tok_l) {
     if (tok_l->token == TOK_ID) {
         free(tok_l->value.id);
     }
