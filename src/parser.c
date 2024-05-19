@@ -47,6 +47,8 @@ ExprTree *parse(TokenList *tok_l) {
 }
 
 static Parse_t *parse_expr(TokenList *tok_l) {
+    Parse_t *p;
+
     if (tok_l == NULL) {
         fprintf(stderr, "Empty input\n");
         exit(EXIT_FAILURE);
@@ -58,7 +60,9 @@ static Parse_t *parse_expr(TokenList *tok_l) {
         case TOK_ID:
             return parse_assignment_expr(tok_l);
         default:
-            return parse_additive_expr(tok_l);
+            p = parse_additive_expr(tok_l);
+            p->t = match_token(p->t, TOK_ENDLN);
+            return p;
     }
 }
 
@@ -69,12 +73,12 @@ static Parse_t *parse_function_expr(TokenList *tok_l) {
     char *id, *id_cpy;
 
     t = match_token(tok_l, TOK_FUN);
+    t2 = match_token(t, TOK_ID);
 
     id = t->value.id;
     id_cpy = malloc(strlen(id) + 1);
     strcpy(id_cpy, id);
 
-    t2 = match_token(t, TOK_ID);
     t3 = match_token(t2, TOK_LPAREN);
 
     p2 = parse_parameter_expr(t3);
@@ -109,14 +113,15 @@ static Parse_t *parse_parameter_expr(TokenList *tok_l) {
     ExprTree *param_exp;
     char *id, *id_cpy;
 
+    t = match_token(tok_l, TOK_ID);
+
     id = tok_l->value.id;
     id_cpy = malloc(strlen(id) + 1);
     strcpy(id_cpy, id);
 
-    t = match_token(tok_l, TOK_ID);
-
     p = malloc(sizeof(Parse_t));
     p->t = t;
+    p->e = malloc(sizeof(ExprTree));
     p->e->expr = ID;
     p->e->value.id = id_cpy;
     p->e->left = NULL;
@@ -137,6 +142,37 @@ static Parse_t *parse_parameter_expr(TokenList *tok_l) {
     return p;
 }
 
-static Parse_t *parse_assignment_expr(TokenList *tok_l) {}
-static Parse_t *parse_additive_expr(TokenList *tok_l) {}
+static Parse_t *parse_assignment_expr(TokenList *tok_l) {
+    TokenList *t, *t2, *t3, *t4;
+    Parse_t *p, *p2;
+    ExprTree *val_exp;
+    char *id, *id_cpy;
+
+    t = match_token(tok_l, TOK_ID);
+
+    id = tok_l->value.id;
+    id_cpy = malloc(strlen(id) + 1);
+    strcpy(id_cpy, id);
+
+    t2 = match_token(t, TOK_EQUAL);
+
+    p2 = parse_additive_expr(t2);
+    t3 = p2->t;
+    val_exp = p2->e;
+    free(p2);
+
+    t4 = match_token(t3, TOK_ENDLN);
+
+    p = malloc(sizeof(Parse_t));
+    p->t = t4;
+    p->e = malloc(sizeof(ExprTree));
+    p->e->expr = Assign;
+    p->e->value.id = id_cpy;
+    p->e->left = NULL;
+    p->e->right = val_exp;
+
+    return p;
+}
+
+static Parse_t *parse_additive_expr(TokenList *tok_l) {return NULL;}
 void free_expr_tree(ExprTree *tree) {}
