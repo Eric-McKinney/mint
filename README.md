@@ -60,5 +60,6 @@ ID -> `string which matches the following regex: ^[a-zA-Z][a-zA-Z0-9_]*$`
 - [ ] Write parser
     - [ ] Verify that CFG is correct (aligns with math rules)
     - [ ] Write various parse functions for each level of CFG
+    - [ ] Add multiplication via (45)(3) syntax (change CFG too)
     - [ ] Do lots of testing
 - [ ] Write evaluator
