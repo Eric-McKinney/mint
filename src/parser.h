@@ -16,7 +16,8 @@ typedef enum {
     Float,
     ID,
     Fun,
-    Binop
+    Binop,
+    Assign
 } Expr_t;
 
 typedef struct expr_tree {
@@ -32,5 +33,6 @@ typedef struct expr_tree {
 } ExprTree;
 
 ExprTree *parse(TokenList *tok_l);
+void free_expr_tree(ExprTree *tree);
 
 #endif
