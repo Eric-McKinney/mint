@@ -17,7 +17,9 @@ typedef enum {
     ID,
     Fun,
     Binop,
-    Assign
+    Assign,
+    Application,
+    Argument
 } Expr_t;
 
 typedef struct expr_tree {
