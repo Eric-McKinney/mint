@@ -6,7 +6,7 @@
 
 #define MAX_TOK_LEN 10     /* longest tok is TOK_LPAREN = 10 chars                        */
 #define MAX_TOK_VAL_LEN 50 /* arbitrary upper limit on token value size (e.g. an integer) */
-#define MAX_TOK_STR_LEN MAX_TOK_LEN + MAX_TOK_VAL_LEN + 1 /* + 1 for null terminator      */
+#define MAX_TOK_STR_LEN MAX_TOK_LEN + MAX_TOK_VAL_LEN
 
 regex_t l_paren_re, r_paren_re, dot_re, equal_re, add_re, sub_re, mult_re;
 regex_t div_re, fun_re, endln_re, int_re, float_re, id_re, comma_re, whitespace_re;
@@ -197,6 +197,17 @@ void free_token_list(TokenList *tok_l) {
     free_token(tok_l);
 }
 
+static int count_tokens(TokenList *tok_l) {
+    int num_tok = 0;
+
+    while (tok_l != NULL) {
+        num_tok++;
+        tok_l = tok_l->next;
+    }
+
+    return num_tok;
+}
+
 void print_token_list(TokenList *tok_l) {
     char *tok_l_str = token_list_to_str(tok_l);
     printf("%s\n", tok_l_str);
@@ -266,31 +277,24 @@ char *token_to_str(TokenList *tok_l) {
 }
 
 char *token_list_to_str(TokenList *tok_l) {
-    TokenList *curr = tok_l;
     char *str;
-    int num_tok = 0;
+    int num_tok = count_tokens(tok_l);
 
-    while (curr != NULL) {
-        num_tok++;
-        curr = curr->next;
-    }
-
-    /* + 2 for brackets [] and then + 1 for null terminator (for empty list case) */
+    /* + 2 for brackets [] and then + 1 for null terminator */
     str = malloc(num_tok * MAX_TOK_STR_LEN + 3); 
 
-    curr = tok_l;
     strcpy(str, "[");
-    while (curr != NULL) {
-        char *token_str = token_to_str(curr);
+    while (tok_l != NULL) {
+        char *token_str = token_to_str(tok_l);
 
         strcat(str, token_str);
         free(token_str);
 
-        if (curr->next != NULL) {
+        if (tok_l->next != NULL) {
             strcat(str, ", ");
         }
 
-        curr = curr->next;
+        tok_l = tok_l->next;
     }
 
     strcat(str, "]");
