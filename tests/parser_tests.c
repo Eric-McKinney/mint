@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../src/parser.h"
+#include "../src/lexer.h"
 
 #define SUCCESS 1
 #define FAILURE 0
@@ -19,7 +20,9 @@ int verbose = 0;
 int run_test(Test *test);
 
 int main(int argc, char **argv) {
-    Test tests[] = {};
+    Test tests[] = {
+        {"basic_addition", {TOK_INT, }, "(+(1)(2))"}
+    };
     int num_tests = sizeof(tests) / sizeof(Test), i, num_passed = 0;
 
     if (argc == 2 && (strcmp(argv[1], "-v") == 0
@@ -57,6 +60,37 @@ int main(int argc, char **argv) {
         printf("|\n");
         printf(SEP);
     }
+
+    return 0;
 }
 
+int run_test(Test *test) {
+    ExprTree *tree;
+    TokenList *input = &(test->input);
+    char *tree_str;
+    int t_result;
 
+    if (verbose) {
+        printf("| \033[0;36m%s\033[0m test:\n", test->name);
+    }
+
+    tree = parse(input);
+    tree_str = expr_tree_to_str(tree);
+
+    if (verbose) {
+        char *input_str = token_list_to_str(input);
+        printf("| input: \"%s\"\n", input_str);
+        printf("| parse return val: %p\n", (void *) tree);
+        printf("| parse tree: %s\n", tree_str);
+        printf("| expected: %s\n", test->ans);
+
+        free(input_str);
+    }
+
+    t_result = strcmp(tree_str, test->ans) == 0 ? SUCCESS : FAILURE;
+
+    free(tree_str);
+    free_expr_tree(tree);
+
+    return t_result;
+}
