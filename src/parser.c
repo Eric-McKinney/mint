@@ -4,6 +4,10 @@
 #include "parser.h"
 #include "lexer.h"
 
+#define MAX_NODE_LEN 6      /* longest node name is Assign = 6 chars                      */
+#define MAX_NODE_VAL_LEN 50 /* arbitrary upper limit on node value size (e.g. an integer) */
+#define MAX_NODE_STR_LEN MAX_NODE_LEN + MAX_NODE_VAL_LEN
+
 static TokenList *match_token(TokenList *tok_l, Tok_t tok) {
     TokenList expected_token = {0}; /* only for token_to_str call below */
     char *expected, *input, *arg;
@@ -369,4 +373,44 @@ void free_expr_tree(ExprTree *tree) {
     free_expr_tree(tree->left);
     free_expr_tree(tree->right);
     free_tree_node(tree);
+}
+
+/* TODO: Figure out how to best manage sizing (I'm thinking just use outparam to count nodes) */
+static char *expr_tree_to_str_aux(ExprTree *tree, int *size) {
+    char *str;
+
+    if (tree == NULL) {
+        str = malloc(3);
+        strcpy(str, "()");
+
+        *size = 3;
+        return str;
+    }
+
+    /* +2 for parens () and then +1 for null terminator */
+    str = malloc(MAX_NODE_STR_LEN + 3);
+
+    strcpy(str, "(");
+    switch(tree->expr) {
+        case Int:
+        case Float:
+        case ID:
+        case Fun:
+        case Binop:
+        case Assign:
+        case Application:
+        case Argument:
+        default:
+    }
+
+    strcat(str, expr_tree_to_str(tree->left));
+    strcat(str, expr_tree_to_str(tree->right));
+    strcat(str, ")");
+
+    return str;
+}
+
+char *expr_tree_to_str(ExprTree *tree) {
+    int size;
+    return expr_tree_to_str_aux(tree, &size);
 }
