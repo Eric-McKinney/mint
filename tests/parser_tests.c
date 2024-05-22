@@ -17,7 +17,8 @@ typedef struct {
 } Test;
 
 int verbose = 0;
-int run_test(Test *test);
+static int run_test(Test *test);
+static void create_token_list(TokenList *tok_l);
 
 int main(int argc, char **argv) {
     Test tests[] = {
@@ -64,7 +65,7 @@ int main(int argc, char **argv) {
     return 0;
 }
 
-int run_test(Test *test) {
+static int run_test(Test *test) {
     ExprTree *tree;
     TokenList *input = &(test->input);
     char *tree_str;
