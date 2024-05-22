@@ -228,7 +228,6 @@ static ExprTree *parse_application_expr(TokenList *tok_l, TokenList **out_tl) {
     ExprTree *application_expr, *primary_expr, *arg_expr;
     char *id, *id_cpy;
 
-
     switch(tok_l->token) {
         case TOK_ID:
             #pragma GCC diagnostic push
@@ -377,34 +376,81 @@ void free_expr_tree(ExprTree *tree) {
 
 /* TODO: Figure out how to best manage sizing (I'm thinking just use outparam to count nodes) */
 static char *expr_tree_to_str_aux(ExprTree *tree, int *size) {
-    char *str;
+    char *str, *lstr, *rstr;
+    int lsize, rsize;
 
     if (tree == NULL) {
         str = malloc(3);
         strcpy(str, "()");
 
-        *size = 3;
+        *size = 0;
         return str;
     }
 
+    lstr = expr_tree_to_str_aux(tree->left, &lsize);
+    rstr = expr_tree_to_str_aux(tree->right, &rsize);
+
     /* +2 for parens () and then +1 for null terminator */
-    str = malloc(MAX_NODE_STR_LEN + 3);
+    str = malloc(MAX_NODE_STR_LEN*(1 + lsize + rsize) + 3);
 
     strcpy(str, "(");
     switch(tree->expr) {
+        char s[MAX_NODE_VAL_LEN];
+
         case Int:
+            sprintf(s, "Int %d", tree->value.i);
+            strcat(str, s);
+            break;
         case Float:
+            sprintf(s, "Float %f", tree->value.d);
+            strcat(str, s);
+            break;
         case ID:
+            sprintf(s, "ID %s", tree->value.id);
+            strcat(str, s);
+            break;
         case Fun:
+            sprintf(s, "Fun %s", tree->value.id);
+            strcat(str, s);
+            break;
         case Binop:
+            switch(tree->value.binop) {
+                case Add:
+                    strcat(str, "Add");
+                    break;
+                case Sub:
+                    strcat(str, "Sub");
+                    break;
+                case Mult:
+                    strcat(str, "Mult");
+                    break;
+                case Div:
+                    strcat(str, "Div");
+                    break;
+                case Exp:
+                    strcat(str, "Exp");
+                    break;
+                default:
+                    strcat(str, "Unrecognized binop");
+            }
+            break;
         case Assign:
+            sprintf(s, "Assign %s", tree->value.id);
+            strcat(str, s);
+            break;
         case Application:
+            sprintf(s, "App %s", tree->value.id);
+            strcat(str, s);
+            break;
         case Argument:
+            strcat(str, "Arg");
+            break;
         default:
+            strcat(str, "Unrecognized expr");
     }
 
-    strcat(str, expr_tree_to_str(tree->left));
-    strcat(str, expr_tree_to_str(tree->right));
+    strcat(str, lstr);
+    strcat(str, rstr);
     strcat(str, ")");
 
     return str;
