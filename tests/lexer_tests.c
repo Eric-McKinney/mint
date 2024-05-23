@@ -16,7 +16,7 @@ typedef struct {
 } Test;
 
 int verbose = 0;
-int run_test(Test *test);
+static int run_test(Test *test);
 
 int main(int argc, char **argv) {
     Test tests[] = {
@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
     return 0;
 }
 
-int run_test(Test *test) {
+static int run_test(Test *test) {
     TokenList *tok_l;
     char *tok_l_str;
     int t_result;
