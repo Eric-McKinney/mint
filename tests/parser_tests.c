@@ -12,17 +12,18 @@
 
 typedef struct {
     char name[80];
-    TokenList input;
+    TokenList *input;
     char ans[1024];
 } Test;
 
 int verbose = 0;
 static int run_test(Test *test);
-static void create_token_list(TokenList *tok_l);
+static TokenList **create_inputs();
 
 int main(int argc, char **argv) {
+    TokenList **inputs = create_inputs();
     Test tests[] = {
-        {"basic_addition", {TOK_INT, }, "(+(1)(2))"}
+        {"basic_addition", inputs[0], "(+(1)(2))"}
     };
     int num_tests = sizeof(tests) / sizeof(Test), i, num_passed = 0;
 
@@ -54,6 +55,8 @@ int main(int argc, char **argv) {
         }
     }
 
+    free(inputs);
+
     printf("|\n| Ran (%d/%d) tests successfully\n", num_passed, num_tests);
     printf("| Test suite %s\n", num_passed == num_tests ? PASSED : FAILED);
 
@@ -67,7 +70,6 @@ int main(int argc, char **argv) {
 
 static int run_test(Test *test) {
     ExprTree *tree;
-    TokenList *input = &(test->input);
     char *tree_str;
     int t_result;
 
@@ -79,7 +81,7 @@ static int run_test(Test *test) {
     tree_str = expr_tree_to_str(tree);
 
     if (verbose) {
-        char *input_str = token_list_to_str(input);
+        char *input_str = token_list_to_str(test->input);
         printf("| input: \"%s\"\n", input_str);
         printf("| parse return val: %p\n", (void *) tree);
         printf("| parse tree: %s\n", tree_str);
@@ -92,6 +94,49 @@ static int run_test(Test *test) {
 
     free(tree_str);
     free_expr_tree(tree);
+    free_token_list(test->input);
 
     return t_result;
+}
+
+static TokenList *append_token(TokenList *tok_l, Tok_t tok, int i, double d, char *id) {
+    TokenList *new_node = malloc(sizeof(TokenList));
+
+    new_node->token = tok;
+    switch(tok) {
+        case TOK_INT:
+            new_node->value.i = i;
+            break;
+        case TOK_FLOAT:
+            new_node->value.d = d;
+            break;
+        case TOK_ID:
+            new_node->value.id = id;
+            break;
+    }
+    new_node->next = NULL;
+
+    if (tok_l == NULL) {
+        return new_node;
+    }
+
+    while (tok_l->next != NULL) {
+        tok_l = tok_l->next;
+    }
+
+    tok_l->next = new_node;
+
+    return new_node;
+}
+
+static TokenList **create_inputs() {
+    TokenList **inputs = malloc(1 * sizeof(TokenList *));
+    TokenList *t1;
+
+    t1 = append_token(NULL, TOK_INT, 1, 0, NULL);
+    append_token(t1, TOK_PLUS, 0, 0, NULL);
+    append_token(t1, TOK_INT, 2, 0, NULL);
+    inputs[0] = t1;
+
+    return inputs;
 }
