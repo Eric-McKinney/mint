@@ -18,9 +18,10 @@ $(BIN)/mint: $(OBJ) $(OBJS)
 	mkdir -p $(BIN)
 	$(CC) -o $@ $^
 
-tests: $(OBJ) $(TEST_BIN) $(TEST_BIN)/lexer_tests
+tests: $(OBJ) $(TEST_BIN) $(TEST_BIN)/lexer_tests $(TEST_BIN)/parser_tests
 runtests: tests
 	@$(TEST_BIN)/lexer_tests
+	@$(TEST_BIN)/parser_tests
 
 $(TEST_BIN)/%_tests: $(OBJ)/%_tests.o $(OBJ)/%.o
 	$(CC) -o $@ $^
