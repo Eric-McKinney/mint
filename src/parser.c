@@ -165,11 +165,7 @@ static ExprTree *parse_additive_expr(TokenList *tok_l, TokenList **out_tl) {
 
     mult_expr = parse_multiplicative_expr(tok_l, &t);
 
-    /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-     * NOTE: When operator is + or - the above is redundant/excess work. A possible  *
-     *       future optimization is to make the token list doubly-linked and parse   *
-     *       starting from the end. It would be interesting to benchmark the fix.    *
-     * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+    /* TODO: Fix so parsing is left associative (use while loop here instead of recursing) */
     operator = t->token;
     switch(operator) {
         case TOK_ADD:
@@ -200,6 +196,7 @@ static ExprTree *parse_multiplicative_expr(TokenList *tok_l, TokenList **out_tl)
 
     app_expr = parse_application_expr(tok_l, &t);
 
+    /* TODO: Fix so parsing is left associative (use while loop here instead of recursing) */
     operator = t->token;
     switch(operator) {
         case TOK_MULT:
@@ -353,6 +350,7 @@ static ExprTree *parse_primary_expr(TokenList *tok_l, TokenList **out_tl) {
     p_expr->left = NULL;
     p_expr->right = NULL;
 
+    *out_tl = t;
     return p_expr;
 }
 
