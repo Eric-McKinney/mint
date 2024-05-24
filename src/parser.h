@@ -36,5 +36,6 @@ typedef struct expr_tree {
 
 ExprTree *parse(TokenList *tok_l);
 void free_expr_tree(ExprTree *tree);
+char *expr_tree_to_str(ExprTree *tree);
 
 #endif
