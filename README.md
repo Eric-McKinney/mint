@@ -58,8 +58,9 @@ ID -> `string which matches the following regex: ^[a-zA-Z][a-zA-Z0-9_]*$`
 # TODO
 - [x] ~~Write lexer~~
 - [ ] Write parser
-    - [ ] Verify that CFG is correct (aligns with math rules)
+    - [x] ~~Verify that CFG is correct (aligns with math rules)~~
     - [ ] Write various parse functions for each level of CFG
     - [ ] Add multiplication via (45)(3) syntax (change CFG too)
     - [ ] Do lots of testing
 - [ ] Write evaluator
+- [ ] Explore parsing using the [shunting yard algorithm](https://www.engr.mun.ca/~theo/Misc/exp_parsing.htm#shunting_yard)
