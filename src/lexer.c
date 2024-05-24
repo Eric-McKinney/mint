@@ -180,6 +180,30 @@ static void free_regexs() {
     regfree(&whitespace_re);
 }
 
+static TokenList *reverse_aux(TokenList *tok_l, TokenList *prev) {
+    TokenList *rev = tok_l;
+
+    if (tok_l == NULL) {
+        return NULL;
+    }
+
+    if (tok_l->next != NULL) {
+        rev = reverse_aux(tok_l->next, tok_l);
+    }
+
+    tok_l->next = prev;
+
+    if (prev != NULL) {
+        prev->next = NULL;
+    }
+
+    return rev;
+}
+
+void reverse(TokenList **tok_l) {
+    *tok_l = reverse_aux(*tok_l, NULL);
+}
+
 static void free_token(TokenList *tok_l) {
     if (tok_l->token == TOK_ID) {
         free(tok_l->value.id);
