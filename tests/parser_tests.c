@@ -11,9 +11,9 @@
 #define SEP "|------------------------------------------------------------|\n"
 
 typedef struct {
-    char name[80];
+    const char *name;
     TokenList *input;
-    char ans[1024];
+    const char *ans;
 } Test;
 
 int verbose = 0;
@@ -22,10 +22,13 @@ static TokenList **create_inputs();
 
 int main(int argc, char **argv) {
     TokenList **inputs = create_inputs();
-    Test tests[] = {
-        {"basic_addition", inputs[0], "(+(1)(2))"}
+    const char *t_names[] = {
+        "basic_addition"
     };
-    int num_tests = sizeof(tests) / sizeof(Test), i, num_passed = 0;
+    const char *t_ans[] = {
+        "(+(1)(2))"
+    };
+    int num_tests = sizeof(t_names) / sizeof(char *), i, num_passed = 0;
 
     if (argc == 2 && (strcmp(argv[1], "-v") == 0
                    || strcmp(argv[1], "--verbose") == 0)) {
@@ -33,21 +36,25 @@ int main(int argc, char **argv) {
     }
 
     for (i = 0; i < num_tests; i++) {
-        Test *t = &(tests[i]);
+        Test t;
         int t_result;
+
+        t.name = t_names[i];
+        t.input = inputs[i];
+        t.ans = t_ans[i];
 
         if (i == 0 && verbose) {
             printf(SEP);
         }
 
-        t_result = run_test(t);
+        t_result = run_test(&t);
         num_passed += t_result == SUCCESS ? 1 : 0;
 
         if (verbose) {
             printf("|\n");
         }
 
-        printf("| \033[0;36m%s\033[0m %s\n", t->name,
+        printf("| \033[0;36m%s\033[0m %s\n", t.name,
                t_result == SUCCESS ? PASSED : FAILED);
 
         if (verbose) {
@@ -77,7 +84,7 @@ static int run_test(Test *test) {
         printf("| \033[0;36m%s\033[0m test:\n", test->name);
     }
 
-    tree = parse(input);
+    tree = parse(test->input);
     tree_str = expr_tree_to_str(tree);
 
     if (verbose) {
@@ -113,6 +120,8 @@ static TokenList *append_token(TokenList *tok_l, Tok_t tok, int i, double d, cha
         case TOK_ID:
             new_node->value.id = id;
             break;
+        default:
+            break;
     }
     new_node->next = NULL;
 
@@ -134,7 +143,7 @@ static TokenList **create_inputs() {
     TokenList *t1;
 
     t1 = append_token(NULL, TOK_INT, 1, 0, NULL);
-    append_token(t1, TOK_PLUS, 0, 0, NULL);
+    append_token(t1, TOK_ADD, 0, 0, NULL);
     append_token(t1, TOK_INT, 2, 0, NULL);
     inputs[0] = t1;
 
