@@ -35,7 +35,14 @@ int main(int argc, char **argv) {
     if (argc == 2 && (strcmp(argv[1], "-v") == 0
                    || strcmp(argv[1], "--verbose") == 0)) {
         verbose = 1;
+        printf(SEP);
+        printf("|\n|                        ");
+    } else {
+        printf("| ");
     }
+    
+    printf("\033[44mparser tests\033[0m\n");
+    printf("|\n");
 
     for (i = 0; i < num_tests; i++) {
         Test t;
