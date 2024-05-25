@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
         "basic_addition"
     };
     const char *t_ans[] = {
-        "(+(1)(2))"
+        "(Add(Int 1)(Int 2))"
     };
     int num_tests = sizeof(t_names) / sizeof(char *), i, num_passed = 0;
 
@@ -145,6 +145,7 @@ static TokenList **create_inputs() {
     t1 = append_token(NULL, TOK_INT, 1, 0, NULL);
     append_token(t1, TOK_ADD, 0, 0, NULL);
     append_token(t1, TOK_INT, 2, 0, NULL);
+    append_token(t1, TOK_ENDLN, 0, 0, NULL);
     inputs[0] = t1;
 
     return inputs;
