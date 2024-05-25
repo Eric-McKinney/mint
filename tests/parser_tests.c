@@ -23,10 +23,12 @@ static TokenList **create_inputs();
 int main(int argc, char **argv) {
     TokenList **inputs = create_inputs();
     const char *t_names[] = {
-        "basic_addition"
+        "basic_addition",
+        "int float add sub"
     };
     const char *t_ans[] = {
-        "(Add(Int 1)(Int 2))"
+        "(Add(Int 1)(Int 2))",
+        "(Add(Sub(Int 44)(Int 21))(Float 2.200000))"
     };
     int num_tests = sizeof(t_names) / sizeof(char *), i, num_passed = 0;
 
@@ -89,10 +91,10 @@ static int run_test(Test *test) {
 
     if (verbose) {
         char *input_str = token_list_to_str(test->input);
-        printf("| input: \"%s\"\n", input_str);
+        printf("| input: %s\n", input_str);
         printf("| parse return val: %p\n", (void *) tree);
         printf("| parse tree: %s\n", tree_str);
-        printf("| expected: %s\n", test->ans);
+        printf("| expected:   %s\n", test->ans);
 
         free(input_str);
     }
@@ -139,14 +141,23 @@ static TokenList *append_token(TokenList *tok_l, Tok_t tok, int i, double d, cha
 }
 
 static TokenList **create_inputs() {
-    TokenList **inputs = malloc(1 * sizeof(TokenList *));
-    TokenList *t1;
+    int NUM_TESTS = 2;
+    TokenList **inputs = malloc(NUM_TESTS * sizeof(TokenList *));
+    TokenList *t1, *t2;
 
     t1 = append_token(NULL, TOK_INT, 1, 0, NULL);
     append_token(t1, TOK_ADD, 0, 0, NULL);
     append_token(t1, TOK_INT, 2, 0, NULL);
     append_token(t1, TOK_ENDLN, 0, 0, NULL);
     inputs[0] = t1;
+
+    t2 = append_token(NULL, TOK_INT, 44, 0, NULL);
+    append_token(t2, TOK_SUB, 0, 0, NULL);
+    append_token(t2, TOK_INT, 21, 0, NULL);
+    append_token(t2, TOK_ADD, 0, 0, NULL);
+    append_token(t2, TOK_FLOAT, 0, 2.2, NULL);
+    append_token(t2, TOK_ENDLN, 0, 0, NULL);
+    inputs[1] = t2;
 
     return inputs;
 }
