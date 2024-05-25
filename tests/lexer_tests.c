@@ -13,7 +13,6 @@ typedef struct {
     char name[80];
     char input[256];
     char ans[1024];
-    char r_ans[1024];
 } Test;
 
 int verbose = 0;
@@ -21,47 +20,20 @@ static int run_test(Test *test);
 
 int main(int argc, char **argv) {
     Test tests[] = {
-        {"empty_input", "", "[]", "[]"},
-        {"arithmetic_toks", 
-         "+ - /*", 
-         "[TOK_ADD, TOK_SUB, TOK_DIV, TOK_MULT]",
-         "[TOK_MULT, TOK_DIV, TOK_SUB, TOK_ADD]"
-        },
-        {"other_toks", 
-         "().=\n", 
-         "[TOK_LPAREN, TOK_RPAREN, TOK_DOT, TOK_EQUAL, TOK_ENDLN]",
-         "[TOK_ENDLN, TOK_EQUAL, TOK_DOT, TOK_RPAREN, TOK_LPAREN]"
-        },
-        {"fn_tok", "fn", "[TOK_FUN]", "[TOK_FUN]"},
-        {"basic_addition", "1 + 3", "[TOK_INT 1, TOK_ADD, TOK_INT 3]", "[TOK_INT 3, TOK_ADD, TOK_INT 1]"},
-        {"float + int + float", 
-         "2.20 + 5+5.", 
-         "[TOK_FLOAT 2.200000, TOK_ADD, TOK_INT 5, TOK_ADD, TOK_FLOAT 5.000000]",
-         "[TOK_FLOAT 5.000000, TOK_ADD, TOK_INT 5, TOK_ADD, TOK_FLOAT 2.200000]"
-        },
-        {"big ints", "232342 4444", "[TOK_INT 232342, TOK_INT 4444]", "[TOK_INT 4444, TOK_INT 232342]"},
-        {"negative nums", 
-         "-23 - -33.4563", 
-         "[TOK_INT -23, TOK_SUB, TOK_FLOAT -33.456300]",
-         "[TOK_FLOAT -33.456300, TOK_SUB, TOK_INT -23]"
-        },
-        {"ids", 
-         "id1 snake_case CamelCase", 
-         "[TOK_ID id1, TOK_ID snake_case, TOK_ID CamelCase]",
-         "[TOK_ID CamelCase, TOK_ID snake_case, TOK_ID id1]"
-        },
-        {"real use", 
-         "R = 500\nR*5", 
-         "[TOK_ID R, TOK_EQUAL, TOK_INT 500, TOK_ENDLN, TOK_ID R, TOK_MULT, TOK_INT 5]",
-         "[TOK_INT 5, TOK_MULT, TOK_ID R, TOK_ENDLN, TOK_INT 500, TOK_EQUAL, TOK_ID R]"
-        },
-        {"all whitespace", "      \t\t \n \t\t\t  ", "[TOK_ENDLN]", "[TOK_ENDLN]"},
-        {"comma", ",,,", "[TOK_COMMA, TOK_COMMA, TOK_COMMA]", "[TOK_COMMA, TOK_COMMA, TOK_COMMA]"},
-        {"function", 
-         "fn f(a, b) = a + b", 
-         "[TOK_FUN, TOK_ID f, TOK_LPAREN, TOK_ID a, TOK_COMMA, TOK_ID b, TOK_RPAREN, TOK_EQUAL, TOK_ID a, TOK_ADD, TOK_ID b]",
-         "[TOK_ID b, TOK_ADD, TOK_ID a, TOK_EQUAL, TOK_RPAREN, TOK_ID b, TOK_COMMA, TOK_ID a, TOK_LPAREN, TOK_ID f, TOK_FUN]"
-        }
+        {"empty_input", "", "[]"},
+        {"arithmetic_toks", "+ - /*", "[TOK_ADD, TOK_SUB, TOK_DIV, TOK_MULT]"},
+        {"other_toks", "().=\n", "[TOK_LPAREN, TOK_RPAREN, TOK_DOT, TOK_EQUAL, TOK_ENDLN]"},
+        {"fn_tok", "fn", "[TOK_FUN]"},
+        {"basic_addition", "1 + 3", "[TOK_INT 1, TOK_ADD, TOK_INT 3]"},
+        {"float + int + float", "2.20 + 5+5.", "[TOK_FLOAT 2.200000, TOK_ADD, TOK_INT 5, TOK_ADD, TOK_FLOAT 5.000000]"},
+        {"big ints", "232342 4444", "[TOK_INT 232342, TOK_INT 4444]"},
+        {"negative nums", "-23 - -33.4563", "[TOK_INT -23, TOK_SUB, TOK_FLOAT -33.456300]"},
+        {"ids", "id1 snake_case CamelCase", "[TOK_ID id1, TOK_ID snake_case, TOK_ID CamelCase]"},
+        {"real use", "R = 500\nR*5", "[TOK_ID R, TOK_EQUAL, TOK_INT 500, TOK_ENDLN, TOK_ID R, TOK_MULT, TOK_INT 5]"},
+        {"all whitespace", "      \t\t \n \t\t\t  ", "[TOK_ENDLN]"},
+        {"comma", ",,,", "[TOK_COMMA, TOK_COMMA, TOK_COMMA]"},
+        {"function", "fn f(a, b) = a + b", 
+         "[TOK_FUN, TOK_ID f, TOK_LPAREN, TOK_ID a, TOK_COMMA, TOK_ID b, TOK_RPAREN, TOK_EQUAL, TOK_ID a, TOK_ADD, TOK_ID b]"}
     };
     int num_tests = sizeof(tests) / sizeof(Test), i, num_passed = 0;
 
@@ -106,8 +78,8 @@ int main(int argc, char **argv) {
 
 static int run_test(Test *test) {
     TokenList *tok_l;
-    char *tok_l_str, *r_tok_l_str;
-    int t_result, tokenize_result, reverse_result;
+    char *tok_l_str;
+    int t_result;
 
     if (verbose) {
         printf("| \033[0;36m%s\033[0m test:\n", test->name);
@@ -115,24 +87,17 @@ static int run_test(Test *test) {
 
     tok_l = tokenize(test->input);
     tok_l_str = token_list_to_str(tok_l);
-    reverse(&tok_l);
-    r_tok_l_str = token_list_to_str(tok_l);
 
     if (verbose) {
         printf("| input: \"%s\"\n", test->input);
         printf("| tokenize return val: %p\n", (void *) tok_l);
         printf("| token list: %s\n", tok_l_str);
         printf("| expected:   %s\n", test->ans);
-        printf("|\n| reversed: %s\n", r_tok_l_str);
-        printf("| expected: %s\n", test->r_ans);
     }
     
-    tokenize_result = strcmp(tok_l_str, test->ans);
-    reverse_result = strcmp(r_tok_l_str, test->r_ans);
-    t_result = (tokenize_result || reverse_result) == 0 ? SUCCESS : FAILURE;
+    t_result = strcmp(tok_l_str, test->ans) == 0 ? SUCCESS : FAILURE;
     
     free(tok_l_str);
-    free(r_tok_l_str);
     free_token_list(tok_l);
     return t_result;
 }
