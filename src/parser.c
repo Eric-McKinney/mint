@@ -12,7 +12,7 @@ static TokenList *match_token(TokenList *tok_l, Tok_t tok) {
     TokenList expected_token = {0}; /* only for token_to_str call below */
     char *expected, *input, *arg;
     
-    if (tok_l->token == tok) {
+    if (tok_l != NULL && tok_l->token == tok) {
         return tok_l->next;
     }
 
@@ -159,64 +159,64 @@ static ExprTree *parse_assignment_expr(TokenList *tok_l, TokenList **out_tl) {
 }
 
 static ExprTree *parse_additive_expr(TokenList *tok_l, TokenList **out_tl) {
-    TokenList *t, *t2, *t3;
-    Tok_t operator;
-    ExprTree *additive_expr, *mult_expr, *add_expr;
+    TokenList *t, *t2;
+    ExprTree *additive_expr, *add_expr, *mult_expr;
 
     mult_expr = parse_multiplicative_expr(tok_l, &t);
 
-    /* TODO: Fix so parsing is left associative (use while loop here instead of recursing) */
-    operator = t->token;
-    switch(operator) {
-        case TOK_ADD:
-        case TOK_SUB:
-            add_expr = parse_additive_expr(tok_l, &t);
-            t2 = match_token(t, operator);
-            mult_expr = parse_multiplicative_expr(t2, &t3);
-            break;
-        default:
-            *out_tl = t;
-            return mult_expr;
+    if (t == NULL || (t->token != TOK_ADD && t->token != TOK_SUB)) {
+        *out_tl = t;
+        return mult_expr;
     }
 
-    additive_expr = malloc(sizeof(ExprTree));
-    additive_expr->expr = Binop;
-    additive_expr->value.binop = (operator == TOK_ADD)? Add : Sub;
-    additive_expr->left = add_expr;
-    additive_expr->right = mult_expr;
+    add_expr = mult_expr;
+    while (t != NULL && (t->token == TOK_ADD || t->token == TOK_SUB)) {
+        Tok_t op = t->token;
 
-    *out_tl = t3;
+        t2 = match_token(t, op);
+        mult_expr = parse_multiplicative_expr(t2, &t);
+
+        additive_expr = malloc(sizeof(ExprTree));
+        additive_expr->expr = Binop;
+        additive_expr->value.binop = (op == TOK_ADD) ? Add : Sub;
+        additive_expr->left = add_expr;
+        additive_expr->right = mult_expr;
+
+        add_expr = additive_expr;
+    }
+
+    *out_tl = t;
     return additive_expr;
 }
 
 static ExprTree *parse_multiplicative_expr(TokenList *tok_l, TokenList **out_tl) {
-    TokenList *t, *t2, *t3;
-    Tok_t operator;
-    ExprTree *multiplicative_expr, *app_expr, *mult_expr;
+    TokenList *t, *t2;
+    ExprTree *multiplicative_expr, *mult_expr, *app_expr;
 
     app_expr = parse_application_expr(tok_l, &t);
 
-    /* TODO: Fix so parsing is left associative (use while loop here instead of recursing) */
-    operator = t->token;
-    switch(operator) {
-        case TOK_MULT:
-        case TOK_DIV:
-            mult_expr = parse_multiplicative_expr(tok_l, &t);
-            t2 = match_token(t, operator);
-            app_expr = parse_application_expr(t2, &t3);
-            break;
-        default:
-            *out_tl = t;
-            return app_expr;
+    if (t == NULL || (t->token != TOK_MULT && t->token != TOK_DIV)) {
+        *out_tl = t;
+        return app_expr;
     }
 
-    multiplicative_expr = malloc(sizeof(ExprTree));
-    multiplicative_expr->expr = Binop;
-    multiplicative_expr->value.binop = (operator == TOK_MULT)? Mult : Div;
-    multiplicative_expr->left = mult_expr;
-    multiplicative_expr->right = app_expr;
+    mult_expr = app_expr;
+    while (t != NULL && (t->token == TOK_MULT || t->token == TOK_DIV)) {
+        Tok_t op = t->token;
 
-    *out_tl = t3;
+        t2 = match_token(t, op);
+        app_expr = parse_application_expr(t2, &t);
+
+        multiplicative_expr = malloc(sizeof(ExprTree));
+        multiplicative_expr->expr = Binop;
+        multiplicative_expr->value.binop = (op == TOK_MULT) ? Mult : Div;
+        multiplicative_expr->left = mult_expr;
+        multiplicative_expr->right = app_expr;
+
+        mult_expr = multiplicative_expr;
+    }
+
+    *out_tl = t;
     return multiplicative_expr;
 }
 
@@ -372,7 +372,6 @@ void free_expr_tree(ExprTree *tree) {
     free_tree_node(tree);
 }
 
-/* TODO: Figure out how to best manage sizing (I'm thinking just use outparam to count nodes) */
 static char *expr_tree_to_str_aux(ExprTree *tree, int *size) {
     char *str, *lstr, *rstr;
     int lsize, rsize;
@@ -385,8 +384,13 @@ static char *expr_tree_to_str_aux(ExprTree *tree, int *size) {
         return str;
     }
 
-    lstr = expr_tree_to_str_aux(tree->left, &lsize);
-    rstr = expr_tree_to_str_aux(tree->right, &rsize);
+    if (tree->left != NULL || tree->right != NULL) {
+        lstr = expr_tree_to_str_aux(tree->left, &lsize);
+        rstr = expr_tree_to_str_aux(tree->right, &rsize);
+    } else {
+        lsize = 0;
+        rsize = 0;
+    }
 
     /* +2 for parens () and then +1 for null terminator */
     str = malloc(MAX_NODE_STR_LEN*(1 + lsize + rsize) + 3);
@@ -447,10 +451,17 @@ static char *expr_tree_to_str_aux(ExprTree *tree, int *size) {
             strcat(str, "Unrecognized expr");
     }
 
-    strcat(str, lstr);
-    strcat(str, rstr);
+    if (tree->left != NULL && tree->right != NULL) {
+        strcat(str, lstr);
+        strcat(str, rstr);
+
+        free(lstr);
+        free(rstr);
+    }
+    
     strcat(str, ")");
 
+    *size = 1 + lsize + rsize;
     return str;
 }
 
