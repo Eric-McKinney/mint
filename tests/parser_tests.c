@@ -21,16 +21,20 @@ static int run_test(Test *test);
 static TokenList **create_inputs();
 
 int main(int argc, char **argv) {
-    TokenList **inputs = create_inputs();
     const char *t_names[] = {
         "basic_addition",
-        "int float add sub"
+        "int float add sub",
+        "arithmetic mix",
+        "long add/sub"
     };
     const char *t_ans[] = {
-        "(Add(Int 1)(Int 2))",
-        "(Add(Sub(Int 44)(Int 21))(Float 2.200000))"
+        "(Add(Int 1)(Int 2))", /* 1 + 2 */
+        "(Add(Sub(Int 44)(Int 21))(Float 2.200000))", /* 44 - 21 + 2.2 */
+        "(Add(Div(Mult(Float 2.000000)(Int 4))(Int 12))(Int 5))", /* 2. * 4 / 12 + 5 */
+        "(Sub(Add(Sub(Add(Int 1)(Int 2))(Int 3))(Int 4))(Int 5))" /* 1 + 2 - 3 + 4 - 5 */
     };
     int num_tests = sizeof(t_names) / sizeof(char *), i, num_passed = 0;
+    TokenList **inputs = create_inputs(num_tests);
 
     if (argc == 2 && (strcmp(argv[1], "-v") == 0
                    || strcmp(argv[1], "--verbose") == 0)) {
@@ -147,24 +151,45 @@ static TokenList *append_token(TokenList *tok_l, Tok_t tok, int i, double d, cha
     return new_node;
 }
 
-static TokenList **create_inputs() {
-    int NUM_TESTS = 2;
-    TokenList **inputs = malloc(NUM_TESTS * sizeof(TokenList *));
-    TokenList *t1, *t2;
+static TokenList **create_inputs(int num_tests) {
+    TokenList **inputs = malloc(num_tests * sizeof(TokenList *));
+    TokenList *t0, *t1, *t2, *t3;
 
-    t1 = append_token(NULL, TOK_INT, 1, 0, NULL);
+    t0 = append_token(NULL, TOK_INT, 1, 0, NULL);
+    append_token(t0, TOK_ADD, 0, 0, NULL);
+    append_token(t0, TOK_INT, 2, 0, NULL);
+    append_token(t0, TOK_ENDLN, 0, 0, NULL);
+    inputs[0] = t0;
+
+    t1 = append_token(NULL, TOK_INT, 44, 0, NULL);
+    append_token(t1, TOK_SUB, 0, 0, NULL);
+    append_token(t1, TOK_INT, 21, 0, NULL);
     append_token(t1, TOK_ADD, 0, 0, NULL);
-    append_token(t1, TOK_INT, 2, 0, NULL);
+    append_token(t1, TOK_FLOAT, 0, 2.2, NULL);
     append_token(t1, TOK_ENDLN, 0, 0, NULL);
-    inputs[0] = t1;
+    inputs[1] = t1;
 
-    t2 = append_token(NULL, TOK_INT, 44, 0, NULL);
-    append_token(t2, TOK_SUB, 0, 0, NULL);
-    append_token(t2, TOK_INT, 21, 0, NULL);
+    t2 = append_token(NULL, TOK_FLOAT, 0, 2., NULL);
+    append_token(t2, TOK_MULT, 0, 0, NULL);
+    append_token(t2, TOK_INT, 4, 0, NULL);
+    append_token(t2, TOK_DIV, 0, 0, NULL);
+    append_token(t2, TOK_INT, 12, 0, NULL);
     append_token(t2, TOK_ADD, 0, 0, NULL);
-    append_token(t2, TOK_FLOAT, 0, 2.2, NULL);
+    append_token(t2, TOK_INT, 5, 0, NULL);
     append_token(t2, TOK_ENDLN, 0, 0, NULL);
-    inputs[1] = t2;
+    inputs[2] = t2;
+
+    t3 = append_token(NULL, TOK_INT, 1, 0, NULL);
+    append_token(t3, TOK_ADD, 0, 0, NULL);
+    append_token(t3, TOK_INT, 2, 0, NULL);
+    append_token(t3, TOK_SUB, 0, 0, NULL);
+    append_token(t3, TOK_INT, 3, 0, NULL);
+    append_token(t3, TOK_ADD, 0, 0, NULL);
+    append_token(t3, TOK_INT, 4, 0, NULL);
+    append_token(t3, TOK_SUB, 0, 0, NULL);
+    append_token(t3, TOK_INT, 5, 0, NULL);
+    append_token(t3, TOK_ENDLN, 0, 0, NULL);
+    inputs[3] = t3;
 
     return inputs;
 }
