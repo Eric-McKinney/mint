@@ -7,11 +7,15 @@ OBJ=obj
 BIN=bin
 TEST_SRC=tests
 TEST_BIN=$(BIN)/tests
+TEST_LOG=$(BIN)/log
+LEXER_LOG=$(TEST_LOG)/lexer_tests.log
+PARSER_LOG=$(TEST_LOG)/parser_tests.log
+GREP=grep --color=always
 
 _OBJS= main.o lexer.o parser.o eval.o
 OBJS=$(patsubst %,$(OBJ)/%,$(_OBJS))
 
-.PHONY: tests runtests clean
+.PHONY: tests runtests vvtests clean
 .PRECIOUS: $(OBJ)/%_tests.o
 
 $(BIN)/mint: $(OBJ) $(OBJS)
@@ -23,6 +27,20 @@ runtests: tests
 	@$(TEST_BIN)/lexer_tests
 	@echo "|"
 	@$(TEST_BIN)/parser_tests
+vvtests: $(TEST_LOG) tests
+	@valgrind --log-file=$(LEXER_LOG) --track-origins=yes --leak-check=full $(TEST_BIN)/lexer_tests -v | tee -a $(LEXER_LOG)
+	@$(GREP) --after-context 3 "HEAP SUMMARY" $(LEXER_LOG)
+	@# in grep commands w/trailing || true, the pattern may not be present (and I don't want any output)
+	@$(GREP) --after-context 6 "LEAK SUMMARY" $(LEXER_LOG) || true
+	@$(GREP) --after-context 1 "no leaks" $(LEXER_LOG) || true
+	@$(GREP) "ERROR SUMMARY" $(LEXER_LOG)
+	@valgrind --log-file=$(PARSER_LOG) --track-origins=yes --leak-check=full $(TEST_BIN)/parser_tests -v | tee -a $(PARSER_LOG)
+	@$(GREP) --after-context 3 "HEAP SUMMARY" $(PARSER_LOG)
+	@$(GREP) --after-context 6 "LEAK SUMMARY" $(PARSER_LOG) || true
+	@$(GREP) --after-context 1 "no leaks" $(PARSER_LOG) || true
+	@$(GREP) "ERROR SUMMARY" $(PARSER_LOG)
+	@echo "|"
+	@echo "| Full test logs available in ./$(TEST_LOG)"
 
 $(TEST_BIN)/lexer_tests: $(OBJ)/lexer_tests.o $(OBJ)/lexer.o
 	$(CC) -o $@ $^
@@ -50,6 +68,9 @@ $(OBJ):
 
 $(TEST_BIN):
 	mkdir -p $(TEST_BIN)
+
+$(TEST_LOG):
+	mkdir -p $(TEST_LOG)
 
 clean:
 	rm -rf $(BIN) $(OBJ)
