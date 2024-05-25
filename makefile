@@ -21,6 +21,7 @@ $(BIN)/mint: $(OBJ) $(OBJS)
 tests: $(OBJ) $(TEST_BIN) $(TEST_BIN)/lexer_tests $(TEST_BIN)/parser_tests
 runtests: tests
 	@$(TEST_BIN)/lexer_tests
+	@echo "|"
 	@$(TEST_BIN)/parser_tests
 
 $(TEST_BIN)/lexer_tests: $(OBJ)/lexer_tests.o $(OBJ)/lexer.o
