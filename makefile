@@ -23,7 +23,10 @@ runtests: tests
 	@$(TEST_BIN)/lexer_tests
 	@$(TEST_BIN)/parser_tests
 
-$(TEST_BIN)/%_tests: $(OBJ)/%_tests.o $(OBJ)/%.o
+$(TEST_BIN)/lexer_tests: $(OBJ)/lexer_tests.o $(OBJ)/lexer.o
+	$(CC) -o $@ $^
+
+$(TEST_BIN)/parser_tests: $(OBJ)/parser_tests.o $(OBJ)/parser.o $(OBJ)/lexer.o
 	$(CC) -o $@ $^
 
 $(OBJ)/%_tests.o: $(TEST_SRC)/%_tests.c $(SRC)/%.h
