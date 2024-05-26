@@ -30,7 +30,7 @@ runtests: tests
 vvtests: $(TEST_LOG) tests
 	@valgrind --log-file=$(LEXER_LOG) --track-origins=yes --leak-check=full $(TEST_BIN)/lexer_tests -v | tee -a $(LEXER_LOG)
 	@$(GREP) --after-context 3 "HEAP SUMMARY" $(LEXER_LOG)
-	@# in grep commands w/trailing || true, the pattern may not be present (and I don't want any output)
+	@# in grep commands w/trailing || true, the pattern may not be present (and I don't want any output in this case)
 	@$(GREP) --after-context 6 "LEAK SUMMARY" $(LEXER_LOG) || true
 	@$(GREP) --after-context 1 "no leaks" $(LEXER_LOG) || true
 	@$(GREP) "ERROR SUMMARY" $(LEXER_LOG)
@@ -49,7 +49,10 @@ $(TEST_BIN)/lexer_tests: $(OBJ)/lexer_tests.o $(OBJ)/lexer.o
 $(TEST_BIN)/parser_tests: $(OBJ)/parser_tests.o $(OBJ)/parser.o $(OBJ)/lexer.o
 	$(CC) -o $@ $^
 
-$(OBJ)/%_tests.o: $(TEST_SRC)/%_tests.c $(SRC)/%.h
+$(OBJ)/lexer_tests.o: $(TEST_SRC)/lexer_tests.c $(SRC)/lexer.h
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(OBJ)/parser_tests.o: $(TEST_SRC)/parser_tests.c $(SRC)/parser.h $(SRC)/lexer.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(OBJ)/main.o: $(SRC)/main.c $(SRC)/lexer.h $(SRC)/parser.h $(SRC)/eval.h
