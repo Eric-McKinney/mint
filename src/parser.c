@@ -59,7 +59,13 @@ static ExprTree *parse_expr(TokenList *tok_l, TokenList **out_tl) {
         case TOK_FUN:
             return parse_function_expr(tok_l, out_tl);
         case TOK_ID:
-            return parse_assignment_expr(tok_l, out_tl);
+            #pragma GCC diagnostic push
+            #pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
+            /* The above is to ignore a warning for implicit fall through caused by this case */
+            if (tok_l->next->token == TOK_EQUAL) {
+                return parse_assignment_expr(tok_l, out_tl);
+            }
+            #pragma GCC diagnostic pop
         default:
             add_expr = parse_additive_expr(tok_l, &t);
 
@@ -103,7 +109,7 @@ static ExprTree *parse_function_expr(TokenList *tok_l, TokenList **out_tl) {
 
 static ExprTree *parse_parameter_expr(TokenList *tok_l, TokenList **out_tl) {
     TokenList *t, *t2, *t3;
-    ExprTree *param_expr, *id_expr;
+    ExprTree *parameter_expr, *param_expr, *id_expr;
 
     id_expr = parse_primary_expr(tok_l, &t);
 
@@ -118,12 +124,12 @@ static ExprTree *parse_parameter_expr(TokenList *tok_l, TokenList **out_tl) {
         *out_tl = t;
     }
 
-    param_expr = malloc(sizeof(ExprTree));
-    param_expr->expr = Parameter;
-    param_expr->left = id_expr;
-    param_expr->right = param_expr;
+    parameter_expr = malloc(sizeof(ExprTree));
+    parameter_expr->expr = Parameter;
+    parameter_expr->left = id_expr;
+    parameter_expr->right = param_expr;
 
-    return param_expr;
+    return parameter_expr;
 }
 
 static ExprTree *parse_assignment_expr(TokenList *tok_l, TokenList **out_tl) {
@@ -214,7 +220,7 @@ static ExprTree *parse_application_expr(TokenList *tok_l, TokenList **out_tl) {
         case TOK_ID:
             #pragma GCC diagnostic push
             #pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
-            /* The above is to ignore a warning (this time only) for implicit fall through caused by this case */
+            /* The above is to ignore a warning for implicit fall through caused by this case */
             if (tok_l->next->token == TOK_LPAREN) {
                 break;
             }
@@ -335,7 +341,7 @@ static ExprTree *parse_primary_expr(TokenList *tok_l, TokenList **out_tl) {
 }
 
 static void free_tree_node(ExprTree *tree) {
-    if (tree->expr == ID) {
+    if (tree->expr == ID || tree->expr == Fun) {
         free(tree->value.id);
     }
 
@@ -392,7 +398,7 @@ static char *expr_tree_to_str_aux(ExprTree *tree, int *size) {
             strcat(str, s);
             break;
         case Fun:
-            sprintf(s, "Fun %s", tree->value.id);
+            sprintf(s, "Fun %s ", tree->value.id);
             strcat(str, s);
             break;
         case Binop:
@@ -432,7 +438,7 @@ static char *expr_tree_to_str_aux(ExprTree *tree, int *size) {
             strcat(str, "Unrecognized expr");
     }
 
-    if (tree->left != NULL && tree->right != NULL) {
+    if (tree->left != NULL || tree->right != NULL) {
         strcat(str, lstr);
         strcat(str, rstr);
 
