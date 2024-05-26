@@ -103,55 +103,41 @@ static ExprTree *parse_function_expr(TokenList *tok_l, TokenList **out_tl) {
 
 static ExprTree *parse_parameter_expr(TokenList *tok_l, TokenList **out_tl) {
     TokenList *t, *t2, *t3;
-    ExprTree *param_expr;
-    char *id, *id_cpy;
+    ExprTree *param_expr, *id_expr;
 
-    t = match_token(tok_l, TOK_ID);
-
-    id = tok_l->value.id;
-    id_cpy = malloc(strlen(id) + 1);
-    strcpy(id_cpy, id);
-
-    param_expr = malloc(sizeof(ExprTree));
-    param_expr->expr = ID;
-    param_expr->value.id = id_cpy;
-    param_expr->left = NULL;
-    param_expr->right = NULL;
+    id_expr = parse_primary_expr(tok_l, &t);
 
     if (t->token == TOK_COMMA) {
         t2 = match_token(t, TOK_COMMA);
-
-        param_expr->right = parse_parameter_expr(t2, &t3);
+        param_expr = parse_parameter_expr(t2, &t3);
 
         *out_tl = t3;
     } else {
+        param_expr = NULL;
+        
         *out_tl = t;
     }
+
+    param_expr = malloc(sizeof(ExprTree));
+    param_expr->expr = Parameter;
+    param_expr->left = id_expr;
+    param_expr->right = param_expr;
 
     return param_expr;
 }
 
 static ExprTree *parse_assignment_expr(TokenList *tok_l, TokenList **out_tl) {
     TokenList *t, *t2, *t3, *t4;
-    ExprTree *assign_expr, *val_expr;
-    char *id, *id_cpy;
+    ExprTree *assign_expr, *id_expr, *val_expr;
 
-    t = match_token(tok_l, TOK_ID);
-
-    id = tok_l->value.id;
-    id_cpy = malloc(strlen(id) + 1);
-    strcpy(id_cpy, id);
-
+    id_expr = parse_primary_expr(tok_l, &t);
     t2 = match_token(t, TOK_EQUAL);
-
     val_expr = parse_additive_expr(t2, &t3);
-
     t4 = match_token(t3, TOK_ENDLN);
 
     assign_expr = malloc(sizeof(ExprTree));
     assign_expr->expr = Assign;
-    assign_expr->value.id = id_cpy;
-    assign_expr->left = NULL;
+    assign_expr->left = id_expr;
     assign_expr->right = val_expr;
 
     *out_tl = t4;
@@ -222,8 +208,7 @@ static ExprTree *parse_multiplicative_expr(TokenList *tok_l, TokenList **out_tl)
 
 static ExprTree *parse_application_expr(TokenList *tok_l, TokenList **out_tl) {
     TokenList *t, *t2, *t3, *t4;
-    ExprTree *application_expr, *primary_expr, *arg_expr;
-    char *id, *id_cpy;
+    ExprTree *application_expr, *primary_expr, *id_expr, *arg_expr;
 
     switch(tok_l->token) {
         case TOK_ID:
@@ -252,20 +237,15 @@ static ExprTree *parse_application_expr(TokenList *tok_l, TokenList **out_tl) {
         }
     }
     
-    t = match_token(tok_l, TOK_ID);
 
-    id = tok_l->value.id;
-    id_cpy = malloc(strlen(id) + 1);
-    strcpy(id_cpy, id);
-
+    id_expr = parse_primary_expr(tok_l, &t);
     t2 = match_token(t, TOK_LPAREN);
     arg_expr = parse_arg_expr(t2, &t3);
     t4 = match_token(t3, TOK_RPAREN);
 
     application_expr = malloc(sizeof(ExprTree));
     application_expr->expr = Application;
-    application_expr->value.id = id_cpy;
-    application_expr->left = NULL;
+    application_expr->left = id_expr;
     application_expr->right = arg_expr;
 
     *out_tl = t4;
@@ -437,15 +417,16 @@ static char *expr_tree_to_str_aux(ExprTree *tree, int *size) {
             }
             break;
         case Assign:
-            sprintf(s, "Assign %s", tree->value.id);
-            strcat(str, s);
+            strcat(str, "Assign");
             break;
         case Application:
-            sprintf(s, "App %s", tree->value.id);
-            strcat(str, s);
+            strcat(str, "App");
             break;
         case Argument:
             strcat(str, "Arg");
+            break;
+        case Parameter:
+            strcat(str, "Param");
             break;
         default:
             strcat(str, "Unrecognized expr");
