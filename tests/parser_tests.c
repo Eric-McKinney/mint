@@ -26,14 +26,22 @@ int main(int argc, char **argv) {
         "int float add sub",
         "arithmetic mix",
         "long add/sub",
-        "long mult/div"
+        "long mult/div",
+        "simple assign",
+        "arithmetic assign",
+        "function defn",
+        "function application"
     };
     const char *t_ans[] = {
         "(Add(Int 1)(Int 2))", /* 1 + 2 */
         "(Add(Sub(Int 44)(Int 21))(Float 2.200000))", /* 44 - 21 + 2.2 */
         "(Add(Div(Mult(Float 2.000000)(Int 4))(Int 12))(Int 5))", /* 2. * 4 / 12 + 5 */
         "(Sub(Add(Sub(Add(Int 1)(Int 2))(Int 3))(Int 4))(Int 5))", /* 1 + 2 - 3 + 4 - 5 */
-        "(Div(Mult(Div(Mult(Int 1)(Int 2))(Int 3))(Int 4))(Int 5))" /* 1 * 2 / 3 * 4 / 5 */
+        "(Div(Mult(Div(Mult(Int 1)(Int 2))(Int 3))(Int 4))(Int 5))", /* 1 * 2 / 3 * 4 / 5 */
+        "(Assign(ID R)(Int 500))", /* R = 500 */
+        "(Assign(ID circumference)(Mult(Mult(Float 3.140000)(Int 2))(ID r)))", /* circumference = 3.14 * 2 * r */
+        "(Fun f(Arg(ID x)(ID y))(Sub(Mult(ID x)(ID y))(Float 0.123456)))", /* fn f(x, y) = x * y - 0.123456 */
+        "(App(ID f)(Arg(Int 42)(Float 0.010000)))" /* f(42, 0.01) */
     };
     int num_tests = sizeof(t_names) / sizeof(char *), i, num_passed = 0;
     TokenList **inputs = create_inputs(num_tests);
@@ -155,7 +163,7 @@ static TokenList *append_token(TokenList *tok_l, Tok_t tok, int i, double d, cha
 
 static TokenList **create_inputs(int num_tests) {
     TokenList **inputs = malloc(num_tests * sizeof(TokenList *));
-    TokenList *t0, *t1, *t2, *t3, *t4;
+    TokenList *t0, *t1, *t2, *t3, *t4, *t5, *t6, *t7, *t8;
 
     t0 = append_token(NULL, TOK_INT, 1, 0, NULL);
     append_token(t0, TOK_ADD, 0, 0, NULL);
@@ -204,6 +212,77 @@ static TokenList **create_inputs(int num_tests) {
     append_token(t4, TOK_INT, 5, 0, NULL);
     append_token(t4, TOK_ENDLN, 0, 0, NULL);
     inputs[4] = t4;
+
+    {
+    char *id = malloc(strlen("R") + 1);
+    strcpy(id, "R");
+
+    t5 = append_token(NULL, TOK_ID, 0, 0, id);
+    append_token(t5, TOK_EQUAL, 0, 0, NULL);
+    append_token(t5, TOK_INT, 500, 0, NULL);
+    append_token(t5, TOK_ENDLN, 0, 0, NULL);
+    inputs[5] = t5;
+    }
+
+    {
+    char *id = malloc(strlen("circumference") + 1);
+    char *id2 = malloc(strlen("r" + 1));
+    strcpy(id, "circumference");
+    strcpy(id2, "r");
+    
+    t6 = append_token(NULL, TOK_ID, 0, 0, id);
+    append_token(t6, TOK_EQUAL, 0, 0, NULL);
+    append_token(t6, TOK_FLOAT, 0, 3.14, NULL);
+    append_token(t6, TOK_MULT, 0, 0, NULL);
+    append_token(t6, TOK_INT, 2, 0, NULL);
+    append_token(t6, TOK_MULT, 0, 0, NULL);
+    append_token(t6, TOK_ID, 0, 0, id2);
+    append_token(t6, TOK_ENDLN, 0, 0, NULL);
+    inputs[6] = t6;
+    }
+
+    {
+    char *id = malloc(strlen("f") + 1);
+    char *id2 = malloc(strlen("x") + 1);
+    char *id3 = malloc(strlen("y") + 1);
+    char *id4 = malloc(strlen("x") + 1);
+    char *id5 = malloc(strlen("y") + 1);
+    strcpy(id, "f");
+    strcpy(id2, "x");
+    strcpy(id3, "y");
+    strcpy(id4, "x");
+    strcpy(id5, "y");
+
+    t7 = append_token(NULL, TOK_FUN, 0, 0, NULL);
+    append_token(t7, TOK_ID, 0, 0, id);
+    append_token(t7, TOK_LPAREN, 0, 0, NULL);
+    append_token(t7, TOK_ID, 0, 0, id2);
+    append_token(t7, TOK_COMMA, 0, 0, NULL);
+    append_token(t7, TOK_ID, 0, 0, id3);
+    append_token(t7, TOK_RPAREN, 0, 0, NULL);
+    append_token(t7, TOK_EQUAL, 0, 0, NULL);
+    append_token(t7, TOK_ID, 0, 0, id4);
+    append_token(t7, TOK_MULT, 0, 0, NULL);
+    append_token(t7, TOK_ID, 0, 0, id5);
+    append_token(t7, TOK_SUB, 0, 0, NULL);
+    append_token(t7, TOK_FLOAT, 0, 0.123456, NULL);
+    append_token(t7, TOK_ENDLN, 0, 0, NULL);
+    inputs[7] = t7;
+    }
+
+    {
+    char *id = malloc(strlen("f") + 1);
+    strcpy(id, "f");
+
+    t8 = append_token(NULL, TOK_ID, 0, 0, id);
+    append_token(t8, TOK_LPAREN, 0, 0, NULL);
+    append_token(t8, TOK_INT, 42, 0, NULL);
+    append_token(t8, TOK_COMMA, 0, 0, NULL);
+    append_token(t8, TOK_FLOAT, 0, 0.01, NULL);
+    append_token(t8, TOK_RPAREN, 0, 0, NULL);
+    append_token(t8, TOK_ENDLN, 0, 0, NULL);
+    inputs[8] = t8;
+    }
 
     return inputs;
 }
