@@ -39,8 +39,9 @@ vvtests: $(TEST_LOG) tests
 	@$(GREP) --after-context 6 "LEAK SUMMARY" $(PARSER_LOG) || true
 	@$(GREP) --after-context 1 "no leaks" $(PARSER_LOG) || true
 	@$(GREP) "ERROR SUMMARY" $(PARSER_LOG)
-	@echo "|"
-	@echo "| Full test logs available in ./$(TEST_LOG)"
+	@echo "|------------------------------------------------------------|"
+	@echo "| Full test logs written to \e[0;36m./$(TEST_LOG)\e[0m"
+	@echo "|------------------------------------------------------------|"
 
 $(TEST_BIN)/lexer_tests: $(OBJ)/lexer_tests.o $(OBJ)/lexer.o
 	$(CC) -o $@ $^
