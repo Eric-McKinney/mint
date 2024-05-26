@@ -40,8 +40,8 @@ int main(int argc, char **argv) {
         "(Div(Mult(Div(Mult(Int 1)(Int 2))(Int 3))(Int 4))(Int 5))", /* 1 * 2 / 3 * 4 / 5 */
         "(Assign(ID R)(Int 500))", /* R = 500 */
         "(Assign(ID circumference)(Mult(Mult(Float 3.140000)(Int 2))(ID r)))", /* circumference = 3.14 * 2 * r */
-        "(Fun f(Arg(ID x)(ID y))(Sub(Mult(ID x)(ID y))(Float 0.123456)))", /* fn f(x, y) = x * y - 0.123456 */
-        "(App(ID f)(Arg(Int 42)(Float 0.010000)))" /* f(42, 0.01) */
+        "(Fun f (Param(ID x)(Param(ID y)()))(Sub(Mult(ID x)(ID y))(Float 0.123456)))", /* fn f(x, y) = x * y - 0.123456 */
+        "(App(ID f)(Arg(Int 42)(Arg(Float 0.010000)())))" /* f(42, 0.01) */
     };
     int num_tests = sizeof(t_names) / sizeof(char *), i, num_passed = 0;
     TokenList **inputs = create_inputs(num_tests);
@@ -226,7 +226,7 @@ static TokenList **create_inputs(int num_tests) {
 
     {
     char *id = malloc(strlen("circumference") + 1);
-    char *id2 = malloc(strlen("r" + 1));
+    char *id2 = malloc(strlen("r") + 1);
     strcpy(id, "circumference");
     strcpy(id2, "r");
     
