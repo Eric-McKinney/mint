@@ -22,17 +22,19 @@ static TokenList **create_inputs();
 
 int main(int argc, char **argv) {
     const char *t_names[] = {
-        "basic_addition",       /* 1 + 2 */
-        "int float add sub",    /* 44 - 21 + 2.2 */
-        "arithmetic mix",       /* 2. * 4 / 12 + 5 */
-        "long add/sub",         /* 1 + 2 - 3 + 4 - 5 */
-        "long mult/div",        /* 1 * 2 / 3 * 4 / 5 */
-        "simple assign",        /* R = 500 */
-        "arithmetic assign",    /* circumference = 3.14 * 2 * r */
-        "function defn",        /* fn f(x, y) = x * y - 0.123456 */
-        "function application", /* f(42, 0.01) */
-        "lexer->fn defn",       /* fn area(r) = 3.14 * r*r */
-        "lexer->parens"         /* 4 + 3 * (2 - 3) */
+        "basic_addition",             /* 1 + 2 */
+        "int float add sub",          /* 44 - 21 + 2.2 */
+        "arithmetic mix",             /* 2. * 4 / 12 + 5 */
+        "long add/sub",               /* 1 + 2 - 3 + 4 - 5 */
+        "long mult/div",              /* 1 * 2 / 3 * 4 / 5 */
+        "simple assign",              /* R = 500 */
+        "arithmetic assign",          /* circumference = 3.14 * 2 * r */
+        "function defn",              /* fn f(x, y) = x * y - 0.123456 */
+        "function application",       /* f(42, 0.01) */
+        "lexer->fn defn",             /* fn area(r) = 3.14 * r*r */
+        "lexer->parens",              /* 4 + 3 * (2 - 3) */
+        "lexer->arithmetic assign",   /* var=2*(var+1)/12 */
+        "lexer->function application" /* my_fun(0,arg, a, b, 2.0)*3 */
     };
     const char *t_ans[] = {
         "(Add(Int 1)(Int 2))",
@@ -45,7 +47,9 @@ int main(int argc, char **argv) {
         "(Fun f (Param(ID x)(Param(ID y)()))(Sub(Mult(ID x)(ID y))(Float 0.123456)))",
         "(App(ID f)(Arg(Int 42)(Arg(Float 0.010000)())))",
         "(Fun area (Param(ID r)())(Mult(Mult(Float 3.140000)(ID r))(ID r)))",
-        "(Add(Int 4)(Mult(Int 3)(Sub(Int 2)(Int 3))))"
+        "(Add(Int 4)(Mult(Int 3)(Sub(Int 2)(Int 3))))",
+        "(Assign(ID var)(Div(Mult(Int 2)(Add(ID var)(Int 1)))(Int 12)))",
+        "(Mult(App(ID my_fun)(Arg(Int 0)(Arg(ID arg)(Arg(ID a)(Arg(ID b)(Arg(Float 2.000000)()))))))(Int 3))"
     };
     int num_tests = sizeof(t_names) / sizeof(char *), i, num_passed = 0;
     TokenList **inputs = create_inputs(num_tests);
@@ -290,6 +294,8 @@ static TokenList **create_inputs(int num_tests) {
 
     inputs[9] = tokenize("fn area(r) = 3.14 * r*r\n");
     inputs[10] = tokenize("4 + 3 * (2 - 3)\n");
+    inputs[11] = tokenize("var=2*(var+1)/12\n");
+    inputs[12] = tokenize("my_fun(0,arg, a, b, 2.0)*3\n");
 
     return inputs;
 }
