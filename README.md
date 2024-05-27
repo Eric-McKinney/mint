@@ -58,10 +58,8 @@ ID -> `string which matches the following regex: ^[a-zA-Z][a-zA-Z0-9_]*$`
 # TODO
 - [x] ~~Write lexer~~
 - [x] ~~Write parser~~
-    - [x] ~~Verify that CFG is correct (aligns with math rules)~~
-    - [x] ~~Write various parse functions for each level of CFG~~
-    - [x] ~~Do lots of testing~~
 - [ ] Write evaluator
+    - [ ] Lots of testing
 - [ ] Write main cli/script-running loop
 
 ## Longer term TODO
