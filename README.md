@@ -57,13 +57,15 @@ ID -> `string which matches the following regex: ^[a-zA-Z][a-zA-Z0-9_]*$`
 
 # TODO
 - [x] ~~Write lexer~~
-- [ ] Write parser
+- [x] ~~Write parser~~
     - [x] ~~Verify that CFG is correct (aligns with math rules)~~
     - [x] ~~Write various parse functions for each level of CFG~~
-    - [ ] Do lots of testing
+    - [x] ~~Do lots of testing~~
 - [ ] Write evaluator
+- [ ] Write main cli/script-running loop
 
 ## Longer term TODO
 - [ ] Explore parsing using the [shunting yard algorithm](https://www.engr.mun.ca/~theo/Misc/exp_parsing.htm#shunting_yard)
 or the [precedence climbing algorithm](https://www.engr.mun.ca/~theo/Misc/exp_parsing.htm#climbing)
 - [ ] Add multiplication via (45)(3) syntax (change CFG too)
+- [ ] Add exponents
