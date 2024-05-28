@@ -1,22 +1,16 @@
 #ifndef Eval_h
 #define Eval_h
 
-typedef struct {
-    enum {
-        Int,
-        Float
-    } type;
-    
-    union {
-        int i;
-        double d;
-    } value;
-} Value_t;
+#include "parser.h"
 
 typedef struct env {
     char *id;
-    Value_t data;
+    ExprTree *data;
     struct env *next;
 } Env_t;
+
+Env_t *init_env();
+void free_env(Env_t *env);
+ExprTree *eval(ExprTree *tree, Env_t *env);
 
 #endif
