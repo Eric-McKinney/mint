@@ -92,6 +92,9 @@ void free_env(Env_t *env) {
 static ExprTree *eval_fun(ExprTree *tree, Env_t *env);
 static ExprTree *eval_binop(ExprTree *tree, Env_t *env);
 static ExprTree *eval_assign(ExprTree *tree, Env_t *env);
+static ExprTree *eval_application(ExprTree *tree, Env_t *env);
+static ExprTree *eval_argument(ExprTree *tree, Env_t *env);
+static ExprTree *eval_parameter(ExprTree *tree, Env_t *env);
 
 ExprTree *eval(ExprTree *tree, Env_t *env) {
     switch (tree->expr) {
@@ -107,8 +110,13 @@ ExprTree *eval(ExprTree *tree, Env_t *env) {
         case Assign:
             return eval_assign(tree, env);
         case Application:
+            return eval_application(tree, env);
         case Argument:
+            fprintf(stderr, "Arugment expression outside of function application\n");
+            exit(EXIT_FAILURE);
         case Parameter:
+            fprintf(stderr, "Parameter expression outside of function definition\n");
+            exit(EXIT_FAILURE);
         default: {
             char *expr_str = expr_tree_to_str(tree);
             fprintf(stderr, "Failed to evaluate unrecognized expression: %s\n", expr_str);
@@ -120,10 +128,7 @@ ExprTree *eval(ExprTree *tree, Env_t *env) {
 
 static ExprTree *eval_fun(ExprTree *tree, Env_t *env) {
     ExprTree *body = eval(tree->right, env);
-
-    free_expr_tree(tree->right);
     tree->right = body;
-
     extend_env(&env, tree->value.id, tree);
 
     return tree;
@@ -230,6 +235,12 @@ static ExprTree *eval_binop(ExprTree *tree, Env_t *env) {
 
 static ExprTree *eval_assign(ExprTree *tree, Env_t **env) {
     ExprTree *v = eval(tree->right);
+    tree->right = v;
     extend_env(env, tree->left->value.id, v);
 
+    return tree;
 }
+
+static ExprTree *eval_application(ExprTree *tree, Env_t *env) {return NULL;}
+static ExprTree *eval_argument(ExprTree *tree, Env_t *env) {return NULL;}
+static ExprTree *eval_parameter(ExprTree *tree, Env_t *env) {return NULL;}
