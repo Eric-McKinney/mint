@@ -2,9 +2,9 @@
 
 ### Preamble
 
-Starting this log to keep myself focused, track my progress, and to be able to reference it later. \
-The format is as follows:
-- A goals section describing what I intend to get done
+I'm starting this log to keep myself focused, track my progress, and to be able to reference it later. \
+The format for each entry is as follows:
+- A goals section describing what I intend to get done (checked off as I finish each thing)
 - A notes section for any significant unplanned changes I make or just to say everything went to plan
 - An optional issues section where I describe problems I'm having
 - An optional fixes section where I describe the solutions/fixes to the problems in the issues section
@@ -18,7 +18,7 @@ Goals for today:
 - [x] Implement bind\_args
 - [x] Implement eval\_arguments
 - [x] Ensure that eval.c compiles without any warnings
-- [ ] Begin writing tests for eval.c
+- [x] Begin writing tests for eval.c
 
 Notes:
 - Added validate\_params function to check for duplicate parameters
