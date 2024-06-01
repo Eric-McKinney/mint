@@ -5,24 +5,29 @@
 #include "parser.h"
 
 Env_t *init_env() {
-    return NULL;
+    return calloc(1, sizeof(Env_t));
 }
 
-static void extend_env(Env_t **env, const char *id, ExprTree *data) {
+static void extend_env(Env_t *env, const char *id, ExprTree *data) {
     Env_t *new_data;
 
     new_data = malloc(sizeof(Env_t));
     new_data->id = malloc(strlen(id) + 1);
     strcpy(new_data->id, id);
     new_data->data = data;
-    new_data->next = *env;
+    new_data->next = env->next;
 
-    *env = new_data;
+    env->next = new_data;
+}
+
+static void extend_env_tmp(Env_t **env, const char *id) {
+    extend_env(env, id, NULL);
 }
 
 static Env_t *env_find(Env_t *env, const char *id, Env_t **prev) {
-    Env_t *p = NULL;
+    Env_t *p = env;
 
+    env = env->next;
     while (env != NULL) {
         if (strcmp(env->id, id) == 0) {
             if (prev != NULL) {
@@ -45,7 +50,7 @@ static ExprTree *lookup(Env_t *env, const char *id) {
     if (e != NULL) {
         return e->data;
     } else {
-        fprintf(stderr, "Unbound variable %s", id);
+        fprintf(stderr, "Unbound identifier %s\n", id);
         exit(EXIT_FAILURE);
     }
 }
@@ -53,31 +58,6 @@ static ExprTree *lookup(Env_t *env, const char *id) {
 static void free_env_node(Env_t *env) {
     free(env->id);
     free(env);
-}
-
-static void shrink_env(Env_t **env, const char *id) {
-    Env_t *prev;
-    Env_t *e = env_find(*env, id, &prev);
-
-    if (e != NULL) {
-        if (prev == NULL) {
-            *env = e->next;
-        } else {
-            prev->next = e->next;
-        }
-
-        free_env_node(e);
-    }
-}
-
-static void extend_env_tmp(Env_t **env, const char *id) {
-    extend_env(env, id, NULL);
-}
-
-static void update_env(Env_t *env, const char *id, ExprTree *data) {
-    ExprTree **old_data = &lookup(env, id);
-
-    *old_data = data;
 }
 
 void free_env(Env_t *env) {
@@ -89,12 +69,39 @@ void free_env(Env_t *env) {
     free_env_node(env);
 }
 
+static void shrink_env(Env_t **env, const char *id, int qty) {
+    Env_t *e, *prev, *last;
+    int i;
+
+    e = env_find(*env, id, &prev);
+
+    if (e == NULL) {
+        fprintf(stderr, "Failed to shrink environment: cannot find identifier %s\n", id);
+        exit(EXIT_FAILURE);
+    }
+
+    last = e;
+    for (i = 1; i < qty; i++) {
+        last = last->next;
+    }
+
+    prev->next = last->next;
+    last->next = NULL;
+    free_env(e);
+}
+
+static void update_env(Env_t *env, const char *id, ExprTree *data) {
+    ExprTree **old_data = &lookup(env, id);
+
+    *old_data = data;
+}
+
 static ExprTree *eval_fun(ExprTree *tree, Env_t *env);
 static ExprTree *eval_binop(ExprTree *tree, Env_t *env);
 static ExprTree *eval_assign(ExprTree *tree, Env_t *env);
 static ExprTree *eval_application(ExprTree *tree, Env_t *env);
-static ExprTree *eval_argument(ExprTree *tree, Env_t *env);
-static ExprTree *eval_parameter(ExprTree *tree, Env_t *env);
+static ExprTree *push_params(ExprTree *tree, Env_t *env);
+static ExprTree *eval_arguments(ExprTree *tree, Env_t *env);
 
 ExprTree *eval(ExprTree *tree, Env_t *env) {
     switch (tree->expr) {
@@ -241,6 +248,31 @@ static ExprTree *eval_assign(ExprTree *tree, Env_t **env) {
     return tree;
 }
 
-static ExprTree *eval_application(ExprTree *tree, Env_t *env) {return NULL;}
-static ExprTree *eval_argument(ExprTree *tree, Env_t *env) {return NULL;}
-static ExprTree *eval_parameter(ExprTree *tree, Env_t *env) {return NULL;}
+static ExprTree *eval_application(ExprTree *tree, Env_t *env) {
+    ExprTree *fun = eval(tree->left, env);
+    ExprTree *fun_body = fun->right;
+    ExprTree *params = fun->left;
+    ExprTree *args = eval_arguments(tree->right, params, env);
+    ExprTree *ret_val;
+    int num_params;
+
+    num_params = push_params(params, env);
+    bind_args(args, env);
+    ret_val = eval(fun_body);
+    pop_params(params, env);
+
+    return ret_val;
+}
+
+static int push_params(ExprTree *tree, Env_t *env) {
+    if (tree == NULL) {
+        return 0;
+    }
+
+    extend_env_tmp(&env, tree->left->value.id);
+
+    return 1 + push_params(tree->right, env);
+}
+
+static void pop_params(ExprTree *tree, int num_params, Env_t *env) {}
+static ExprTree *eval_arguments(ExprTree *tree, ExprTree *fun_params, Env_t *env) {return NULL;}
