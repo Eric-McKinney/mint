@@ -62,6 +62,10 @@ ID -> `string which matches the following regex: ^[a-zA-Z][a-zA-Z0-9_]*$`
     - [ ] Lots of testing
 - [ ] Write main cli/script-running loop
     - [ ] Lots of testing
+- [ ] Document code
+    - [ ] Describe less obvious functions w/comments (mostly in eval)
+    - [ ] Put relevant CFG bits before parser functions
+- [ ] Clean up README & add screenshots/gifs using mint
 
 ## Longer term TODO
 - [ ] Explore parsing arithmetic using the [shunting yard algorithm](https://www.engr.mun.ca/~theo/Misc/exp_parsing.htm#shunting_yard)
