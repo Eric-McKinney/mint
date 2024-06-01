@@ -11,6 +11,8 @@ The format for each entry is as follows:
 
 I wish I thought of this earlier, but it is what it is.
 
+---
+
 ### June 1st, 2024
 
 Goals for today:
