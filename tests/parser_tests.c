@@ -13,7 +13,7 @@ typedef struct {
 
 int verbose = 0;
 static int run_test(Test *test);
-static TokenList **create_inputs();
+static TokenList **create_inputs(int num_tests);
 
 int main(int argc, char **argv) {
     const char *t_names[] = {
