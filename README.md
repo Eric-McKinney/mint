@@ -68,5 +68,8 @@ ID -> `string which matches the following regex: ^[a-zA-Z][a-zA-Z0-9_]*$`
 or the [precedence climbing algorithm](https://www.engr.mun.ca/~theo/Misc/exp_parsing.htm#climbing)
 - [ ] Add multiplication via (45)(3) syntax (change CFG too)
 - [ ] Add exponents
+- [ ] Add trig functions (radians only)
+    - [ ] Add deg\_to\_rad function
+    - [ ] Add rad\_to\_deg function
 - [ ] Start adding version numbers, whatnot
 - [ ] Maybe add to package managers like homebrew?
