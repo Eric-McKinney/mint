@@ -55,7 +55,7 @@ static ExprTree *parse_expr(TokenList *tok_l, TokenList **out_tl) {
         exit(EXIT_FAILURE);
     }
 
-    switch(tok_l->token) {
+    switch (tok_l->token) {
         case TOK_FUN:
             return parse_function_expr(tok_l, out_tl);
         case TOK_ID:
@@ -216,7 +216,7 @@ static ExprTree *parse_application_expr(TokenList *tok_l, TokenList **out_tl) {
     TokenList *t, *t2, *t3, *t4;
     ExprTree *application_expr, *primary_expr, *id_expr, *arg_expr;
 
-    switch(tok_l->token) {
+    switch (tok_l->token) {
         case TOK_ID:
             #pragma GCC diagnostic push
             #pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
@@ -290,7 +290,7 @@ static ExprTree *parse_primary_expr(TokenList *tok_l, TokenList **out_tl) {
 
     p_expr = malloc(sizeof(ExprTree));
 
-    switch(tok_l->token) {
+    switch (tok_l->token) {
         case TOK_INT:
             t = match_token(tok_l, TOK_INT);
 
@@ -382,7 +382,7 @@ static char *expr_tree_to_str_aux(ExprTree *tree, int *size) {
     str = malloc(MAX_NODE_STR_LEN*(1 + lsize + rsize) + 3);
 
     strcpy(str, "(");
-    switch(tree->expr) {
+    switch (tree->expr) {
         char s[MAX_NODE_VAL_LEN];
 
         case Int:
@@ -402,7 +402,7 @@ static char *expr_tree_to_str_aux(ExprTree *tree, int *size) {
             strcat(str, s);
             break;
         case Binop:
-            switch(tree->value.binop) {
+            switch (tree->value.binop) {
                 case Add:
                     strcat(str, "Add");
                     break;
