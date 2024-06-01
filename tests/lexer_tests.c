@@ -2,12 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../src/lexer.h"
-
-#define SUCCESS 1
-#define FAILURE 0
-#define PASSED "\033[1;32mPASSED\033[0m"
-#define FAILED "\033[1;31mFAILED\033[0m"
-#define SEP "|------------------------------------------------------------|\n"
+#include "test.h"
 
 typedef struct {
     char name[80];
@@ -46,7 +41,7 @@ int main(int argc, char **argv) {
         printf("| ");
     }
 
-    printf("\033[44mlexer tests\033[0m\n");
+    printf(C_SUITE_NAME("lexer tests") "\n");
     printf("|\n");
     
     for (i = 0; i < num_tests; i++) {
@@ -64,7 +59,7 @@ int main(int argc, char **argv) {
             printf("|\n");
         }
 
-        printf("| \033[0;36m%s\033[0m %s\n", t->name, 
+        printf("| " C_TEST_NAME("%s") " %s\n", t->name,
                t_result == SUCCESS ? PASSED : FAILED);
 
         if (verbose) {
@@ -89,7 +84,7 @@ static int run_test(Test *test) {
     int t_result;
 
     if (verbose) {
-        printf("| \033[0;36m%s\033[0m test:\n", test->name);
+        printf("| " C_TEST_NAME("%s") " test:\n", test->name);
     }
 
     tok_l = tokenize(test->input);
