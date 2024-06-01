@@ -136,7 +136,7 @@ static TokenList *append_token(TokenList *tok_l, Tok_t tok, int i, double d, cha
     TokenList *new_node = malloc(sizeof(TokenList));
 
     new_node->token = tok;
-    switch(tok) {
+    switch (tok) {
         case TOK_INT:
             new_node->value.i = i;
             break;
