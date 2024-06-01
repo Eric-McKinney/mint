@@ -4,6 +4,8 @@
 #include "eval.h"
 #include "parser.h"
 
+#define MAX_PARAMS 50 /* arbitrary upper limit on how many params a function can have */
+
 Env_t *init_env() {
     return calloc(1, sizeof(Env_t));
 }
@@ -20,7 +22,7 @@ static void extend_env(Env_t *env, const char *id, ExprTree *data) {
     env->next = new_data;
 }
 
-static void extend_env_tmp(Env_t **env, const char *id) {
+static void extend_env_tmp(Env_t *env, const char *id) {
     extend_env(env, id, NULL);
 }
 
@@ -69,11 +71,11 @@ void free_env(Env_t *env) {
     free_env_node(env);
 }
 
-static void shrink_env(Env_t **env, const char *id, int qty) {
+static void shrink_env(Env_t *env, const char *id, int qty) {
     Env_t *e, *prev, *last;
     int i;
 
-    e = env_find(*env, id, &prev);
+    e = env_find(env, id, &prev);
 
     if (e == NULL) {
         fprintf(stderr, "Failed to shrink environment: cannot find identifier %s\n", id);
@@ -90,18 +92,20 @@ static void shrink_env(Env_t **env, const char *id, int qty) {
     free_env(e);
 }
 
-static void update_env(Env_t *env, const char *id, ExprTree *data) {
-    ExprTree **old_data = &lookup(env, id);
+static void update_env(Env_t *env, const char *id, ExprTree *new_data) {
+    Env_t *env_entry = env_find(env, id, NULL);
 
-    *old_data = data;
+    env_entry->data = new_data;
 }
 
 static ExprTree *eval_fun(ExprTree *tree, Env_t *env);
 static ExprTree *eval_binop(ExprTree *tree, Env_t *env);
 static ExprTree *eval_assign(ExprTree *tree, Env_t *env);
 static ExprTree *eval_application(ExprTree *tree, Env_t *env);
-static ExprTree *push_params(ExprTree *tree, Env_t *env);
 static ExprTree *eval_arguments(ExprTree *tree, Env_t *env);
+static int push_params(ExprTree *tree, Env_t *env);
+static int bind_args(ExprTree *args, ExprTree *params, Env_t *env);
+static void pop_params(ExprTree *params, int num_params, Env_t *env);
 
 ExprTree *eval(ExprTree *tree, Env_t *env) {
     switch (tree->expr) {
@@ -133,17 +137,41 @@ ExprTree *eval(ExprTree *tree, Env_t *env) {
     }
 }
 
+static void validate_params(ExprTree *params, const char *fun_id) {
+    char *p[MAX_PARAMS];
+    int i = 0, j, dupes = 0;
+
+    while (params != NULL) {
+        p[i] = params->left->value.id;
+
+        for (j = 0; j < i; j++) {
+            if (strcmp(p[j], p[i]) == 0) {
+                fprintf(stderr, "Duplicate parameter \"%s\" in %s\n", p[i], fun_id);
+                dupes++;
+                break;
+            }
+        }
+
+        i++;
+    }
+
+    if (dupes) {
+        exit(EXIT_FAILURE);
+    }
+}
+
 static ExprTree *eval_fun(ExprTree *tree, Env_t *env) {
     ExprTree *body = eval(tree->right, env);
     tree->right = body;
-    extend_env(&env, tree->value.id, tree);
+    validate_params(tree->left, tree->value.id);
+    extend_env(env, tree->value.id, tree);
 
     return tree;
 }
 
 static ExprTree *eval_binop(ExprTree *tree, Env_t *env) {
     ExprTree *v1, *v2, *v;
-    int can_simplify, v1_is_int, v1_is_float, v1_is_int, v2_is_float;
+    int can_simplify, v1_is_int, v1_is_float, v2_is_int, v2_is_float;
 
     v1 = eval(tree->left, env);
     v2 = eval(tree->right, env);
@@ -211,7 +239,7 @@ static ExprTree *eval_binop(ExprTree *tree, Env_t *env) {
             break;
         case Div:
             if (v->expr == Int) {
-                if (v1 % v2 == 0) {
+                if (v1->value.i % v2->value.i == 0) {
                     v->value.i = v1->value.i / v2->value.i;
                 } else {
                     v->expr = Float;
@@ -240,8 +268,8 @@ static ExprTree *eval_binop(ExprTree *tree, Env_t *env) {
     return v;
 }
 
-static ExprTree *eval_assign(ExprTree *tree, Env_t **env) {
-    ExprTree *v = eval(tree->right);
+static ExprTree *eval_assign(ExprTree *tree, Env_t *env) {
+    ExprTree *v = eval(tree->right, env);
     tree->right = v;
     extend_env(env, tree->left->value.id, v);
 
@@ -249,19 +277,40 @@ static ExprTree *eval_assign(ExprTree *tree, Env_t **env) {
 }
 
 static ExprTree *eval_application(ExprTree *tree, Env_t *env) {
-    ExprTree *fun = eval(tree->left, env);
+    ExprTree *fun = lookup(env, tree->left->value.id);
     ExprTree *fun_body = fun->right;
     ExprTree *params = fun->left;
-    ExprTree *args = eval_arguments(tree->right, params, env);
+    ExprTree *args = eval_arguments(tree->right, env);
     ExprTree *ret_val;
-    int num_params;
+    int num_params, num_args_binded;
 
     num_params = push_params(params, env);
-    bind_args(args, env);
-    ret_val = eval(fun_body);
-    pop_params(params, env);
+    num_args_binded = bind_args(args, params, env);
+
+    if (num_params != num_args_binded) {
+        fprintf(stderr,
+                "In application of %s: received %d arguments, expected %d\n",
+                fun->value.id,
+                num_args_binded,
+                num_params);
+        exit(EXIT_FAILURE);
+    }
+
+    ret_val = eval(fun_body, env);
+    pop_params(params, num_params, env);
 
     return ret_val;
+}
+
+static ExprTree *eval_arguments(ExprTree *args, Env_t *env) {
+    ExprTree *arg = args;
+
+    while (arg != NULL) {
+        arg->left = eval(arg->left, env);
+        arg = arg->right;
+    }
+
+    return args;
 }
 
 static int push_params(ExprTree *tree, Env_t *env) {
@@ -269,10 +318,31 @@ static int push_params(ExprTree *tree, Env_t *env) {
         return 0;
     }
 
-    extend_env_tmp(&env, tree->left->value.id);
+    extend_env_tmp(env, tree->left->value.id);
 
     return 1 + push_params(tree->right, env);
 }
 
-static void pop_params(ExprTree *tree, int num_params, Env_t *env) {}
-static ExprTree *eval_arguments(ExprTree *tree, ExprTree *fun_params, Env_t *env) {return NULL;}
+static int bind_args(ExprTree *args, ExprTree *params, Env_t *env) {
+    int args_binded;
+
+    if (args == NULL || params == NULL) {
+        return 0;
+    }
+
+    args_binded = bind_args(args->right, params->right, env);
+    update_env(env, params->left->value.id, args->left);
+
+    return 1 + args_binded;
+}
+
+static void pop_params(ExprTree *params, int num_params, Env_t *env) {
+    char *top_param; /* first param in env (top of stack) */
+
+    while (params->right != NULL) {
+        params = params->right;
+    }
+
+    top_param = params->left->value.id;
+    shrink_env(env, top_param, num_params);
+}
