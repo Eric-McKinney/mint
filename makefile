@@ -49,10 +49,10 @@ $(TEST_BIN)/lexer_tests: $(OBJ)/lexer_tests.o $(OBJ)/lexer.o
 $(TEST_BIN)/parser_tests: $(OBJ)/parser_tests.o $(OBJ)/parser.o $(OBJ)/lexer.o
 	$(CC) -o $@ $^
 
-$(OBJ)/lexer_tests.o: $(TEST_SRC)/lexer_tests.c $(SRC)/lexer.h
+$(OBJ)/lexer_tests.o: $(TEST_SRC)/lexer_tests.c $(SRC)/lexer.h $(TEST_SRC)/test.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(OBJ)/parser_tests.o: $(TEST_SRC)/parser_tests.c $(SRC)/parser.h $(SRC)/lexer.h
+$(OBJ)/parser_tests.o: $(TEST_SRC)/parser_tests.c $(SRC)/parser.h $(SRC)/lexer.h $(TEST_SRC)/test.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(OBJ)/main.o: $(SRC)/main.c $(SRC)/lexer.h $(SRC)/parser.h $(SRC)/eval.h
