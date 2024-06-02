@@ -98,6 +98,48 @@ static void update_env(Env_t *env, const char *id, ExprTree *new_data) {
     env_entry->data = new_data;
 }
 
+static char *env_to_str_aux(Env_t *env) {
+    char *str, *data_str, *env_str;
+    int env_str_len, total_len;
+
+    if (env == NULL) {
+        return calloc(1, 1); /* effectively returns "" */
+    }
+
+    env_str = env_to_str_aux(env->next);
+    data_str = expr_tree_to_str(env->data);
+    
+    env_str_len = strlen(env_str);
+    total_len = strlen(env->id) + strlen(data_str) + env_str_len;
+    
+    /* the + 8 at the end is for null char, parens, colon, spaces, and potentially a comma */
+    str = malloc(total_len + 8);
+    sprintf(str, "(%s : %s)", env->id, data_str);
+
+    if (env_str_len != 0) {
+        sprintf(str + strlen(str), ", %s", env_str);
+    }
+    
+    free(data_str);
+    free(env_str);
+
+    return str;
+}
+
+char *env_to_str(Env_t *env) {
+    char *str, *contents;
+
+    env = env->next;
+    contents = env_to_str_aux(env);
+
+    str = malloc(strlen(contents) + 3);
+
+    sprintf(str, "[%s]", contents);
+    free(contents);
+
+    return str;
+}
+
 static void eval_fun(ExprTree **t, Env_t *env);
 static void eval_binop(ExprTree **t, Env_t *env);
 static void eval_assign(ExprTree **t, Env_t *env);
