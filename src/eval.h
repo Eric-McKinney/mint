@@ -11,6 +11,6 @@ typedef struct env {
 
 Env_t *init_env();
 void free_env(Env_t *env);
-ExprTree *eval(ExprTree *tree, Env_t *env);
+ExprTree *eval(ExprTree **tree, Env_t *env);
 
 #endif
