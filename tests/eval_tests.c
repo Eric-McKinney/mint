@@ -18,10 +18,10 @@ static ExprTree **create_inputs(int num_tests);
 
 int main(int argc, char **argv) {
     const char *t_names[] = {
-        ""
+        "basic addition"
     };
     const char *t_ans[] = {
-        ""
+        "(Int 3)"
     };
     int num_tests = sizeof(t_names) / sizeof(char *), i, num_passed = 0;
     ExprTree **inputs = create_inputs(num_tests);
@@ -89,7 +89,7 @@ static int run_test(Test *test) {
         before_input_str = expr_tree_to_str(test->input);
     }
     
-    tree = eval(test->input, env);
+    tree = eval(&(test->input), env);
     tree_str = expr_tree_to_str(tree);
 
     if (verbose) {
@@ -108,9 +108,59 @@ static int run_test(Test *test) {
 
     free(tree_str);
     free_expr_tree(tree);
-    free_expr_tree(test->input);
+    free_env(env);
 
     return t_result;
 }
 
-static ExprTree **create_inputs(int num_tests) {return NULL;}
+static ExprTree *add_node(ExprTree *tree, Expr_t expr, int i, double d, char *id, Operator_t binop, int add_left) {
+    ExprTree *new_node = malloc(sizeof(ExprTree));
+
+    new_node->expr = expr;
+    switch (expr) {
+        case Int:
+            new_node->value.i = i;
+            break;
+        case Float:
+            new_node->value.d = d;
+            break;
+        case ID:
+            new_node->value.id = id;
+            break;
+        case Fun:
+            new_node->value.id = id;
+            break;
+        case Binop:
+            new_node->value.binop = binop;
+            break;
+        default:
+            break;
+    }
+
+    new_node->left = NULL;
+    new_node->right = NULL;
+
+    if (tree == NULL) {
+        return new_node;
+    }
+
+    if (add_left) {
+        tree->left = new_node;
+    } else {
+        tree->right = new_node;
+    }
+
+    return new_node;
+}
+
+static ExprTree **create_inputs(int num_tests) {
+    ExprTree **inputs = malloc(num_tests * sizeof(ExprTree *));
+    ExprTree *t, *t0;
+
+    t0 = add_node(NULL, Binop, 0, 0, NULL, Add, 0);
+    add_node(t0, Int, 1, 0, NULL, Add, 1);
+    add_node(t0, Int, 2, 0, NULL, Add, 0);
+    inputs[0] = t0;
+
+    return inputs;
+}
