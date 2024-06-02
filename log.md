@@ -47,3 +47,17 @@ Goals for today:
 - [ ] Begin work on main cli loop
 
 Notes:
+- Decided to check env as well for eval tests
+    - To do this, I started work on a env\_to\_str function
+- When implementing env\_to\_str I found that sprintf is generally better than strcat
+    - I'm not currently planning to go back and replace all of my calls to strcat, but maybe in the future
+
+Issues:
+1. String sizing for env\_to\_str function
+    - I'm implementing env\_to\_str just by looping through env linked list and concatting id and data (parse tree str)
+    - For the data I can simply call expr\_tree\_to\_str
+    - The problem is not knowing the size of data\_str when initially malloc'ing memory for the entire string
+
+Fixes:
+1. Issue 1 (env\_to\_str)
+    - Implement it recursively
