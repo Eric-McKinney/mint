@@ -17,7 +17,7 @@ static TokenList **create_inputs(int num_tests);
 
 int main(int argc, char **argv) {
     const char *t_names[] = {
-        "basic_addition",             /* 1 + 2 */
+        "basic addition",             /* 1 + 2 */
         "int float add sub",          /* 44 - 21 + 2.2 */
         "arithmetic mix",             /* 2. * 4 / 12 + 5 */
         "long add/sub",               /* 1 + 2 - 3 + 4 - 5 */
