@@ -51,6 +51,7 @@ Notes:
     - To do this, I started work on a env\_to\_str function
 - When implementing env\_to\_str I found that sprintf is generally better than strcat
     - I'm not currently planning to go back and replace all of my calls to strcat, but maybe in the future
+    - I know snprintf is safer, but I'm not too concerned about that
 
 Issues:
 1. String sizing for env\_to\_str function
