@@ -37,3 +37,13 @@ Fixes:
 1. Issue 1 (binop double free)
     1. ~~Pass in a double pointer to eval and eval\_binop, so the tree pointer can be changed directly~~
     2. Make evaluation entirely in-place for the parse tree, freeing and adjusting pointers along the way
+
+---
+
+### June 2nd, 2024
+
+Goals for today:
+- [ ] Write plenty of tests for eval.c
+- [ ] Begin work on main cli loop
+
+Notes:
