@@ -27,3 +27,13 @@ Notes:
     - Also added check in eval\_application to see if the right number of args was provided
 - Created test.h to hold all of the color formatting macros to be used in tests
 
+Issues:
+1. Evaluating binops can result in a double free
+    - When a binop can be "collapsed" into a single value, the original tree is freed
+    - The original tree still has a pointer to the binop that has been freed
+    - The original tree is freed later on (including the already freed binop)
+
+Fixes:
+1. Issue 1 (binop double free)
+    1. ~~Pass in a double pointer to eval and eval\_binop, so the tree pointer can be changed directly~~
+    2. Make evaluation entirely in-place for the parse tree, freeing and adjusting pointers along the way
