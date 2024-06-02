@@ -9,7 +9,10 @@
 typedef struct {
     const char *name;
     ExprTree *input;
-    const char *ans;
+    struct {
+        const char *tree;
+        const char *env;
+    } ans;
 } Test;
 
 int verbose = 0;
@@ -18,10 +21,25 @@ static ExprTree **create_inputs(int num_tests);
 
 int main(int argc, char **argv) {
     const char *t_names[] = {
-        "basic addition"
+        "basic addition",    /* 1 + 2 */
+        "int float add sub", /* 44 - 21 + 2.2 */
+        "arithmetic mix",    /* 2. * 4 / 12 + 5 */
+        "long add/sub",      /* 1 + 2 - 3 + 4 - 5 */
+        "long mult/div"     /* 1 * 2 / 3 * 4 / 5 */
     };
-    const char *t_ans[] = {
-        "(Int 3)"
+    const char *tree_ans[] = {
+        "(Int 3)",
+        "(Float 25.200000)",
+        "(Float 5.666667)",
+        "(Int -1)",
+        "(Float 0.533333)"
+    };
+    const char *env_ans[] = {
+        "[]",
+        "[]",
+        "[]",
+        "[]",
+        "[]",
     };
     int num_tests = sizeof(t_names) / sizeof(char *), i, num_passed = 0;
     ExprTree **inputs = create_inputs(num_tests);
@@ -44,7 +62,8 @@ int main(int argc, char **argv) {
 
         t.name = t_names[i];
         t.input = inputs[i];
-        t.ans = t_ans[i];
+        t.ans.tree = tree_ans[i];
+        t.ans.env = env_ans[i];
 
         if (i == 0 && verbose) {
             printf(SEP);
@@ -81,39 +100,45 @@ int main(int argc, char **argv) {
 static int run_test(Test *test) {
     ExprTree *tree;
     Env_t *env = init_env();
-    char *tree_str, *before_input_str;
-    int t_result;
+    char *tree_str, *input_str, *before_env_str, *after_env_str;
+    int correct_tree, correct_env, t_result;
 
     if (verbose) {
         printf("| " C_TEST_NAME("%s") " test:\n", test->name);
-        before_input_str = expr_tree_to_str(test->input);
+        input_str = expr_tree_to_str(test->input);
     }
     
+    before_env_str = env_to_str(env);
     tree = eval(&(test->input), env);
     tree_str = expr_tree_to_str(tree);
+    after_env_str = env_to_str(env);
 
     if (verbose) {
-        char *after_input_str = expr_tree_to_str(test->input);
-        printf("| input (before eval): %s\n", before_input_str);
-        printf("| input (after eval):  %s\n", after_input_str);
+        printf("| input: %s\n", input_str);
+        printf("| env (before eval): %s\n", before_env_str);
         printf("| eval return val: %p\n", (void *) tree);
+        printf("| env (after eval): %s\n", after_env_str);
+        printf("| expected env:     %s\n", test->ans.env);
         printf("| evaluated tree: %s\n", tree_str);
-        printf("| expected:       %s\n", test->ans);
+        printf("| expected tree:  %s\n", test->ans.tree);
 
-        free(before_input_str);
-        free(after_input_str);
+        free(input_str);
     }
 
-    t_result = strcmp(tree_str, test->ans) == 0 ? SUCCESS : FAILURE;
+    correct_tree = strcmp(tree_str, test->ans.tree) == 0;
+    correct_env = strcmp(after_env_str, test->ans.env) == 0;
+    t_result = correct_tree && correct_env ? SUCCESS : FAILURE;
 
     free(tree_str);
+    free(before_env_str);
+    free(after_env_str);
     free_expr_tree(tree);
     free_env(env);
 
     return t_result;
 }
 
-static ExprTree *add_node(ExprTree *tree, Expr_t expr, int i, double d, char *id, Operator_t binop, int add_left) {
+static ExprTree *add_node(ExprTree *tree, Expr_t expr, int i, double d, char *id, Operator_t binop, int add_right) {
     ExprTree *new_node = malloc(sizeof(ExprTree));
 
     new_node->expr = expr;
@@ -144,10 +169,10 @@ static ExprTree *add_node(ExprTree *tree, Expr_t expr, int i, double d, char *id
         return new_node;
     }
 
-    if (add_left) {
-        tree->left = new_node;
-    } else {
+    if (add_right) {
         tree->right = new_node;
+    } else {
+        tree->left = new_node;
     }
 
     return new_node;
@@ -155,12 +180,50 @@ static ExprTree *add_node(ExprTree *tree, Expr_t expr, int i, double d, char *id
 
 static ExprTree **create_inputs(int num_tests) {
     ExprTree **inputs = malloc(num_tests * sizeof(ExprTree *));
-    ExprTree *t, *t0;
+    ExprTree *t, *tt, *t0, *t1, *t2, *t3, *t4;
 
     t0 = add_node(NULL, Binop, 0, 0, NULL, Add, 0);
-    add_node(t0, Int, 1, 0, NULL, Add, 1);
-    add_node(t0, Int, 2, 0, NULL, Add, 0);
+    add_node(t0, Int, 1, 0, NULL, Add, 0);
+    add_node(t0, Int, 2, 0, NULL, Add, 1);
     inputs[0] = t0;
+
+    t1 = add_node(NULL, Binop, 0, 0, NULL, Add, 0);
+    t = add_node(t1, Binop, 0, 0, NULL, Sub, 0);
+    add_node(t1, Float, 0, 2.2, NULL, Add, 1);
+    add_node(t, Int, 44, 0, NULL, Add, 0);
+    add_node(t, Int, 21, 0, NULL, Add, 1);
+    inputs[1] = t1;
+
+    t2 = add_node(NULL, Binop, 0, 0, NULL, Add, 0);
+    t = add_node(t2, Binop, 0, 0, NULL, Div, 0);
+    add_node(t2, Int, 5, 0, NULL, Add, 1);
+    tt = add_node(t, Binop, 0, 0, NULL, Mult, 0);
+    add_node(t, Int, 12, 0, NULL, Add, 1);
+    add_node(tt, Float, 0, 2., NULL, Add, 0);
+    add_node(tt, Int, 4, 0, NULL, Add, 1);
+    inputs[2] = t2;
+
+    t3 = add_node(NULL, Binop, 0, 0, NULL, Sub, 0);
+    t = add_node(t3, Binop, 0, 0, NULL, Add, 0);
+    add_node(t3, Int, 5, 0, NULL, Add, 1);
+    tt = add_node(t, Binop, 0, 0, NULL, Sub, 0);
+    add_node(t, Int, 4, 0, NULL, Add, 1);
+    t = add_node(tt, Binop, 0, 0, NULL, Add, 0);
+    add_node(tt, Int, 3, 0, NULL, Add, 1);
+    add_node(t, Int, 1, 0, NULL, Add, 0);
+    add_node(t, Int, 2, 0, NULL, Add, 1);
+    inputs[3] = t3;
+
+    t4 = add_node(NULL, Binop, 0, 0, NULL, Div, 0);
+    t = add_node(t4, Binop, 0, 0, NULL, Mult, 0);
+    add_node(t4, Int, 5, 0, NULL, Add, 1);
+    tt = add_node(t, Binop, 0, 0, NULL, Div, 0);
+    add_node(t, Int, 4, 0, NULL, Add, 1);
+    t = add_node(tt, Binop, 0, 0, NULL, Mult, 0);
+    add_node(tt, Int, 3, 0, NULL, Add, 1);
+    add_node(t, Int, 1, 0, NULL, Add, 0);
+    add_node(t, Int, 2, 0, NULL, Add, 1);
+    inputs[4] = t4;
 
     return inputs;
 }
