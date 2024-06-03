@@ -44,6 +44,7 @@ Fixes:
 
 Goals for today:
 - [x] Write plenty of tests for eval.c
+    - Not completely done
     - I wrote quite a few tests, but I want to implement all of the parser\_tests outputs as tests for eval
 - [ ] Begin work on main cli loop (deferred)
 
