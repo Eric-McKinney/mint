@@ -10,13 +10,47 @@ Env_t *init_env() {
     return calloc(1, sizeof(Env_t));
 }
 
+static ExprTree *copy_expr_tree(ExprTree *tree) {
+    ExprTree *copy, *left_copy, *right_copy;
+
+    if (tree == NULL) {
+        return NULL;
+    }
+
+    left_copy = copy_expr_tree(tree->left);
+    right_copy = copy_expr_tree(tree->right);
+
+    copy = malloc(sizeof(ExprTree));
+    copy->expr = tree->expr;
+
+    switch (tree->expr) {
+        case ID:
+            copy->value.id = malloc(strlen(tree->value.id));
+            strcpy(copy->value.id, tree->value.id);
+            break;
+        case Int:
+        case Float:
+        case Fun:
+        case Binop:
+            copy->value = tree->value;
+            break;
+        default:
+            break;
+    }
+
+    copy->left = left_copy;
+    copy->right = right_copy;
+
+    return copy;
+}
+
 static void extend_env(Env_t *env, const char *id, ExprTree *data) {
     Env_t *new_data;
 
     new_data = malloc(sizeof(Env_t));
     new_data->id = malloc(strlen(id) + 1);
     strcpy(new_data->id, id);
-    new_data->data = data;
+    new_data->data = copy_expr_tree(data);
     new_data->next = env->next;
 
     env->next = new_data;
@@ -50,7 +84,7 @@ static ExprTree *lookup(Env_t *env, const char *id) {
     Env_t *e = env_find(env, id, NULL);
 
     if (e != NULL) {
-        return e->data;
+        return copy_expr_tree(e->data);
     } else {
         fprintf(stderr, "Unbound identifier %s\n", id);
         exit(EXIT_FAILURE);
@@ -59,6 +93,7 @@ static ExprTree *lookup(Env_t *env, const char *id) {
 
 static void free_env_node(Env_t *env) {
     free(env->id);
+    free_expr_tree(env->data);
     free(env);
 }
 
@@ -95,7 +130,8 @@ static void shrink_env(Env_t *env, const char *id, int qty) {
 static void update_env(Env_t *env, const char *id, ExprTree *new_data) {
     Env_t *env_entry = env_find(env, id, NULL);
 
-    env_entry->data = new_data;
+    free_expr_tree(env_entry->data);
+    env_entry->data = copy_expr_tree(new_data);
 }
 
 static char *env_to_str_aux(Env_t *env) {
@@ -142,7 +178,7 @@ char *env_to_str(Env_t *env) {
 
 static void eval_fun(ExprTree **t, Env_t *env);
 static void eval_binop(ExprTree **t, Env_t *env);
-static void eval_assign(ExprTree **t, Env_t *env);
+static void eval_assign(ExprTree *tree, Env_t *env);
 static void eval_application(ExprTree **t, Env_t *env);
 static void eval_arguments(ExprTree **t, Env_t *env);
 static int push_params(ExprTree *params, Env_t *env);
@@ -154,10 +190,12 @@ ExprTree *eval(ExprTree **tree, Env_t *env) {
         case Int:
         case Float:
             return *tree;
-        case ID: 
+        case ID: {
+            ExprTree *value = lookup(env, (*tree)->value.id);
             free_expr_tree(*tree);
-            *tree = lookup(env, (*tree)->value.id);
+            *tree = value;
             break;
+        }
         case Fun:
             eval_fun(tree, env);
             break;
@@ -165,7 +203,7 @@ ExprTree *eval(ExprTree **tree, Env_t *env) {
             eval_binop(tree, env);
             break;
         case Assign:
-            eval_assign(tree, env);
+            eval_assign(*tree, env);
             break;
         case Application:
             eval_application(tree, env);
@@ -315,15 +353,10 @@ static void eval_binop(ExprTree **t, Env_t *env) {
     *t = v;
 }
 
-static void eval_assign(ExprTree **t, Env_t *env) {
-    ExprTree *tree = *t;
+static void eval_assign(ExprTree *tree, Env_t *env) {
     ExprTree *value = eval(&(tree->right), env);
     
     extend_env(env, tree->left->value.id, value);
-
-    tree->right = NULL;
-    free_expr_tree(tree);
-    *t = value;
 }
 
 static void eval_application(ExprTree **t, Env_t *env) {
