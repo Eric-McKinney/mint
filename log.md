@@ -43,8 +43,9 @@ Fixes:
 ### June 2nd, 2024
 
 Goals for today:
-- [ ] Write plenty of tests for eval.c
-- [ ] Begin work on main cli loop
+- [x] Write plenty of tests for eval.c
+    - I wrote quite a few tests, but I want to implement all of the parser\_tests outputs as tests for eval
+- [ ] Begin work on main cli loop (deferred)
 
 Notes:
 - Decided to check env as well for eval tests
@@ -52,13 +53,18 @@ Notes:
 - When implementing env\_to\_str I found that sprintf is generally better than strcat
     - I'm not currently planning to go back and replace all of my calls to strcat, but maybe in the future
     - I know snprintf is safer, but I'm not too concerned about that
+- I decided to add enviroments as inputs for eval\_tests in addition to parse trees
 
 Issues:
 1. String sizing for env\_to\_str function
     - I'm implementing env\_to\_str just by looping through env linked list and concatting id and data (parse tree str)
     - For the data I can simply call expr\_tree\_to\_str
     - The problem is not knowing the size of data\_str when initially malloc'ing memory for the entire string
+2. Environment stores pointers not copies
+    - The env can be affected when the parse tree is evaluated in place since pointers in env can become dangling
 
 Fixes:
 1. Issue 1 (env\_to\_str)
     - Implement it recursively
+2. Issue 2 (env not storing copies)
+    - Store copies, but I need to implement a copy\_expr\_tree function first
