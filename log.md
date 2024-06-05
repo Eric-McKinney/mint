@@ -69,3 +69,14 @@ Fixes:
     - Implement it recursively
 2. Issue 2 (env not storing copies)
     - Store copies, but I need to implement a copy\_expr\_tree function first
+
+---
+
+### June 4th, 2024
+
+Goals for today:
+- [ ] Write a few more tests or eval.c
+
+Notes:
+    - Development is going to be a lot slower except for weekends going forward because I'm working as an intern 9-5
+
