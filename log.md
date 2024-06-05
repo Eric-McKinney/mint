@@ -75,8 +75,10 @@ Fixes:
 ### June 4th, 2024
 
 Goals for today:
-- [ ] Write a few more tests or eval.c
+- [x] Write a few more tests or eval.c
 
 Notes:
     - Development is going to be a lot slower except for weekends going forward because I'm working as an intern 9-5
 
+Issues:
+1. Function evaluation runs into "unbound identifier" when the body is evaluated
