@@ -32,6 +32,11 @@ int main(int argc, char **argv) {
         "long mult/div",          /* 1 * 2 / 3 * 4 / 5 */
         "simple assign",          /* R = 500 */
         "arithmetic assign",      /* circumference = 3.14 * 2 * r (where r = 15 in env)*/
+        "function defn"           /* fn f(x, y) = x * y - 0.123456 */
+        /* f(42, 0.01) */
+        /* fn area(r) = 3.14 * r*r */
+        /* 4 + 3 * (2 - 3) */
+        /* var=2*(var+1)/12 */
     };
     const char *tree_ans[] = {
         "(Int 3)",
@@ -40,7 +45,8 @@ int main(int argc, char **argv) {
         "(Int -1)",
         "(Float 0.533333)",
         "(Assign(ID R)(Int 500))",
-        "(Assign(ID circumference)(Float 94.200000))"
+        "(Assign(ID circumference)(Float 94.200000))",
+        "(Fun f (Param(ID x)(Param(ID y)()))(Sub(Mult(ID x)(ID y))(Float 0.123456)))"
     };
     const char *env_ans[] = {
         "[]",
@@ -49,7 +55,8 @@ int main(int argc, char **argv) {
         "[]",
         "[]",
         "[(R : (Int 500))]",
-        "[(circumference : (Float 94.200000)), (r : (Int 15))]"
+        "[(circumference : (Float 94.200000)), (r : (Int 15))]",
+        "[(f : (Fun f (Param(ID x)(Param(ID y)()))(Sub(Mult(ID x)(ID y))(Float 0.123456))))]"
     };
     int num_tests = sizeof(t_names) / sizeof(char *), i, num_passed = 0;
     ExprTree **input_trees = create_trees(num_tests);
@@ -217,12 +224,14 @@ static Env_t **create_envs(int num_tests) {
     extend_env(e6, "r", add_node(NULL, Int, 15, 0, NULL, Add, 0));
     envs[6] = e6;
 
+    envs[7] = init_env();
+
     return envs;
 }
 
 static ExprTree **create_trees(int num_tests) {
     ExprTree **trees = malloc(num_tests * sizeof(ExprTree *));
-    ExprTree *t, *tt, *t0, *t1, *t2, *t3, *t4, *t5, *t6;
+    ExprTree *t, *tt, *t0, *t1, *t2, *t3, *t4, *t5, *t6, *t7;
 
     t0 = add_node(NULL, Binop, 0, 0, NULL, Add, 0);
     add_node(t0, Int, 1, 0, NULL, Add, 0);
@@ -291,6 +300,31 @@ static ExprTree **create_trees(int num_tests) {
     add_node(tt, Float, 0, 3.14, NULL, Add, 0);
     add_node(tt, Int, 2, 0, NULL, Add, 1);
     trees[6] = t6;
+    }
+
+    {
+    char *id = malloc(strlen("f") + 1);
+    char *id2a = malloc(strlen("x") + 1);
+    char *id2b = malloc(strlen("x") + 1);
+    char *id3a = malloc(strlen("y") + 1);
+    char *id3b = malloc(strlen("y") + 1);
+    strcpy(id, "f");
+    strcpy(id2a, "x");
+    strcpy(id2b, "x");
+    strcpy(id3a, "y");
+    strcpy(id3b, "y");
+
+    t7 = add_node(NULL, Fun, 0, 0, id, Add, 0);
+    t = add_node(t7, Parameter, 0, 0, NULL, Add, 0);
+    add_node(t, ID, 0, 0, id2a, Add, 0);
+    tt = add_node(t, Parameter, 0, 0, NULL, Add, 1);
+    add_node(t, ID, 0, 0, id3a, Add, 0);
+    t = add_node(t7, Binop, 0, 0, NULL, Sub, 1);
+    tt = add_node(t, Binop, 0, 0, NULL, Mult, 0);
+    add_node(t, Float, 0, 0.123456, NULL, Add, 1);
+    add_node(tt, ID, 0, 0, id2b, Add, 0);
+    add_node(tt, ID, 0, 0, id3b, Add, 1);
+    trees[7] = t7;
     }
 
     return trees;
