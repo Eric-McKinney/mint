@@ -25,7 +25,7 @@ static ExprTree *copy_expr_tree(ExprTree *tree) {
 
     switch (tree->expr) {
         case ID:
-            copy->value.id = malloc(strlen(tree->value.id));
+            copy->value.id = malloc(strlen(tree->value.id) + 1);
             strcpy(copy->value.id, tree->value.id);
             break;
         case Int:
@@ -57,7 +57,15 @@ static void extend_env(Env_t *env, const char *id, ExprTree *data) {
 }
 
 static void extend_env_tmp(Env_t *env, const char *id) {
-    extend_env(env, id, NULL);
+    ExprTree *dummy_data = calloc(1, sizeof(ExprTree));
+
+    dummy_data->expr = ID;
+    dummy_data->value.id = malloc(strlen(id) + 1);
+    strcpy(dummy_data->value.id, id);
+
+    extend_env(env, id, dummy_data);
+
+    free_expr_tree(dummy_data);
 }
 
 static Env_t *env_find(Env_t *env, const char *id, Env_t **prev) {
@@ -241,6 +249,7 @@ static void validate_params(ExprTree *params, const char *fun_id) {
         }
 
         i++;
+        params = params->right;
     }
 
     if (dupes) {
@@ -250,10 +259,13 @@ static void validate_params(ExprTree *params, const char *fun_id) {
 
 static void eval_fun(ExprTree **t, Env_t *env) {
     ExprTree *tree = *t;
+    int num_params;
 
+    num_params = push_params(tree->left, env);
     eval(&(tree->right), env);
     validate_params(tree->left, tree->value.id);
     extend_env(env, tree->value.id, tree);
+    pop_params(tree->left, num_params, env);
 }
 
 static void eval_binop(ExprTree **t, Env_t *env) {
