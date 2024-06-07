@@ -89,5 +89,6 @@ Issues:
 
 Goals for today:
 
+- [ ] Fix issue from June 4th
 - [ ] Continue writing tests for eval.c
 
