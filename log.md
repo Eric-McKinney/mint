@@ -89,6 +89,15 @@ Issues:
 
 Goals for today:
 
-- [ ] Fix issue from June 4th
+- [x] Fix issue from June 4th
 - [ ] Continue writing tests for eval.c
 
+Issues:
+
+1. Invalid free in fun defn eval test
+    - Looks like its related to free\_env based on valgrind output
+
+Fixes:
+
+- Issue 1 from June 4th (function body evaluation)
+    - Push params onto env before eval (w/temp value of their own ID) and pop params after eval
