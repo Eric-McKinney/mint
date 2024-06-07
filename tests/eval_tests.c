@@ -318,7 +318,7 @@ static ExprTree **create_trees(int num_tests) {
     t = add_node(t7, Parameter, 0, 0, NULL, Add, 0);
     add_node(t, ID, 0, 0, id2a, Add, 0);
     tt = add_node(t, Parameter, 0, 0, NULL, Add, 1);
-    add_node(t, ID, 0, 0, id3a, Add, 0);
+    add_node(tt, ID, 0, 0, id3a, Add, 0);
     t = add_node(t7, Binop, 0, 0, NULL, Sub, 1);
     tt = add_node(t, Binop, 0, 0, NULL, Mult, 0);
     add_node(t, Float, 0, 0.123456, NULL, Add, 1);
