@@ -101,3 +101,5 @@ Fixes:
 
 - Issue 1 from June 4th (function body evaluation)
     - Push params onto env before eval (w/temp value of their own ID) and pop params after eval
+- Issue 1 from today (invalid free)
+    - Fixed copy\_expr\_tree: it was shallow copying function IDs, so I made it a deep copy
