@@ -25,12 +25,12 @@ static ExprTree *copy_expr_tree(ExprTree *tree) {
 
     switch (tree->expr) {
         case ID:
+        case Fun:
             copy->value.id = malloc(strlen(tree->value.id) + 1);
             strcpy(copy->value.id, tree->value.id);
             break;
         case Int:
         case Float:
-        case Fun:
         case Binop:
             copy->value = tree->value;
             break;
