@@ -25,15 +25,16 @@ static Env_t **create_envs(int num_tests);
 
 int main(int argc, char **argv) {
     const char *t_names[] = {
-        "basic addition",         /* 1 + 2 */
-        "int float add sub",      /* 44 - 21 + 2.2 */
-        "arithmetic mix",         /* 2. * 4 / 12 + 5 */
-        "long add/sub",           /* 1 + 2 - 3 + 4 - 5 */
-        "long mult/div",          /* 1 * 2 / 3 * 4 / 5 */
-        "simple assign",          /* R = 500 */
-        "arithmetic assign",      /* circumference = 3.14 * 2 * r (where r = 15 in env)*/
-        "function defn"           /* fn f(x, y) = x * y - 0.123456 */
-        /* f(42, 0.01) */
+        "basic addition",                         /* 1 + 2 */
+        "int float add sub",                      /* 44 - 21 + 2.2 */
+        "arithmetic mix",                         /* 2. * 4 / 12 + 5 */
+        "long add/sub",                           /* 1 + 2 - 3 + 4 - 5 */
+        "long mult/div",                          /* 1 * 2 / 3 * 4 / 5 */
+        "simple assign",                          /* R = 500 */
+        "arithmetic assign",                      /* circumference = 3.14 * 2 * r (where r = 15 in env)*/
+        "function defn",                          /* fn f(x, y) = x * y - 0.123456 */
+        "lexer->parser->function application",    /* f(42, 0.01) */
+        "lexer->parser->reassign"                 /* num = num + 1 (where num = 42 in env)*/
         /* fn area(r) = 3.14 * r*r */
         /* 4 + 3 * (2 - 3) */
         /* var=2*(var+1)/12 */
@@ -46,7 +47,9 @@ int main(int argc, char **argv) {
         "(Float 0.533333)",
         "(Assign(ID R)(Int 500))",
         "(Assign(ID circumference)(Float 94.200000))",
-        "(Fun f (Param(ID x)(Param(ID y)()))(Sub(Mult(ID x)(ID y))(Float 0.123456)))"
+        "(Fun f (Param(ID x)(Param(ID y)()))(Sub(Mult(ID x)(ID y))(Float 0.123456)))",
+        "(Float 0.296544)",
+        "(Assign(ID num)(Int 43))"
     };
     const char *env_ans[] = {
         "[]",
@@ -56,7 +59,9 @@ int main(int argc, char **argv) {
         "[]",
         "[(R : (Int 500))]",
         "[(circumference : (Float 94.200000)), (r : (Int 15))]",
-        "[(f : (Fun f (Param(ID x)(Param(ID y)()))(Sub(Mult(ID x)(ID y))(Float 0.123456))))]"
+        "[(f : (Fun f (Param(ID x)(Param(ID y)()))(Sub(Mult(ID x)(ID y))(Float 0.123456))))]",
+        "[(f : (Fun f (Param(ID x)(Param(ID y)()))(Sub(Mult(ID x)(ID y))(Float 0.123456))))]",
+        "[(num : (Int 43))]"
     };
     int num_tests = sizeof(t_names) / sizeof(char *), i, num_passed = 0;
     ExprTree **input_trees = create_trees(num_tests);
@@ -211,7 +216,7 @@ static void extend_env(Env_t *env, const char *id, ExprTree *data) {
 
 static Env_t **create_envs(int num_tests) {
     Env_t **envs = malloc(num_tests * sizeof(Env_t *));
-    Env_t *e6;
+    Env_t *e6, *e8, *e9;
     
     envs[0] = init_env();
     envs[1] = init_env();
@@ -225,6 +230,14 @@ static Env_t **create_envs(int num_tests) {
     envs[6] = e6;
 
     envs[7] = init_env();
+    
+    e8 = init_env();
+    extend_env(e8, "f", parse(tokenize("fn f(x, y) = x * y - 0.123456\n")));
+    envs[8] = e8;
+
+    e9 = init_env();
+    extend_env(e9, "num", add_node(NULL, Int, 42, 0, NULL, Add, 0));
+    envs[9] = e9;
 
     return envs;
 }
@@ -326,6 +339,9 @@ static ExprTree **create_trees(int num_tests) {
     add_node(tt, ID, 0, 0, id3b, Add, 1);
     trees[7] = t7;
     }
+
+    trees[8] = parse(tokenize("f(42, 0.01)\n"));
+    trees[9] = parse(tokenize("num = num + 1\n"));
 
     return trees;
 }
