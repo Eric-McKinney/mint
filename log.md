@@ -92,6 +92,10 @@ Goals for today:
 - [x] Fix issue from June 4th
 - [ ] Continue writing tests for eval.c (deferred)
 
+Notes:
+
+- From this point forward the fixes will be in an unordered list because I name the specific issue they address anyways
+
 Issues:
 
 1. Invalid free in fun defn eval test
