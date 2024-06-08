@@ -114,5 +114,15 @@ Fixes:
 
 Goals for today:
 
- - [ ] Continue writing tests for eval.c
+ - [x] Continue writing tests for eval.c
+
+ Notes:
+
+ - I added CI via GitHub actions, but that brings up issue 1 of today
+
+ Issues:
+
+ 1. Tests exit code and failure behavior
+    - No matter what each test run ends with an exit code of 0 assuming it runs to completion
+    - If it doesn't run to completion because a test failed and exited, the rest of that test suite is not run
 
