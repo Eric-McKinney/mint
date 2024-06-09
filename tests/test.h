@@ -9,8 +9,8 @@
 #define END_COLOR "\033[0m"
 
 /* test outputs */
-#define SUCCESS 1
-#define FAILURE 0
+#define SUCCESS 0
+#define FAILURE 1
 #define PASSED GREEN "PASSED" END_COLOR
 #define FAILED RED "FAILED" END_COLOR
 
