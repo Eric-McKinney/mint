@@ -16,4 +16,4 @@ jobs:
     - name: make tests
       run: make tests
     - name: run tests
-      run: make runtests
+      run: make -k runtests
