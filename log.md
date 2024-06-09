@@ -114,15 +114,30 @@ Fixes:
 
 Goals for today:
 
- - [x] Continue writing tests for eval.c
+- [x] Continue writing tests for eval.c
 
- Notes:
+Notes:
 
- - I added CI via GitHub actions, but that brings up issue 1 of today
+- I added CI via GitHub actions, but that brings up issue 1 of today
+- I also added a badge for the CI on the README
 
- Issues:
+Issues:
 
- 1. Tests exit code and failure behavior
-    - No matter what each test run ends with an exit code of 0 assuming it runs to completion
-    - If it doesn't run to completion because a test failed and exited, the rest of that test suite is not run
+1. Tests exit code and failure behavior
+   - No matter what each test run ends with an exit code of 0 assuming it runs to completion
+   - If it doesn't run to completion because a test failed and exited, the rest of that test suite is not run
+
+---
+
+### June 9th, 2024
+
+Goals for today:
+
+- [ ] Restructure test suites (issue 1 from yesterday)
+    - Fork copies the heap, so now each test creates a bunch of unused memory and leaks it
+
+Fixes:
+- Issue 1 from yesterday (test behavior)
+    - Restructure, forking for each test to be run in a child process
+    - Create inputs within each test & generally make each test self-contained
 
