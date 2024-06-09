@@ -396,8 +396,11 @@ static void eval_application(ExprTree **t, Env_t *env) {
     ret_val = eval(&fun_body, env);
     pop_params(params, num_params, env);
 
-    tree->right = NULL;
     free_expr_tree(tree);
+
+    fun->right = NULL;
+    free_expr_tree(fun);
+
     *t = ret_val;
 }
 
