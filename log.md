@@ -133,11 +133,21 @@ Issues:
 
 Goals for today:
 
-- [ ] Restructure test suites (issue 1 from yesterday)
-    - Fork copies the heap, so now each test creates a bunch of unused memory and leaks it
+- [x] Restructure test suites (issue 1 from yesterday)
+
+Issues:
+
+1. Fork copies the heap, so now each test creates a bunch of unused memory and leaks it
+2. Strange output duplication in eval tests only when output is redirected
+    - The first print in each child process seems to print a copy of all that came before it
 
 Fixes:
 - Issue 1 from yesterday (test behavior)
     - Restructure, forking for each test to be run in a child process
+- Issue 1 from today (test leaking memory)
     - Create inputs within each test & generally make each test self-contained
+- Issue 2 from today (output duplication on output redirect)
+    - Turns out that forking copies the IO buffer
+    - On normal stdout with no redirect this was not a problem because the buffer is flushed on newline
+    - When redirected the buffer is **not** flushed on newline
 
