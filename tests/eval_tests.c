@@ -1,71 +1,87 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include "../src/eval.h"
 #include "../src/parser.h"
 #include "../src/lexer.h"
 #include "test.h"
 
 typedef struct {
+    ExprTree *tree;
+    Env_t *env;
+} Input;
+
+typedef struct {
+    const char *tree;
+    const char *env;
+} Ans;
+
+typedef struct {
     const char *name;
-    struct {
-        ExprTree *tree;
-        Env_t *env;
-    } input;
-    struct {
-        const char *tree;
-        const char *env;
-    } ans;
+    Input *(*create_input)();
+    Ans ans;
 } Test;
 
 int verbose = 0;
-static int run_test(Test *test);
-static ExprTree **create_trees(int num_tests);
-static Env_t **create_envs(int num_tests);
+static int run_all_tests(const Test *tests, int num_tests);
+static int run_test(const Test *test);
+static void free_input(Input *input);
+static Input *create_input1();
+static Input *create_input2();
+static Input *create_input3();
+static Input *create_input4();
+static Input *create_input5();
+static Input *create_input6();
+static Input *create_input7();
+static Input *create_input8();
+static Input *create_input9();
+static Input *create_input10();
 
 int main(int argc, char **argv) {
-    const char *t_names[] = {
-        "basic addition",                         /* 1 + 2 */
-        "int float add sub",                      /* 44 - 21 + 2.2 */
-        "arithmetic mix",                         /* 2. * 4 / 12 + 5 */
-        "long add/sub",                           /* 1 + 2 - 3 + 4 - 5 */
-        "long mult/div",                          /* 1 * 2 / 3 * 4 / 5 */
-        "simple assign",                          /* R = 500 */
-        "arithmetic assign",                      /* circumference = 3.14 * 2 * r (where r = 15 in env)*/
-        "function defn",                          /* fn f(x, y) = x * y - 0.123456 */
-        "lexer->parser->function application",    /* f(42, 0.01) */
-        "lexer->parser->reassign"                 /* num = num + 1 (where num = 42 in env)*/
+    Test tests[] = {
+        /* 1 + 2 */
+        {"basic addition", create_input1, {"(Int 3)", "[]"}},
+        /* 44 - 21 + 2.2 */
+        {"int float add sub", create_input2, {"(Float 25.200000)", "[]"}},
+        /* 2. * 4 / 12 + 5 */
+        {"arithmetic mix", create_input3, {"(Float 5.666667)", "[]"}},
+        /* 1 + 2 - 3 + 4 - 5 */
+        {"long add/sub", create_input4, {"(Int -1)", "[]"}},
+        /* 1 * 2 / 3 * 4 / 5 */
+        {"long mult/div", create_input5, {"(Float 0.533333)", "[]"}},
+        /* R = 500 */
+        {"simple assign", create_input6, {"(Assign(ID R)(Int 500))", "[(R : (Int 500))]"}},
+        /* circumference = 3.14 * 2 * r (where r = 15 in env)*/
+        {
+            "arithmetic assign",
+            create_input7,
+            {"(Assign(ID circumference)(Float 94.200000))", "[(circumference : (Float 94.200000)), (r : (Int 15))]"}
+        },
+        /* fn f(x, y) = x * y - 0.123456 */
+        {
+            "function defn",
+            create_input8,
+            {
+                "(Fun f (Param(ID x)(Param(ID y)()))(Sub(Mult(ID x)(ID y))(Float 0.123456)))",
+                "[(f : (Fun f (Param(ID x)(Param(ID y)()))(Sub(Mult(ID x)(ID y))(Float 0.123456))))]"
+            }
+        },
+        /* f(42, 0.01) */
+        {
+            "lexer->parser->function application",
+            create_input9,
+            {"(Float 0.296544)", "[(f : (Fun f (Param(ID x)(Param(ID y)()))(Sub(Mult(ID x)(ID y))(Float 0.123456))))]"}
+        },
+        /* num = num + 1 (where num = 42 in env)*/
+        {"lexer->parser->reassign", create_input10, {"(Assign(ID num)(Int 43))", "[(num : (Int 43))]"}}
         /* fn area(r) = 3.14 * r*r */
         /* 4 + 3 * (2 - 3) */
         /* var=2*(var+1)/12 */
     };
-    const char *tree_ans[] = {
-        "(Int 3)",
-        "(Float 25.200000)",
-        "(Float 5.666667)",
-        "(Int -1)",
-        "(Float 0.533333)",
-        "(Assign(ID R)(Int 500))",
-        "(Assign(ID circumference)(Float 94.200000))",
-        "(Fun f (Param(ID x)(Param(ID y)()))(Sub(Mult(ID x)(ID y))(Float 0.123456)))",
-        "(Float 0.296544)",
-        "(Assign(ID num)(Int 43))"
-    };
-    const char *env_ans[] = {
-        "[]",
-        "[]",
-        "[]",
-        "[]",
-        "[]",
-        "[(R : (Int 500))]",
-        "[(circumference : (Float 94.200000)), (r : (Int 15))]",
-        "[(f : (Fun f (Param(ID x)(Param(ID y)()))(Sub(Mult(ID x)(ID y))(Float 0.123456))))]",
-        "[(f : (Fun f (Param(ID x)(Param(ID y)()))(Sub(Mult(ID x)(ID y))(Float 0.123456))))]",
-        "[(num : (Int 43))]"
-    };
-    int num_tests = sizeof(t_names) / sizeof(char *), i, num_passed = 0;
-    ExprTree **input_trees = create_trees(num_tests);
-    Env_t **input_envs = create_envs(num_tests);
+    int num_tests = sizeof(tests) / sizeof(Test), num_passed, suite_result;
 
     if (argc == 2 && (strcmp(argv[1], "-v") == 0
                    || strcmp(argv[1], "--verbose") == 0)) {
@@ -79,28 +95,59 @@ int main(int argc, char **argv) {
     printf(C_SUITE_NAME("eval tests") "\n");
     printf("|\n");
 
-    for (i = 0; i < num_tests; i++) {
-        Test t;
-        int t_result;
+    num_passed = run_all_tests(tests, num_tests);
+    suite_result = num_passed == num_tests ? SUCCESS : FAILURE;
 
-        t.name = t_names[i];
-        t.input.tree = input_trees[i];
-        t.input.env = input_envs[i];
-        t.ans.tree = tree_ans[i];
-        t.ans.env = env_ans[i];
+    printf("|\n| Ran (%d/%d) tests successfully\n", num_passed, num_tests);
+    printf("| Test suite %s\n", suite_result == SUCCESS ? PASSED : FAILED);
+
+    if (verbose) {
+        printf("|\n");
+        printf(SEP);
+    }
+
+    return suite_result;
+}
+
+static int run_all_tests(const Test *tests, int num_tests) {
+    int num_passed = 0, i;
+
+    for (i = 0; i < num_tests; i++) {
+        int t_result;
+        pid_t fork_result;
 
         if (i == 0 && verbose) {
             printf(SEP);
         }
 
-        t_result = run_test(&t);
+        /* flush stdout because IO buffer is copied by fork */
+        fflush(stdout);
+        fork_result = fork();
+        if (fork_result < 0) {
+            fprintf(stderr, "Test %d: fork failed\n", i);
+            exit(EXIT_FAILURE);
+        } else if (fork_result != 0) {
+            int status;
+
+            wait(&status);
+
+            if (WIFEXITED(status)) {
+                t_result = WEXITSTATUS(status);
+            } else {
+                t_result = FAILURE;
+            }
+        } else {
+            t_result = run_test(&(tests[i]));
+            exit(t_result);
+        }
+
         num_passed += t_result == SUCCESS ? 1 : 0;
 
         if (verbose) {
             printf("|\n");
         }
 
-        printf("| " C_TEST_NAME("%s") " %s\n", t.name,
+        printf("| " C_TEST_NAME("%s") " %s\n", tests[i].name,
                t_result == SUCCESS ? PASSED : FAILED);
 
         if (verbose) {
@@ -108,34 +155,24 @@ int main(int argc, char **argv) {
         }
     }
 
-    free(input_trees);
-    free(input_envs);
-
-    printf("|\n| Ran (%d/%d) tests successfully\n", num_passed, num_tests);
-    printf("| Test suite %s\n", num_passed == num_tests ? PASSED : FAILED);
-
-    if (verbose) {
-        printf("|\n");
-        printf(SEP);
-    }
-
-    return 0;
+    return num_passed;
 }
 
-static int run_test(Test *test) {
+static int run_test(const Test *test) {
     ExprTree *tree;
+    Input *input = test->create_input();
     char *tree_str, *input_str, *before_env_str, *after_env_str;
     int correct_tree, correct_env, t_result;
 
     if (verbose) {
         printf("| " C_TEST_NAME("%s") " test:\n", test->name);
-        input_str = expr_tree_to_str(test->input.tree);
+        input_str = expr_tree_to_str(input->tree);
     }
     
-    before_env_str = env_to_str(test->input.env);
-    tree = eval(&(test->input.tree), test->input.env);
+    before_env_str = env_to_str(input->env);
+    tree = eval(&(input->tree), input->env);
     tree_str = expr_tree_to_str(tree);
-    after_env_str = env_to_str(test->input.env);
+    after_env_str = env_to_str(input->env);
 
     if (verbose) {
         printf("| input: %s\n", input_str);
@@ -156,10 +193,15 @@ static int run_test(Test *test) {
     free(tree_str);
     free(before_env_str);
     free(after_env_str);
-    free_expr_tree(tree);
-    free_env(test->input.env);
+    free_input(input);
 
     return t_result;
+}
+
+static void free_input(Input *input) {
+    free_expr_tree(input->tree);
+    free_env(input->env);
+    free(input);
 }
 
 static ExprTree *add_node(ExprTree *tree, Expr_t expr, int i, double d, char *id, Operator_t binop, int add_right) {
@@ -202,7 +244,7 @@ static ExprTree *add_node(ExprTree *tree, Expr_t expr, int i, double d, char *id
     return new_node;
 }
 
-static void extend_env(Env_t *env, const char *id, ExprTree *data) {
+static void t_extend_env(Env_t *env, const char *id, ExprTree *data) {
     Env_t *new_data;
 
     new_data = malloc(sizeof(Env_t));
@@ -214,134 +256,198 @@ static void extend_env(Env_t *env, const char *id, ExprTree *data) {
     env->next = new_data;
 }
 
-static Env_t **create_envs(int num_tests) {
-    Env_t **envs = malloc(num_tests * sizeof(Env_t *));
-    Env_t *e6, *e8, *e9;
+static Input *create_input1() {
+    Input *input = malloc(sizeof(Input));
+    ExprTree *tree = add_node(NULL, Binop, 0, 0, NULL, Add, 0);
+
+    add_node(tree, Int, 1, 0, NULL, Add, 0);
+    add_node(tree, Int, 2, 0, NULL, Add, 1);
+
+    input->tree = tree;
+    input->env = init_env();
     
-    envs[0] = init_env();
-    envs[1] = init_env();
-    envs[2] = init_env();
-    envs[3] = init_env();
-    envs[4] = init_env();
-    envs[5] = init_env();
-
-    e6 = init_env();
-    extend_env(e6, "r", add_node(NULL, Int, 15, 0, NULL, Add, 0));
-    envs[6] = e6;
-
-    envs[7] = init_env();
-    
-    e8 = init_env();
-    extend_env(e8, "f", parse(tokenize("fn f(x, y) = x * y - 0.123456\n")));
-    envs[8] = e8;
-
-    e9 = init_env();
-    extend_env(e9, "num", add_node(NULL, Int, 42, 0, NULL, Add, 0));
-    envs[9] = e9;
-
-    return envs;
+    return input;
 }
 
-static ExprTree **create_trees(int num_tests) {
-    ExprTree **trees = malloc(num_tests * sizeof(ExprTree *));
-    ExprTree *t, *tt, *t0, *t1, *t2, *t3, *t4, *t5, *t6, *t7;
+static Input *create_input2() {
+    Input *input = malloc(sizeof(Input));
+    ExprTree *tree = add_node(NULL, Binop, 0, 0, NULL, Add, 0);
+    ExprTree *t;
 
-    t0 = add_node(NULL, Binop, 0, 0, NULL, Add, 0);
-    add_node(t0, Int, 1, 0, NULL, Add, 0);
-    add_node(t0, Int, 2, 0, NULL, Add, 1);
-    trees[0] = t0;
-
-    t1 = add_node(NULL, Binop, 0, 0, NULL, Add, 0);
-    t = add_node(t1, Binop, 0, 0, NULL, Sub, 0);
-    add_node(t1, Float, 0, 2.2, NULL, Add, 1);
+    t = add_node(tree, Binop, 0, 0, NULL, Sub, 0);
+    add_node(tree, Float, 0, 2.2, NULL, Add, 1);
     add_node(t, Int, 44, 0, NULL, Add, 0);
     add_node(t, Int, 21, 0, NULL, Add, 1);
-    trees[1] = t1;
 
-    t2 = add_node(NULL, Binop, 0, 0, NULL, Add, 0);
-    t = add_node(t2, Binop, 0, 0, NULL, Div, 0);
-    add_node(t2, Int, 5, 0, NULL, Add, 1);
+    input->tree = tree;
+    input->env = init_env();
+
+    return input;
+}
+
+static Input *create_input3() {
+    Input *input = malloc(sizeof(Input));
+    ExprTree *tree = add_node(NULL, Binop, 0, 0, NULL, Add, 0);
+    ExprTree *t, *tt;
+
+    t = add_node(tree, Binop, 0, 0, NULL, Div, 0);
+    add_node(tree, Int, 5, 0, NULL, Add, 1);
     tt = add_node(t, Binop, 0, 0, NULL, Mult, 0);
     add_node(t, Int, 12, 0, NULL, Add, 1);
     add_node(tt, Float, 0, 2., NULL, Add, 0);
     add_node(tt, Int, 4, 0, NULL, Add, 1);
-    trees[2] = t2;
 
-    t3 = add_node(NULL, Binop, 0, 0, NULL, Sub, 0);
-    t = add_node(t3, Binop, 0, 0, NULL, Add, 0);
-    add_node(t3, Int, 5, 0, NULL, Add, 1);
+    input->tree = tree;
+    input->env = init_env();
+
+    return input;
+}
+
+static Input *create_input4() {
+    Input *input = malloc(sizeof(Input));
+    ExprTree *tree = add_node(NULL, Binop, 0, 0, NULL, Sub, 0);
+    ExprTree *t, *tt;
+    
+    t = add_node(tree, Binop, 0, 0, NULL, Add, 0);
+    add_node(tree, Int, 5, 0, NULL, Add, 1);
     tt = add_node(t, Binop, 0, 0, NULL, Sub, 0);
     add_node(t, Int, 4, 0, NULL, Add, 1);
     t = add_node(tt, Binop, 0, 0, NULL, Add, 0);
     add_node(tt, Int, 3, 0, NULL, Add, 1);
     add_node(t, Int, 1, 0, NULL, Add, 0);
     add_node(t, Int, 2, 0, NULL, Add, 1);
-    trees[3] = t3;
 
-    t4 = add_node(NULL, Binop, 0, 0, NULL, Div, 0);
-    t = add_node(t4, Binop, 0, 0, NULL, Mult, 0);
-    add_node(t4, Int, 5, 0, NULL, Add, 1);
+    input->tree = tree;
+    input->env = init_env();
+
+    return input;
+}
+
+static Input *create_input5() {
+    Input *input = malloc(sizeof(Input));
+    ExprTree *tree = add_node(NULL, Binop, 0, 0, NULL, Div, 0);
+    ExprTree *t, *tt;
+    
+    t = add_node(tree, Binop, 0, 0, NULL, Mult, 0);
+    add_node(tree, Int, 5, 0, NULL, Add, 1);
     tt = add_node(t, Binop, 0, 0, NULL, Div, 0);
     add_node(t, Int, 4, 0, NULL, Add, 1);
     t = add_node(tt, Binop, 0, 0, NULL, Mult, 0);
     add_node(tt, Int, 3, 0, NULL, Add, 1);
     add_node(t, Int, 1, 0, NULL, Add, 0);
     add_node(t, Int, 2, 0, NULL, Add, 1);
-    trees[4] = t4;
 
-    {
+    input->tree = tree;
+    input->env = init_env();
+
+    return input;
+}
+
+static Input *create_input6() {
+    Input *input = malloc(sizeof(Input));
+    ExprTree *tree = add_node(NULL, Assign, 0, 0, NULL, Add, 0);
     char *id = malloc(strlen("R") + 1);
+
     strcpy(id, "R");
+    
+    add_node(tree, ID, 0, 0, id, Add, 0);
+    add_node(tree, Int, 500, 0, NULL, Add, 1);
 
-    t5 = add_node(NULL, Assign, 0, 0, NULL, Add, 0);
-    add_node(t5, ID, 0, 0, id, Add, 0);
-    add_node(t5, Int, 500, 0, NULL, Add, 1);
-    trees[5] = t5;
-    }
+    input->tree = tree;
+    input->env = init_env();
 
-    {
+    return input;
+}
+
+static Input *create_input7() {
+    Input *input = malloc(sizeof(Input));
+    ExprTree *tree = add_node(NULL, Assign, 0, 0, NULL, Add, 0);
+    ExprTree *t, *tt;
+    Env_t *env = init_env();
     char *id = malloc(strlen("circumference") + 1);
     char *id2 = malloc(strlen("r") + 1);
+    
     strcpy(id, "circumference");
     strcpy(id2, "r");
 
-    t6 = add_node(NULL, Assign, 0, 0, NULL, Add, 0);
-    add_node(t6, ID, 0, 0, id, Add, 0);
-    t = add_node(t6, Binop, 0, 0, NULL, Mult, 1);
+    add_node(tree, ID, 0, 0, id, Add, 0);
+    t = add_node(tree, Binop, 0, 0, NULL, Mult, 1);
     tt = add_node(t, Binop, 0, 0, NULL, Mult, 0);
     add_node(t, ID, 0, 0, id2, Add, 1);
     add_node(tt, Float, 0, 3.14, NULL, Add, 0);
     add_node(tt, Int, 2, 0, NULL, Add, 1);
-    trees[6] = t6;
-    }
 
-    {
+    t_extend_env(env, "r", add_node(NULL, Int, 15, 0, NULL, Add, 0));
+
+    input->tree = tree;
+    input->env = env;
+
+    return input;
+}
+
+static Input *create_input8() {
+    Input *input = malloc(sizeof(Input));
+    ExprTree *tree;
+    ExprTree *t, *tt;
     char *id = malloc(strlen("f") + 1);
     char *id2a = malloc(strlen("x") + 1);
     char *id2b = malloc(strlen("x") + 1);
     char *id3a = malloc(strlen("y") + 1);
     char *id3b = malloc(strlen("y") + 1);
+
     strcpy(id, "f");
     strcpy(id2a, "x");
     strcpy(id2b, "x");
     strcpy(id3a, "y");
     strcpy(id3b, "y");
-
-    t7 = add_node(NULL, Fun, 0, 0, id, Add, 0);
-    t = add_node(t7, Parameter, 0, 0, NULL, Add, 0);
+    
+    tree = add_node(NULL, Fun, 0, 0, id, Add, 0);
+    t = add_node(tree, Parameter, 0, 0, NULL, Add, 0);
     add_node(t, ID, 0, 0, id2a, Add, 0);
     tt = add_node(t, Parameter, 0, 0, NULL, Add, 1);
     add_node(tt, ID, 0, 0, id3a, Add, 0);
-    t = add_node(t7, Binop, 0, 0, NULL, Sub, 1);
+    t = add_node(tree, Binop, 0, 0, NULL, Sub, 1);
     tt = add_node(t, Binop, 0, 0, NULL, Mult, 0);
     add_node(t, Float, 0, 0.123456, NULL, Add, 1);
     add_node(tt, ID, 0, 0, id2b, Add, 0);
     add_node(tt, ID, 0, 0, id3b, Add, 1);
-    trees[7] = t7;
-    }
 
-    trees[8] = parse(tokenize("f(42, 0.01)\n"));
-    trees[9] = parse(tokenize("num = num + 1\n"));
+    input->tree = tree;
+    input->env = init_env();
 
-    return trees;
+    return input;
+}
+
+static Input *create_input9() {
+    Input *input = malloc(sizeof(Input));
+    TokenList *tok_l = tokenize("f(42, 0.01)\n"), *tok_l_2;
+    ExprTree *tree = parse(tok_l);
+    Env_t *env = init_env();
+
+    tok_l_2 = tokenize("fn f(x, y) = x * y - 0.123456\n");
+    t_extend_env(env, "f", parse(tok_l_2));
+
+    input->tree = tree;
+    input->env = env;
+
+    free_token_list(tok_l);
+    free_token_list(tok_l_2);
+
+    return input;
+}
+
+static Input *create_input10() {
+    Input *input = malloc(sizeof(Input));
+    TokenList *tok_l = tokenize("num = num + 1\n");
+    ExprTree *tree = parse(tok_l);
+    Env_t *env = init_env();
+
+    t_extend_env(env, "num", add_node(NULL, Int, 42, 0, NULL, Add, 0));
+
+    input->tree = tree;
+    input->env = env;
+
+    free_token_list(tok_l);
+
+    return input;
 }
