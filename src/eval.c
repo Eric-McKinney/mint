@@ -368,7 +368,11 @@ static void eval_binop(ExprTree **t, Env_t *env) {
 static void eval_assign(ExprTree *tree, Env_t *env) {
     ExprTree *value = eval(&(tree->right), env);
     
-    extend_env(env, tree->left->value.id, value);
+    if (env_find(env, tree->left->value.id, NULL) != NULL) {
+        update_env(env, tree->left->value.id, value);
+    } else {
+        extend_env(env, tree->left->value.id, value);
+    }
 }
 
 static void eval_application(ExprTree **t, Env_t *env) {
