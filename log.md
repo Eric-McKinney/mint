@@ -135,6 +135,10 @@ Goals for today:
 
 - [x] Restructure test suites (issue 1 from yesterday)
 
+Notes:
+- I'm heavily considering not restructuring the parser and lexer tests since I don't think I'll add more tests later,
+but I should probably do at least the parser tests for consistency's sake and the potential that I will add tests
+
 Issues:
 
 1. Fork copies the heap, so now each test creates a bunch of unused memory and leaks it
