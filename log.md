@@ -12,8 +12,6 @@ The format for each entry is as follows:
 
 I wish I thought of this earlier, but it is what it is.
 
----
-
 ## June 1st, 2024
 
 Goals for today:
@@ -42,8 +40,6 @@ Fixes:
 1. Issue 1 (binop double free)
     1. ~~Pass in a double pointer to eval and eval\_binop, so the tree pointer can be changed directly~~
     2. Make evaluation entirely in-place for the parse tree, freeing and adjusting pointers along the way
-
----
 
 ## June 2nd, 2024
 
@@ -79,8 +75,6 @@ Fixes:
 2. Issue 2 (env not storing copies)
     - Store copies, but I need to implement a copy\_expr\_tree function first
 
----
-
 ## June 4th, 2024
 
 Goals for today:
@@ -94,8 +88,6 @@ Notes:
 Issues:
 
 1. Function evaluation runs into "unbound identifier" when the body is evaluated
-
----
 
 ## June 7th, 2024
 
@@ -120,8 +112,6 @@ Fixes:
 - Issue 1 from today (invalid free)
     - Fixed copy\_expr\_tree: it was shallow copying function IDs, so I made it a deep copy
 
----
-
 ## June 8th, 2024
 
 Goals for today:
@@ -138,8 +128,6 @@ Issues:
 1. Tests exit code and failure behavior
     - No matter what each test run ends with an exit code of 0 assuming it runs to completion
     - If it doesn't run to completion because a test failed and exited, the rest of that test suite is not run
-
----
 
 ## June 9th, 2024
 
@@ -168,8 +156,6 @@ Fixes:
     - Turns out that forking copies the IO buffer
     - On normal stdout with no redirect this was not a problem because the buffer is flushed on newline
     - When redirected the buffer is **not** flushed on newline
-
----
 
 ## June 15th, 2024
 
