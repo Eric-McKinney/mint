@@ -16,9 +16,10 @@ GREP=grep --color=always
 _OBJS= main.o lexer.o parser.o eval.o
 OBJS=$(patsubst %,$(OBJ)/%,$(_OBJS))
 
-.PHONY: lexer_tests parser_tests eval_tests vvlexer_tests vvparser_tests vveval_tests tests runtests vvtests clean
+.PHONY: all lexer_tests parser_tests eval_tests vvlexer_tests vvparser_tests vveval_tests tests runtests vvtests clean
 
-$(BIN)/mint: $(OBJ) $(OBJS)
+all: $(OBJ) $(BIN)/mint
+$(BIN)/mint: $(OBJS)
 	mkdir -p $(BIN)
 	$(CC) -o $@ $^
 
