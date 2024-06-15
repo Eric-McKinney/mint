@@ -16,37 +16,42 @@ GREP=grep --color=always
 _OBJS= main.o lexer.o parser.o eval.o
 OBJS=$(patsubst %,$(OBJ)/%,$(_OBJS))
 
-.PHONY: tests runtests vvtests clean
-.PRECIOUS: $(OBJ)/%_tests.o
+.PHONY: lexer_tests parser_tests eval_tests vvlexer_tests vvparser_tests vveval_tests tests runtests vvtests clean
 
 $(BIN)/mint: $(OBJ) $(OBJS)
 	mkdir -p $(BIN)
 	$(CC) -o $@ $^
 
-tests: $(OBJ) $(TEST_BIN) $(TEST_BIN)/lexer_tests $(TEST_BIN)/parser_tests $(TEST_BIN)/eval_tests
+lexer_tests: $(OBJ) $(TEST_BIN) $(TEST_BIN)/lexer_tests
+parser_tests: $(OBJ) $(TEST_BIN) $(TEST_BIN)/parser_tests
+eval_tests: $(OBJ) $(TEST_BIN) $(TEST_BIN)/eval_tests
+tests: lexer_tests parser_tests eval_tests
 runtests: tests
 	@$(TEST_BIN)/lexer_tests
 	@echo "|"
 	@$(TEST_BIN)/parser_tests
 	@echo "|"
 	@$(TEST_BIN)/eval_tests
-vvtests: $(TEST_LOG) tests
+vvlexer_tests: $(TEST_LOG) lexer_tests
 	@valgrind --log-file=$(LEXER_LOG) --track-origins=yes --leak-check=full $(TEST_BIN)/lexer_tests -v | tee -a $(LEXER_LOG)
 	@$(GREP) --after-context 3 "HEAP SUMMARY" $(LEXER_LOG)
 	@# in grep commands w/trailing || true, the pattern may not be present (and I don't want any output in this case)
 	@$(GREP) --after-context 6 "LEAK SUMMARY" $(LEXER_LOG) || true
 	@$(GREP) --after-context 1 "no leaks" $(LEXER_LOG) || true
 	@$(GREP) "ERROR SUMMARY" $(LEXER_LOG)
+vvparser_tests: $(TEST_LOG) parser_tests
 	@valgrind --log-file=$(PARSER_LOG) --track-origins=yes --leak-check=full $(TEST_BIN)/parser_tests -v | tee -a $(PARSER_LOG)
 	@$(GREP) --after-context 3 "HEAP SUMMARY" $(PARSER_LOG)
 	@$(GREP) --after-context 6 "LEAK SUMMARY" $(PARSER_LOG) || true
 	@$(GREP) --after-context 1 "no leaks" $(PARSER_LOG) || true
 	@$(GREP) "ERROR SUMMARY" $(PARSER_LOG)
+vveval_tests: $(TEST_LOG) eval_tests
 	@valgrind --log-file=$(EVAL_LOG) --track-origins=yes --leak-check=full $(TEST_BIN)/eval_tests -v | tee -a $(EVAL_LOG)
 	@$(GREP) --after-context 3 "HEAP SUMMARY" $(EVAL_LOG)
 	@$(GREP) --after-context 6 "LEAK SUMMARY" $(EVAL_LOG) || true
-	@$(GREP) --after-context 1 "no leaks" $(EVAL_LOG) || true
+	@$(GREP) "no leaks" $(EVAL_LOG) || true
 	@$(GREP) "ERROR SUMMARY" $(EVAL_LOG)
+vvtests: vvlexer_tests vvparser_tests vveval_tests
 	@echo "|------------------------------------------------------------|"
 	@echo "| Full test logs written to \e[0;36m./$(TEST_LOG)\e[0m"
 	@echo "|------------------------------------------------------------|"
