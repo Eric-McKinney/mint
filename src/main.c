@@ -1,13 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/wait.h>
 #include "lexer.h"
+#include "parser.h"
+#include "eval.h"
 
-#define PROMPT "\033[38;5;49mmint\033[0m|> "
+#define TEAL "\033[38;5;49m"
+#define END_COLOR "\033[0m"
+#define PROMPT TEAL "mint" END_COLOR "|> "
 #define BUF_SIZE 1024
 
 int main(int argc, char **argv) {
     FILE *input = stdin;
     char line[BUF_SIZE] = {0};
+    Env_t *env = init_env();
 
     /* Determine input stream */
     if (argc == 2) {
@@ -27,9 +35,38 @@ int main(int argc, char **argv) {
     }
 
     while(fgets(line, BUF_SIZE, input)) {
-        TokenList *tok_l = tokenize(line);
-        print_token_list(tok_l);
-        free_token_list(tok_l);
+        char cmd[BUF_SIZE] = "";
+        sscanf(line, "%s", cmd);
+
+        if (strcmp(cmd, "") == 0) {
+            if (argc == 1) {
+                printf(PROMPT);
+                fflush(stdout);
+            }
+            continue;
+        }
+
+        if (strcmp(cmd, "exit") == 0 || strcmp(cmd, "quit") == 0) {
+            break;
+        }
+
+        if (fork() == 0) {
+            TokenList *tok_l = tokenize(line);
+            ExprTree *tree = parse(tok_l);
+            char *str;
+            eval(&tree, env);
+
+            str = expr_tree_to_str(tree);
+            printf("%s\n", str);
+            free(str);
+
+            free_token_list(tok_l);
+            free_expr_tree(tree);
+
+            exit(EXIT_SUCCESS);
+        } else {
+            wait(NULL);
+        }
 
         if (argc == 1) {
             printf(PROMPT);
@@ -37,8 +74,7 @@ int main(int argc, char **argv) {
         }
     }
     
-    printf("\n");
+    free_env(env);
     fclose(input);
-
     return 0;
 }
