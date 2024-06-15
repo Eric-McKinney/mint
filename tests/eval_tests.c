@@ -39,6 +39,9 @@ static Input *create_input7();
 static Input *create_input8();
 static Input *create_input9();
 static Input *create_input10();
+static Input *create_input11();
+static Input *create_input12();
+static Input *create_input13();
 
 int main(int argc, char **argv) {
     Test tests[] = {
@@ -75,11 +78,21 @@ int main(int argc, char **argv) {
             create_input9,
             {"(Float 0.296544)", "[(f : (Fun f (Param(ID x)(Param(ID y)()))(Sub(Mult(ID x)(ID y))(Float 0.123456))))]"}
         },
-        /* num = num + 1 (where num = 42 in env)*/
-        {"lexer->parser->reassign", create_input10, {"(Assign(ID num)(Int 43))", "[(num : (Int 43))]"}}
+        /* num = num + 1 (where num = 42 in env) */
+        {"lexer->parser->reassign", create_input10, {"(Assign(ID num)(Int 43))", "[(num : (Int 43))]"}},
         /* fn area(r) = 3.14 * r*r */
+        {
+            "lexer->parser->fn defn",
+            create_input11,
+            {
+                "(Fun area (Param(ID r)())(Mult(Mult(Float 3.140000)(ID r))(ID r)))",
+                "[(area : (Fun area (Param(ID r)())(Mult(Mult(Float 3.140000)(ID r))(ID r)))), (r : (Int 4))]"
+            }
+        },
         /* 4 + 3 * (2 - 3) */
-        /* var=2*(var+1)/12 */
+        {"lexer->parser->parens arithmetic", create_input12, {"(Int 1)", "[]"}},
+        /* var=2*(var+1)/12 (where var = 11 in env) */
+        {"lexer->parser->self reassign", create_input13, {"(Assign(ID var)(Int 2))", "[(var : (Int 2))]"}}
     };
     int num_tests = sizeof(tests) / sizeof(Test), num_passed, suite_result;
 
@@ -443,6 +456,52 @@ static Input *create_input10() {
     Env_t *env = init_env();
 
     t_extend_env(env, "num", add_node(NULL, Int, 42, 0, NULL, Add, 0));
+
+    input->tree = tree;
+    input->env = env;
+
+    free_token_list(tok_l);
+
+    return input;
+}
+
+static Input *create_input11() {
+    Input *input = malloc(sizeof(Input));
+    TokenList *tok_l = tokenize("fn area(r) = 3.14 * r*r\n");
+    ExprTree *tree = parse(tok_l);
+    Env_t *env = init_env();
+
+    t_extend_env(env, "r", add_node(NULL, Int, 4, 0, NULL, Add, 0));
+
+    input->tree = tree;
+    input->env = env;
+
+    free_token_list(tok_l);
+
+    return input;
+}
+
+static Input *create_input12() {
+    Input *input = malloc(sizeof(Input));
+    TokenList *tok_l = tokenize("4 + 3 * (2 - 3)\n");
+    ExprTree *tree = parse(tok_l);
+    Env_t *env = init_env();
+
+    input->tree = tree;
+    input->env = env;
+
+    free_token_list(tok_l);
+
+    return input;
+}
+
+static Input *create_input13() {
+    Input *input = malloc(sizeof(Input));
+    TokenList *tok_l = tokenize("var = 2*(var+1)/12\n");
+    ExprTree *tree = parse(tok_l);
+    Env_t *env = init_env();
+
+    t_extend_env(env, "var", add_node(NULL, Int, 11, 0, NULL, Add, 0));
 
     input->tree = tree;
     input->env = env;
