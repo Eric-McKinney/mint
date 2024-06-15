@@ -1,9 +1,10 @@
 # Log
 
-### Preamble
+## Preamble
 
 I'm starting this log to keep myself focused, track my progress, and to be able to reference it later. \
 The format for each entry is as follows:
+
 - A goals section describing what I intend to get done (checked off as I finish each thing)
 - A notes section for any significant unplanned changes I make or just to say everything went to plan
 - An optional issues section where I describe problems I'm having
@@ -13,9 +14,10 @@ I wish I thought of this earlier, but it is what it is.
 
 ---
 
-### June 1st, 2024
+## June 1st, 2024
 
 Goals for today:
+
 - [x] Implement pop\_params
 - [x] Implement bind\_args
 - [x] Implement eval\_arguments
@@ -23,32 +25,37 @@ Goals for today:
 - [x] Begin writing tests for eval.c
 
 Notes:
+
 - Added validate\_params function to check for duplicate parameters
     - Also added check in eval\_application to see if the right number of args was provided
 - Created test.h to hold all of the color formatting macros to be used in tests
 
 Issues:
+
 1. Evaluating binops can result in a double free
     - When a binop can be "collapsed" into a single value, the original tree is freed
     - The original tree still has a pointer to the binop that has been freed
     - The original tree is freed later on (including the already freed binop)
 
 Fixes:
+
 1. Issue 1 (binop double free)
     1. ~~Pass in a double pointer to eval and eval\_binop, so the tree pointer can be changed directly~~
     2. Make evaluation entirely in-place for the parse tree, freeing and adjusting pointers along the way
 
 ---
 
-### June 2nd, 2024
+## June 2nd, 2024
 
 Goals for today:
+
 - [x] Write plenty of tests for eval.c
     - Not completely done
     - I wrote quite a few tests, but I want to implement all of the parser\_tests outputs as tests for eval
 - [ ] Begin work on main cli loop (deferred)
 
 Notes:
+
 - Decided to check env as well for eval tests
     - To do this, I started work on a env\_to\_str function
 - When implementing env\_to\_str I found that sprintf is generally better than strcat
@@ -57,6 +64,7 @@ Notes:
 - I decided to add enviroments as inputs for eval\_tests in addition to parse trees
 
 Issues:
+
 1. String sizing for env\_to\_str function
     - I'm implementing env\_to\_str just by looping through env linked list and concatting id and data (parse tree str)
     - For the data I can simply call expr\_tree\_to\_str
@@ -65,6 +73,7 @@ Issues:
     - The env can be affected when the parse tree is evaluated in place since pointers in env can become dangling
 
 Fixes:
+
 1. Issue 1 (env\_to\_str)
     - Implement it recursively
 2. Issue 2 (env not storing copies)
@@ -72,20 +81,23 @@ Fixes:
 
 ---
 
-### June 4th, 2024
+## June 4th, 2024
 
 Goals for today:
+
 - [x] Write a few more tests for eval.c
 
 Notes:
-    - Development is going to be a lot slower except for weekends going forward because I'm working as an intern 9-5
+
+- Development is going to be a lot slower except for weekends going forward because I'm working as an intern 9-5
 
 Issues:
+
 1. Function evaluation runs into "unbound identifier" when the body is evaluated
 
 ---
 
-### June 7th, 2024
+## June 7th, 2024
 
 Goals for today:
 
@@ -110,7 +122,7 @@ Fixes:
 
 ---
 
-### June 8th, 2024
+## June 8th, 2024
 
 Goals for today:
 
@@ -124,20 +136,21 @@ Notes:
 Issues:
 
 1. Tests exit code and failure behavior
-   - No matter what each test run ends with an exit code of 0 assuming it runs to completion
-   - If it doesn't run to completion because a test failed and exited, the rest of that test suite is not run
+    - No matter what each test run ends with an exit code of 0 assuming it runs to completion
+    - If it doesn't run to completion because a test failed and exited, the rest of that test suite is not run
 
 ---
 
-### June 9th, 2024
+## June 9th, 2024
 
 Goals for today:
 
 - [x] Restructure test suites (issue 1 from yesterday)
 
 Notes:
+
 - I'm heavily considering not restructuring the parser and lexer tests since I don't think I'll add more tests later,
-but I should probably do at least the parser tests for consistency's sake and the potential that I will add tests
+  but I should probably do at least the parser tests for consistency's sake and the potential that I will add tests
 
 Issues:
 
@@ -146,6 +159,7 @@ Issues:
     - The first print in each child process seems to print a copy of all that came before it
 
 Fixes:
+
 - Issue 1 from yesterday (test behavior)
     - Restructure, forking for each test to be run in a child process
 - Issue 1 from today (test leaking memory)
@@ -157,7 +171,7 @@ Fixes:
 
 ---
 
-### June 15th, 2024
+## June 15th, 2024
 
 Goals for today:
 
@@ -165,6 +179,6 @@ Goals for today:
 
 Notes:
 
-- Regarding the note from 6/9/24, I think I'll just leave the lexer tests format alone for good and I'll leave the 
-parser tests format alone until I add
+- Regarding the note from 6/9/24, I think I'll just leave the lexer tests format alone for good and I'll leave the
+  parser tests format alone until I add more tests
 
