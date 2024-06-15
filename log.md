@@ -155,3 +155,11 @@ Fixes:
     - On normal stdout with no redirect this was not a problem because the buffer is flushed on newline
     - When redirected the buffer is **not** flushed on newline
 
+---
+
+### June 15th, 2024
+
+Goals for today:
+
+- [ ] Continue and finish writing eval tests (if possible)
+
