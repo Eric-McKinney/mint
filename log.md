@@ -161,5 +161,10 @@ Fixes:
 
 Goals for today:
 
-- [ ] Continue and finish writing eval tests (if possible)
+- [x] Continue and finish writing eval tests (if possible)
+
+Notes:
+
+- Regarding the note from 6/9/24, I think I'll just leave the lexer tests format alone for good and I'll leave the 
+parser tests format alone until I add
 
