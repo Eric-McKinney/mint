@@ -70,8 +70,9 @@ ID -> `string which matches the following regex: ^[a-zA-Z][a-zA-Z0-9_]*$`
 - [x] ~~Write lexer~~
 - [x] ~~Write parser~~
 - [x] ~~Write evaluator~~
-    - [ ] Lots of testing
-- [ ] Write main cli/script-running loop
+    - [x] ~~Lots of testing~~
+- [x] Write main cli/script-running loop
+    - [ ] Write env pipe
     - [ ] Lots of testing
 - [ ] Document code
     - [ ] Describe less obvious functions w/comments (mostly in eval)
