@@ -162,9 +162,31 @@ Fixes:
 Goals for today:
 
 - [x] Continue and finish writing eval tests (if possible)
+- [ ] Use a pipe to pass env changes from child to parent (deferred)
 
 Notes:
 
 - Regarding the note from 6/9/24, I think I'll just leave the lexer tests format alone for good and I'll leave the
   parser tests format alone until I add more tests
+
+Issues:
+
+1. The heap is not shared between the parent and child process, so the env cannot be updated from child to parent after
+   an assignment or function has been evaluated (or at least not easily)
+
+Fixes:
+
+- Issue 1 from today (forking makes separate heaps -> env doesn't update)
+    - I thought I could use threads since they share a heap, but if one thread exits or segfaults then the main thread
+  ends which defeats the purpose
+    - There appear to be a few ways for processes to communicate, but I think a pipe is the most sane way to do it
+
+## June 16th, 2024
+
+Goals for today:
+
+- [ ] Write a function to serialize an env (either the whole thing or just the changes to be made to the env)
+- [ ] Write a function to deserialize an env
+- [ ] Write a function to print each eval result as an end user would expect to see them
+- [ ] Use a pipe to allow serialized envs to be sent/received between parent and child processes
 
