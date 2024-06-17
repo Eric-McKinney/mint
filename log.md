@@ -185,8 +185,15 @@ Fixes:
 
 Goals for today:
 
-- [ ] Write a function to serialize an env (either the whole thing or just the changes to be made to the env)
-- [ ] Write a function to deserialize an env
-- [ ] Write a function to print each eval result as an end user would expect to see them
-- [ ] Use a pipe to allow serialized envs to be sent/received between parent and child processes
+- [x] Write a function to serialize an env (either the whole thing or just the changes to be made to the env)
+- [ ] Write a function to deserialize an env (deferred)
+- [ ] Write a function to print each eval result as an end user would expect to see them (deferred)
+- [ ] Use a pipe to allow serialized envs to be sent/received between parent and child processes (deferred)
+
+Notes:
+
+- So as it turns out, this whole setup (fork, exit on error, serializing env & sending it through a pipe) is a real pain
+    - For now, I'll make this whole serializing business its own branch
+    - I'll make another branch different error handling using errno instead of exiting, then maybe this can all be done
+  in one process
 
