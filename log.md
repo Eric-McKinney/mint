@@ -202,7 +202,8 @@ Notes:
 Goals for today:
 
 - [x] Learn about errno
-- [ ] See if I can adapt the current error handling to use errno instead of exiting
+- [x] See if I can adapt the current error handling to use errno instead of exiting
+- [ ] Update error handling to errno
 
 Notes:
 
