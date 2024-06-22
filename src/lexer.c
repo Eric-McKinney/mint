@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <regex.h>
+#include <errno.h>
+#include <err.h>
 #include "lexer.h"
 
 #define MAX_TOK_LEN 10     /* longest tok is TOK_LPAREN = 10 chars                        */
