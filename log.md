@@ -201,6 +201,11 @@ Notes:
 
 Goals for today:
 
-- [ ] Learn about errno
+- [x] Learn about errno
 - [ ] See if I can adapt the current error handling to use errno instead of exiting
+
+Notes:
+
+- After investigating errno and the many error reporting functions, I see a definite way forward with errno which will
+  make my life a lot easier, no pipes necessary
 
