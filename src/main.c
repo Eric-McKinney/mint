@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <sys/wait.h>
+#include <errno.h>
 #include "lexer.h"
 #include "parser.h"
 #include "eval.h"
@@ -11,6 +10,8 @@
 #define END_COLOR "\033[0m"
 #define PROMPT TEAL "mint" END_COLOR "|> "
 #define BUF_SIZE 1024
+
+static void process_cmd(char *cmd, Env_t *env);
 
 int main(int argc, char **argv) {
     FILE *input = stdin;
@@ -36,6 +37,7 @@ int main(int argc, char **argv) {
 
     while(fgets(line, BUF_SIZE, input)) {
         char cmd[BUF_SIZE] = "";
+
         sscanf(line, "%s", cmd);
 
         if (strcmp(cmd, "") == 0) {
@@ -50,23 +52,7 @@ int main(int argc, char **argv) {
             break;
         }
 
-        if (fork() == 0) {
-            TokenList *tok_l = tokenize(line);
-            ExprTree *tree = parse(tok_l);
-            char *str;
-            eval(&tree, env);
-
-            str = expr_tree_to_str(tree);
-            printf("%s\n", str);
-            free(str);
-
-            free_token_list(tok_l);
-            free_expr_tree(tree);
-
-            exit(EXIT_SUCCESS);
-        } else {
-            wait(NULL);
-        }
+        process_cmd(line, env);
 
         if (argc == 1) {
             printf(PROMPT);
@@ -77,4 +63,38 @@ int main(int argc, char **argv) {
     free_env(env);
     fclose(input);
     return 0;
+}
+
+static void process_cmd(char *cmd, Env_t *env) {
+    char *str;
+    TokenList *tok_l;
+    ExprTree *tree;
+
+    errno = 0;
+    tok_l = tokenize(cmd);
+
+    if (errno != 0) {
+        return;
+    }
+
+    tree = parse(tok_l);
+
+    if (errno != 0) {
+        free_token_list(tok_l);
+        return;
+    }
+    
+    eval(&tree, env);
+
+    if (errno != 0) {
+        free_token_list(tok_l);
+        free_expr_tree(tree);
+    }
+
+    str = expr_tree_to_str(tree);
+    printf("%s\n", str);
+
+    free(str);
+    free_token_list(tok_l);
+    free_expr_tree(tree);
 }
