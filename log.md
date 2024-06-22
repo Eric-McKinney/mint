@@ -197,3 +197,10 @@ Notes:
     - I'll make another branch different error handling using errno instead of exiting, then maybe this can all be done
   in one process
 
+## June 22nd, 2024
+
+Goals for today:
+
+- [ ] Learn about errno
+- [ ] See if I can adapt the current error handling to use errno instead of exiting
+
