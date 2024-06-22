@@ -18,13 +18,13 @@ TokenList *tokenize(const char *input) {
     TokenList *tok_l = NULL;
     int len;
 
-    compile_regexs();
-
     if (!input) {
-        fprintf(stderr, "lexer: input is NULL\n");
-        exit(EXIT_FAILURE);
+        errno = EINVAL;
+        warn("lexer: input is NULL");
+        return NULL;
     }
     
+    compile_regexs();
     len = strlen(input);
     tok_l = tok(input, 0, len);
     free_regexs();
@@ -137,8 +137,9 @@ static TokenList *tok(const char *input, unsigned int pos, unsigned int length) 
         t->token = TOK_COMMA;
         t->next = tok(input, pos + 1, length);
     } else {
-        fprintf(stderr, "Invalid token starting with \"%c\" at position %u\n", str[pos], pos);
-        exit(EXIT_FAILURE);
+        errno = EINVAL;
+        warn("Invalid token starting with \"%c\" at position %u", str[pos], pos);
+        return NULL;
     }
     
     return t;
