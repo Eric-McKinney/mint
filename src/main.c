@@ -74,6 +74,7 @@ static void process_cmd(char *cmd, Env_t *env) {
     tok_l = tokenize(cmd);
 
     if (errno != 0) {
+        free_token_list(tok_l);
         return;
     }
 
@@ -81,6 +82,7 @@ static void process_cmd(char *cmd, Env_t *env) {
 
     if (errno != 0) {
         free_token_list(tok_l);
+        free_expr_tree(tree);
         return;
     }
     
