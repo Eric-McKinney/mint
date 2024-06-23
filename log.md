@@ -210,3 +210,10 @@ Notes:
 - After investigating errno and the many error reporting functions, I see a definite way forward with errno which will
   make my life a lot easier, no pipes necessary
 
+## June 23, 2024
+
+Goals for today:
+
+- [ ] Update error handling to errno for parser
+- [ ] Update error handling to errno for evaluator
+
