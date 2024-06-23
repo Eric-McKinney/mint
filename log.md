@@ -214,6 +214,12 @@ Notes:
 
 Goals for today:
 
-- [ ] Update error handling to errno for parser
+- [x] Update error handling to errno for parser
 - [ ] Update error handling to errno for evaluator
+
+Notes:
+
+- Changing error handling in parser to errno was much more of a pain than I anticipated
+    - I need to revisit this and make error messages more helpful and limit malformed inputs to 1 error message
+- I also checked and there are no memory leaks for the bad inputs I gave
 
