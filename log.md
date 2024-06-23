@@ -203,7 +203,7 @@ Goals for today:
 
 - [x] Learn about errno
 - [x] See if I can adapt the current error handling to use errno instead of exiting
-- [ ] Update error handling to errno
+- [x] Update error handling to errno for lexer
 
 Notes:
 
