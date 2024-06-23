@@ -1,11 +1,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
+#include <err.h>
 #include "parser.h"
 #include "lexer.h"
 
-#define MAX_NODE_LEN 6      /* longest node name is Assign = 6 chars                      */
-#define MAX_NODE_VAL_LEN 50 /* arbitrary upper limit on node value size (e.g. an integer) */
+#define MAX_NODE_LEN 6      /* longest node name is Assign = 6 chars                           */
+#define MAX_NODE_VAL_LEN 50 /* arbitrary upper limit on node value size (e.g. a variable name) */
 #define MAX_NODE_STR_LEN MAX_NODE_LEN + MAX_NODE_VAL_LEN
 
 static TokenList *match_token(TokenList *tok_l, Tok_t tok) {
@@ -22,13 +24,14 @@ static TokenList *match_token(TokenList *tok_l, Tok_t tok) {
     input = token_list_to_str(tok_l);
     arg = token_to_str(tok_l);
 
-    fprintf(stderr, "Expected %s from input %s, got %s\n", expected, input, arg);
+    errno = EINVAL;
+    warn("parser: Expected %s from input %s, got %s\n", expected, input, arg);
     
     free(expected);
     free(input);
     free(arg);
 
-    exit(EXIT_FAILURE);
+    return NULL;
 }
 
 static ExprTree *parse_expr(TokenList *tok_l, TokenList **out_tl);
@@ -50,9 +53,14 @@ static ExprTree *parse_expr(TokenList *tok_l, TokenList **out_tl) {
     ExprTree *add_expr;
     TokenList *t;
 
+    if (errno != 0) {
+        return NULL;
+    }
+
     if (tok_l == NULL) {
-        fprintf(stderr, "Empty input\n");
-        exit(EXIT_FAILURE);
+        errno = EINVAL;
+        warn("parser: Empty input");
+        return NULL;
     }
 
     switch (tok_l->token) {
@@ -78,6 +86,10 @@ static ExprTree *parse_function_expr(TokenList *tok_l, TokenList **out_tl) {
     TokenList *t, *t2, *t3, *t4, *t5, *t6, *t7, *t8;
     ExprTree *fun_expr, *param_expr, *body_expr;
     char *id, *id_cpy;
+
+    if (errno != 0) {
+        return NULL;
+    }
 
     t = match_token(tok_l, TOK_FUN);
     t2 = match_token(t, TOK_ID);
@@ -111,6 +123,10 @@ static ExprTree *parse_parameter_expr(TokenList *tok_l, TokenList **out_tl) {
     TokenList *t, *t2, *t3;
     ExprTree *parameter_expr, *param_expr, *id_expr;
 
+    if (errno != 0) {
+        return NULL;
+    }
+
     id_expr = parse_primary_expr(tok_l, &t);
 
     if (t->token == TOK_COMMA) {
@@ -136,6 +152,10 @@ static ExprTree *parse_assignment_expr(TokenList *tok_l, TokenList **out_tl) {
     TokenList *t, *t2, *t3, *t4;
     ExprTree *assign_expr, *id_expr, *val_expr;
 
+    if (errno != 0) {
+        return NULL;
+    }
+
     id_expr = parse_primary_expr(tok_l, &t);
     t2 = match_token(t, TOK_EQUAL);
     val_expr = parse_additive_expr(t2, &t3);
@@ -153,6 +173,10 @@ static ExprTree *parse_assignment_expr(TokenList *tok_l, TokenList **out_tl) {
 static ExprTree *parse_additive_expr(TokenList *tok_l, TokenList **out_tl) {
     TokenList *t, *t2;
     ExprTree *additive_expr, *add_expr, *mult_expr;
+
+    if (errno != 0) {
+        return NULL;
+    }
 
     mult_expr = parse_multiplicative_expr(tok_l, &t);
 
@@ -185,6 +209,10 @@ static ExprTree *parse_multiplicative_expr(TokenList *tok_l, TokenList **out_tl)
     TokenList *t, *t2;
     ExprTree *multiplicative_expr, *mult_expr, *app_expr;
 
+    if (errno != 0) {
+        return NULL;
+    }
+
     app_expr = parse_application_expr(tok_l, &t);
 
     if (t == NULL || (t->token != TOK_MULT && t->token != TOK_DIV)) {
@@ -216,6 +244,10 @@ static ExprTree *parse_application_expr(TokenList *tok_l, TokenList **out_tl) {
     TokenList *t, *t2, *t3, *t4;
     ExprTree *application_expr, *primary_expr, *id_expr, *arg_expr;
 
+    if (errno != 0) {
+        return NULL;
+    }
+
     switch (tok_l->token) {
         case TOK_ID:
             #pragma GCC diagnostic push
@@ -235,11 +267,11 @@ static ExprTree *parse_application_expr(TokenList *tok_l, TokenList **out_tl) {
         default: {
             /* TODO: Consider printing original input str (convert back) instead of token list */
             char *tl_str = token_list_to_str(tok_l);
-            fprintf(stderr, 
-                    "parser: failed to find primary expression with remaining tokens:\n%s\n",
-                    tl_str);
+            errno = EINVAL;
+            warn("parser: failed to find primary expression with remaining tokens:\n%s", tl_str);
             free(tl_str);
-            exit(EXIT_FAILURE);
+            *out_tl = NULL;
+            return NULL;
         }
     }
     
@@ -261,6 +293,10 @@ static ExprTree *parse_application_expr(TokenList *tok_l, TokenList **out_tl) {
 static ExprTree *parse_arg_expr(TokenList *tok_l, TokenList **out_tl) {
     TokenList *t, *t2, *t3;
     ExprTree *argument_expr, *add_expr, *arg_expr;
+
+    if (errno != 0) {
+        return NULL;
+    }
 
     add_expr = parse_additive_expr(tok_l, &t);
 
@@ -287,6 +323,10 @@ static ExprTree *parse_primary_expr(TokenList *tok_l, TokenList **out_tl) {
     TokenList *t, *t2, *t3;
     ExprTree *p_expr, *add_expr;
     char *id, *id_cpy;
+
+    if (errno != 0) {
+        return NULL;
+    }
 
     p_expr = malloc(sizeof(ExprTree));
 
@@ -325,11 +365,11 @@ static ExprTree *parse_primary_expr(TokenList *tok_l, TokenList **out_tl) {
             char *tl_str = token_list_to_str(tok_l);
             free(p_expr);
 
-            fprintf(stderr, 
-                    "parser: unrecognized primary expression with remaining tokens:\n%s\n",
-                    tl_str);
+            errno = EINVAL;
+            warn("parser: unrecognized primary expression with remaining tokens:\n%s\n", tl_str);
             free(tl_str);
-            exit(EXIT_FAILURE);
+            *out_tl = NULL;
+            return NULL;
         }
     }
 
