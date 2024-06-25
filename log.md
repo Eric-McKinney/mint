@@ -215,7 +215,7 @@ Notes:
 Goals for today:
 
 - [x] Update error handling to errno for parser
-- [ ] Update error handling to errno for evaluator
+- [ ] Update error handling to errno for evaluator (deferred)
 
 Notes:
 
