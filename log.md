@@ -223,3 +223,9 @@ Notes:
     - I need to revisit this and make error messages more helpful and limit malformed inputs to 1 error message
 - I also checked and there are no memory leaks for the bad inputs I gave
 
+## June 29th, 2024
+
+Goals for today:
+
+- [ ] Update error handling to errno for evaluator
+
