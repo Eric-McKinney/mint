@@ -249,6 +249,10 @@ Notes:
 Issues:
 
 1. I fixed issue 1 from yesterday mostly, as no crashes occur, but the too many args case doesn't throw any errors
+2. I found more buggy cases
+    - `fn f() = 3` (function defn with no params)
+    - `f()` (function with no args)
+    - I realize this is a parsing issue because my CFG doesn't allow for these cases, but I think it should
 
 Fixes:
 
