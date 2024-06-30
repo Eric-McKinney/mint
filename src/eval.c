@@ -49,6 +49,10 @@ static ExprTree *copy_expr_tree(ExprTree *tree) {
 static void extend_env(Env_t *env, const char *id, ExprTree *data) {
     Env_t *new_data;
 
+    if (errno != 0) {
+        return;
+    }
+
     new_data = malloc(sizeof(Env_t));
     new_data->id = malloc(strlen(id) + 1);
     strcpy(new_data->id, id);
@@ -60,6 +64,11 @@ static void extend_env(Env_t *env, const char *id, ExprTree *data) {
 
 static void extend_env_tmp(Env_t *env, const char *id) {
     ExprTree *dummy_data = calloc(1, sizeof(ExprTree));
+
+    if (errno != 0) {
+        free(dummy_data);
+        return;
+    }
 
     dummy_data->expr = ID;
     dummy_data->value.id = malloc(strlen(id) + 1);
@@ -141,6 +150,10 @@ static void shrink_env(Env_t *env, const char *id, int qty) {
 
 static void update_env(Env_t *env, const char *id, ExprTree *new_data) {
     Env_t *env_entry = env_find(env, id, NULL);
+
+    if (errno != 0) {
+        return;
+    }
 
     free_expr_tree(env_entry->data);
     env_entry->data = copy_expr_tree(new_data);
