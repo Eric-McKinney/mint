@@ -227,5 +227,11 @@ Notes:
 
 Goals for today:
 
-- [ ] Update error handling to errno for evaluator
+- [x] Update error handling to errno for evaluator
+
+Issues:
+
+1. I have found a few lingering problems from moving to errno in eval in the following commands
+    - `y = y` (y not previously defined)
+    - `fn a(x, y) = x + y` followed by `a(1,2,3)` (too many args)
 
