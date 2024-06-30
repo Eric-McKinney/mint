@@ -453,16 +453,20 @@ static int push_params(ExprTree *params, Env_t *env) {
 }
 
 static int bind_args(ExprTree *args, ExprTree *params, Env_t *env) {
-    int args_binded;
+    int num_args;
 
-    if (args == NULL || params == NULL) {
+    if (args == NULL) {
         return 0;
     }
 
-    args_binded = bind_args(args->right, params->right, env);
+    if (params == NULL) {
+        return 1 + bind_args(args->right, params, env);
+    }
+
+    num_args = bind_args(args->right, params->right, env);
     update_env(env, params->left->value.id, args->left);
 
-    return 1 + args_binded;
+    return 1 + num_args;
 }
 
 static void pop_params(ExprTree *params, int num_params, Env_t *env) {
