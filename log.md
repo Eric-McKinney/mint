@@ -239,5 +239,9 @@ Issues:
 
 Goals for today:
 
-- [ ] Fix error handling for eval (issue 1 from yesterday)
+- [x] Fix error handling for eval (issue 1 from yesterday)
+
+Issues:
+
+1. I fixed issue 1 from yesterday mostly, as no crashes occur, but the too many args case doesn't throw any errors
 
