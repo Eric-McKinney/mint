@@ -253,6 +253,9 @@ Issues:
     - `fn f() = 3` (function defn with no params)
     - `f()` (function with no args)
     - I realize this is a parsing issue because my CFG doesn't allow for these cases, but I think it should
+3. In parse and eval I should add more null checks since any eval/parse could potentially return null if it runs into
+  an error
+    - ex: `f()` case generates a segfault because parsing dereferences a null pointer when it checks for a comma in args
 
 Fixes:
 
