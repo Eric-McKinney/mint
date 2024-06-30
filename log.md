@@ -241,7 +241,21 @@ Goals for today:
 
 - [x] Fix error handling for eval (issue 1 from yesterday)
 
+Notes:
+
+- I decided to put guards which check errno for each function that adds to the env, so the env can't be polluted in an
+  error case
+
 Issues:
 
 1. I fixed issue 1 from yesterday mostly, as no crashes occur, but the too many args case doesn't throw any errors
+
+Fixes:
+
+- Issue 1 from yesterday (both of the problem cases)
+    - There was a double free in main.c because I forgot to put a return when an error is found after eval
+- Issue 1 from today (too many args case)
+    - The check for num\_params != num\_args\_bound doesn't catch too many args because bind\_args stops at the end of
+  the parameters
+    - The fix is to count the number of args (not just the number of args bound to parameters)
 
