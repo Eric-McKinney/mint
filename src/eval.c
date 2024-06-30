@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
+#include <err.h>
 #include "eval.h"
 #include "parser.h"
 
@@ -94,8 +96,9 @@ static ExprTree *lookup(Env_t *env, const char *id) {
     if (e != NULL) {
         return copy_expr_tree(e->data);
     } else {
-        fprintf(stderr, "Unbound identifier %s\n", id);
-        exit(EXIT_FAILURE);
+        errno = EINVAL;
+        warnx("error: Unbound identifier: %s\n", id);
+        return NULL;
     }
 }
 
@@ -121,8 +124,9 @@ static void shrink_env(Env_t *env, const char *id, int qty) {
     e = env_find(env, id, &prev);
 
     if (e == NULL) {
-        fprintf(stderr, "Failed to shrink environment: cannot find identifier %s\n", id);
-        exit(EXIT_FAILURE);
+        errno = EINVAL;
+        warnx("error: Failed to shrink environment: cannot find identifier %s\n", id);
+        return;
     }
 
     last = e;
@@ -217,23 +221,26 @@ ExprTree *eval(ExprTree **tree, Env_t *env) {
             eval_application(tree, env);
             break;
         case Argument:
-            fprintf(stderr, "Arugment expression outside of function application\n");
-            exit(EXIT_FAILURE);
+            errno = EINVAL;
+            warnx("error: Argument expression outside of function application\n");
+            return NULL;
         case Parameter:
-            fprintf(stderr, "Parameter expression outside of function definition\n");
-            exit(EXIT_FAILURE);
+            errno = EINVAL;
+            warnx("error: Parameter expression outside of function definition\n");
+            return NULL;
         default: {
             char *expr_str = expr_tree_to_str(*tree);
-            fprintf(stderr, "Failed to evaluate unrecognized expression: %s\n", expr_str);
+            errno = EINVAL;
+            warnx("error: Failed to evaluate unrecognized expression: %s\n", expr_str);
             free(expr_str);
-            exit(EXIT_FAILURE);
+            return NULL;
         }
     }
     
     return *tree;
 }
 
-static void validate_params(ExprTree *params, const char *fun_id) {
+static int validate_params(ExprTree *params, const char *fun_id) {
     char *p[MAX_PARAMS];
     int i = 0, j, dupes = 0;
 
@@ -242,7 +249,8 @@ static void validate_params(ExprTree *params, const char *fun_id) {
 
         for (j = 0; j < i; j++) {
             if (strcmp(p[j], p[i]) == 0) {
-                fprintf(stderr, "Duplicate parameter \"%s\" in %s\n", p[i], fun_id);
+                errno = EINVAL;
+                warnx("Duplicate parameter \"%s\" in %s\n", p[i], fun_id);
                 dupes++;
                 break;
             }
@@ -253,8 +261,10 @@ static void validate_params(ExprTree *params, const char *fun_id) {
     }
 
     if (dupes) {
-        exit(EXIT_FAILURE);
+        return -1;
     }
+
+    return 0;
 }
 
 static void eval_fun(ExprTree **t, Env_t *env) {
@@ -263,8 +273,11 @@ static void eval_fun(ExprTree **t, Env_t *env) {
 
     num_params = push_params(tree->left, env);
     eval(&(tree->right), env);
-    validate_params(tree->left, tree->value.id);
-    extend_env(env, tree->value.id, tree);
+
+    if (validate_params(tree->left, tree->value.id) == 0) {
+        extend_env(env, tree->value.id, tree);
+    }
+
     pop_params(tree->left, num_params, env);
 }
 
@@ -355,9 +368,10 @@ static void eval_binop(ExprTree **t, Env_t *env) {
             break;
         default: {
             char *expr_str = expr_tree_to_str(tree);
-            fprintf(stderr, "Failed to evaluate unrecognized binary operator expression: %s\n", expr_str);
+            errno = EINVAL;
+            warnx("error: Failed to evaluate unrecognized binary operator expression: %s\n", expr_str);
             free(expr_str);
-            exit(EXIT_FAILURE);
+            return;
         }
     }
 
@@ -389,12 +403,10 @@ static void eval_application(ExprTree **t, Env_t *env) {
     num_args_bound = bind_args(args, params, env);
 
     if (num_params != num_args_bound) {
-        fprintf(stderr,
-                "In application of %s: received %d arguments, expected %d\n",
-                fun->value.id,
-                num_args_bound,
-                num_params);
-        exit(EXIT_FAILURE);
+        errno = EINVAL;
+        warnx("In application of %s: received %d arguments, expected %d\n", fun->value.id, num_args_bound, num_params);
+        pop_params(params, num_params, env);
+        return;
     }
 
     ret_val = eval(&fun_body, env);
