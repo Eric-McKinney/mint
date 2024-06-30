@@ -91,6 +91,7 @@ static void process_cmd(char *cmd, Env_t *env) {
     if (errno != 0) {
         free_token_list(tok_l);
         free_expr_tree(tree);
+        return;
     }
 
     str = expr_tree_to_str(tree);
