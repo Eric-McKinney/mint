@@ -235,3 +235,9 @@ Issues:
     - `y = y` (y not previously defined)
     - `fn a(x, y) = x + y` followed by `a(1,2,3)` (too many args)
 
+## June 30th, 2024
+
+Goals for today:
+
+- [ ] Fix error handling for eval (issue 1 from yesterday)
+
