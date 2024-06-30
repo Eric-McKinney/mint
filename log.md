@@ -240,6 +240,7 @@ Issues:
 Goals for today:
 
 - [x] Fix error handling for eval (issue 1 from yesterday)
+- [ ] Write a function to print each eval result as an end user would expect to see them
 
 Notes:
 
