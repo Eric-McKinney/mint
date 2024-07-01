@@ -253,7 +253,9 @@ Issues:
 2. I found more buggy cases
     - `fn f() = 3` (function defn with no params)
     - `f()` (function with no args)
-    - I realize this is a parsing issue because my CFG doesn't allow for these cases, but I think it should
+    - I realize this is a parsing issue because my CFG doesn't allow for these cases, ~~but I think it should~~
+    - Followup to the above: I don't think it makes sense to allow functions with no parameters, but it definitely
+  shouldn't crash the program. It should also probably have a proper error message
 3. In parse and eval I should add more null checks since any eval/parse could potentially return null if it runs into
   an error
     - ex: `f()` case generates a segfault because parsing dereferences a null pointer when it checks for a comma in args
