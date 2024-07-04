@@ -269,3 +269,13 @@ Fixes:
   the parameters
     - The fix is to count the number of args (not just the number of args bound to parameters)
 
+## July 4th, 2024
+
+Goals for today:
+
+- [ ] Write a function to print each eval result as an end user would expect to see them
+
+Notes:
+
+- Happy independence day 🎉
+
