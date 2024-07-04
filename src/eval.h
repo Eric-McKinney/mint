@@ -13,5 +13,6 @@ Env_t *init_env();
 char *env_to_str(Env_t *env);
 void free_env(Env_t *env);
 ExprTree *eval(ExprTree **tree, Env_t *env);
+char *eval_result_to_str(ExprTree *tree);
 
 #endif

@@ -6,7 +6,8 @@
 #include "eval.h"
 #include "parser.h"
 
-#define MAX_PARAMS 50 /* arbitrary upper limit on how many params a function can have */
+#define MAX_PARAMS 50       /* arbitrary upper limit on how many params a function can have */
+#define MAX_NODE_VAL_LEN 50 /* arbitrary upper limit on value length for a node in chars (i.e. an ID or float) */
 
 Env_t *init_env() {
     return calloc(1, sizeof(Env_t));
@@ -479,3 +480,131 @@ static void pop_params(ExprTree *params, int num_params, Env_t *env) {
     top_param = params->left->value.id;
     shrink_env(env, top_param, num_params);
 }
+
+static int is_primary_expr(ExprTree *tree) {
+    if (tree == NULL) {
+        return 0;
+    }
+
+    return tree->expr == Int || tree->expr == Float || tree->expr == ID;
+}
+
+static char *eval_result_to_str_aux(ExprTree *tree, int *size) {
+    char *str, *lstr, *rstr;
+    int lsize, rsize;
+
+    if (tree == NULL) {
+        str = calloc(1, 1);
+        *size = 0;
+        return str;
+    }
+
+    if (tree->left != NULL || tree->right != NULL) {
+        lstr = eval_result_to_str_aux(tree->left, &lsize);
+        rstr = eval_result_to_str_aux(tree->right, &rsize);
+    } else {
+        lstr = NULL;
+        rstr = NULL;
+        lsize = 0;
+        rsize = 0;
+    }
+
+    str = malloc(MAX_NODE_VAL_LEN + lsize + rsize + 1);
+
+    switch (tree->expr) {
+        case Int:
+            sprintf(str, "%d", tree->value.i);
+            break;
+        case Float:
+            sprintf(str, "%f", tree->value.d);
+            break;
+        case ID:
+            strcpy(str, tree->value.id);
+            break;
+        case Fun:
+            sprintf(str, "%s(%s) = %s", tree->value.id, lstr, rstr);
+            break;
+        case Binop:
+            switch (tree->value.binop) {
+                case Add:
+                    sprintf(str, "%s + %s", lstr, rstr);
+                    break;
+                case Sub:
+                    sprintf(str, "%s - %s", lstr, rstr);
+                    break;
+                case Mult:
+                    sprintf(str, "%s * %s", lstr, rstr);
+                    break;
+                case Div: {
+                    char lexp[MAX_NODE_VAL_LEN], rexp[MAX_NODE_VAL_LEN];
+
+                    if (!is_primary_expr(tree->left)) {
+                        sprintf(lexp, "(%s)", lstr);
+                    } else {
+                        strcpy(lexp, lstr);
+                    }
+
+                    if (!is_primary_expr(tree->right)) {
+                        sprintf(rexp, "(%s)", rstr);
+                    } else {
+                        strcpy(rexp, rstr);
+                    }
+
+                    sprintf(str, "%s / %s", lexp, rexp);
+                    break;
+                }
+                case Exp: {
+                    char lexp[MAX_NODE_VAL_LEN], rexp[MAX_NODE_VAL_LEN];
+
+                    if (!is_primary_expr(tree->left)) {
+                        sprintf(lexp, "(%s)", lstr);
+                    } else {
+                        strcpy(lexp, lstr);
+                    }
+
+                    if (!is_primary_expr(tree->right)) {
+                        sprintf(rexp, "(%s)", rstr);
+                    } else {
+                        strcpy(rexp, rstr);
+                    }
+
+                    sprintf(str, "%s^%s", lstr, rstr);
+                    break;
+                }
+                default:
+                    sprintf(str, "%s unknown-op %s", lstr, rstr);
+            }
+            break;
+        case Assign:
+            sprintf(str, "%s: %s", lstr, rstr);
+            break;
+        case Application:
+            sprintf(str, "%s(%s)", lstr, rstr);
+            break;
+        case Argument:
+        case Parameter:
+            if (rsize == 0) {
+                sprintf(str, "%s", lstr);
+            } else {
+                sprintf(str, "%s, %s", lstr, rstr);
+            }
+
+            break;
+        default:
+            strcpy(str, "Unrecognized expr");
+    }
+
+    if (tree->left != NULL || tree->right != NULL) {
+        free(lstr);
+        free(rstr);
+    }
+
+    *size = strlen(str);
+    return str;
+}
+
+char *eval_result_to_str(ExprTree *tree) {
+    int size;
+    return eval_result_to_str_aux(tree, &size);
+}
+
