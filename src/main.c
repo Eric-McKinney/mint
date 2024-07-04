@@ -94,7 +94,7 @@ static void process_cmd(char *cmd, Env_t *env) {
         return;
     }
 
-    str = expr_tree_to_str(tree);
+    str = eval_result_to_str(tree);
     printf("%s\n", str);
 
     free(str);
