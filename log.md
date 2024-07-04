@@ -273,9 +273,12 @@ Fixes:
 
 Goals for today:
 
-- [ ] Write a function to print each eval result as an end user would expect to see them
+- [x] Write a function to print each eval result as an end user would expect to see them
 
 Notes:
 
 - Happy independence day 🎉
+- I think from now on the role of my issues section in this log is going to change now that I'm using GitHub issues
+    - I will use GitHub issues for bugs I find and quick todo items
+    - I will use the issues here for hurdles I run into while trying to implement/fix something
 
