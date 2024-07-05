@@ -26,7 +26,7 @@ typedef enum {
 typedef struct expr_tree {
     Expr_t expr;
     union {
-        int i;
+        long int i;
         double d;
         char *id;
         Operator_t binop;

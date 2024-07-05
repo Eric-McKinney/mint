@@ -265,7 +265,7 @@ char *token_to_str(TokenList *tok_l) {
             strcpy(str, s);
             break;
         case TOK_INT:
-            sprintf(s, "TOK_INT %d", tok_l->value.i);
+            sprintf(s, "TOK_INT %ld", tok_l->value.i);
             strcpy(str, s);
             break;
         case TOK_LPAREN:
