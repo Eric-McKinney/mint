@@ -505,7 +505,7 @@ static char *expr_tree_to_str_aux(ExprTree *tree, int *size) {
         char s[MAX_NODE_VAL_LEN];
 
         case Int:
-            sprintf(s, "Int %d", tree->value.i);
+            sprintf(s, "Int %ld", tree->value.i);
             strcat(str, s);
             break;
         case Float:

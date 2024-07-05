@@ -538,7 +538,7 @@ static char *eval_result_to_str_aux(ExprTree *tree, int *size) {
 
     switch (tree->expr) {
         case Int:
-            sprintf(str, "%d", tree->value.i);
+            sprintf(str, "%ld", tree->value.i);
             break;
         case Float:
             sprintf(str, "%f", tree->value.d);
