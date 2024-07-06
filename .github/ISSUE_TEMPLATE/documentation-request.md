@@ -1,5 +1,5 @@
 ---
-name: Documentation Request
+name: Documentation request
 about: Help improve the accessibility of information for this project
 title: 'Documentation Request: [CONTEXT_HERE]'
 labels: documentation
@@ -7,11 +7,11 @@ assignees: ''
 
 ---
 
-**Is your documentation request related to a problem? Please describe.**
+**Problem Description (If the request is related to a problem)**
 A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
 
-**Describe the solution you'd like**
+**Proposed Solution**
 A clear and concise description of what you want to happen.
 
-**Link reference material**
+**Reference Material**
 Screenshots, urls, etc. to resources related to this request for reference or additional context.
