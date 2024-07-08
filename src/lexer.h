@@ -21,7 +21,7 @@ typedef enum {
 typedef struct token {
     Tok_t token;
     union {
-        int i;
+        long int i;
         double d;
         char *id;
     } value;
