@@ -49,6 +49,9 @@ ExprTree *parse(TokenList *tok_l) {
     return parse_expr(tok_l, &t);
 }
 
+/*
+ * Expr -> FunctionExpr | AssignmentExpr | AdditiveExpr \n
+ */
 static ExprTree *parse_expr(TokenList *tok_l, TokenList **out_tl) {
     ExprTree *add_expr;
     TokenList *t;
@@ -82,6 +85,9 @@ static ExprTree *parse_expr(TokenList *tok_l, TokenList **out_tl) {
     }
 }
 
+/*
+ * FunctionExpr -> fn ID(ParamExpr) = AdditiveExpr \n
+ */
 static ExprTree *parse_function_expr(TokenList *tok_l, TokenList **out_tl) {
     TokenList *t, *t2, *t3, *t4, *t5, *t6, *t7, *t8;
     ExprTree *fun_expr, *param_expr, *body_expr;
@@ -119,6 +125,9 @@ static ExprTree *parse_function_expr(TokenList *tok_l, TokenList **out_tl) {
     return fun_expr;
 }
 
+/*
+ * ParameterExpr -> ID, ParamExpr | ID
+ */
 static ExprTree *parse_parameter_expr(TokenList *tok_l, TokenList **out_tl) {
     TokenList *t, *t2, *t3;
     ExprTree *parameter_expr, *param_expr, *id_expr;
@@ -148,6 +157,9 @@ static ExprTree *parse_parameter_expr(TokenList *tok_l, TokenList **out_tl) {
     return parameter_expr;
 }
 
+/*
+ * AssignmentExpr -> ID = AdditiveExpr \n
+ */
 static ExprTree *parse_assignment_expr(TokenList *tok_l, TokenList **out_tl) {
     TokenList *t, *t2, *t3, *t4;
     ExprTree *assign_expr, *id_expr, *val_expr;
@@ -170,6 +182,10 @@ static ExprTree *parse_assignment_expr(TokenList *tok_l, TokenList **out_tl) {
     return assign_expr;
 }
 
+/*
+ * AdditiveExpr -> AdditiveExpr AdditiveOperator MultiplicativeExpr | MultiplicativeExpr
+ * AdditiveOperator -> + | -
+ */
 static ExprTree *parse_additive_expr(TokenList *tok_l, TokenList **out_tl) {
     TokenList *t, *t2;
     ExprTree *additive_expr, *add_expr, *mult_expr;
@@ -205,6 +221,10 @@ static ExprTree *parse_additive_expr(TokenList *tok_l, TokenList **out_tl) {
     return additive_expr;
 }
 
+/*
+ * MultiplicativeExpr -> MultiplicativeExpr MultiplicativeOperator ApplicationExpr | ApplicationExpr
+ * MultiplicativeOperator -> * | /
+ */
 static ExprTree *parse_multiplicative_expr(TokenList *tok_l, TokenList **out_tl) {
     TokenList *t, *t2;
     ExprTree *multiplicative_expr, *mult_expr, *app_expr;
@@ -240,6 +260,9 @@ static ExprTree *parse_multiplicative_expr(TokenList *tok_l, TokenList **out_tl)
     return multiplicative_expr;
 }
 
+/*
+ * ApplicationExpr -> ID(ArgExpr) | PrimaryExpr
+ */
 static ExprTree *parse_application_expr(TokenList *tok_l, TokenList **out_tl) {
     TokenList *t, *t2, *t3, *t4;
     ExprTree *application_expr, *primary_expr, *id_expr, *arg_expr;
@@ -290,6 +313,9 @@ static ExprTree *parse_application_expr(TokenList *tok_l, TokenList **out_tl) {
     return application_expr;
 }
 
+/*
+ * ArgExpr -> AdditiveExpr, ArgExpr | AdditiveExpr
+ */
 static ExprTree *parse_arg_expr(TokenList *tok_l, TokenList **out_tl) {
     TokenList *t, *t2, *t3;
     ExprTree *argument_expr, *add_expr, *arg_expr;
@@ -319,6 +345,10 @@ static ExprTree *parse_arg_expr(TokenList *tok_l, TokenList **out_tl) {
     return argument_expr;
 }
 
+/*
+ * PrimaryExpr -> int | float | ID | (AdditiveExpr)
+ * ID -> string which matches the following regex: ^[a-zA-Z][a-zA-Z0-9_]*$
+ */
 static ExprTree *parse_primary_expr(TokenList *tok_l, TokenList **out_tl) {
     TokenList *t, *t2, *t3;
     ExprTree *p_expr, *add_expr;
