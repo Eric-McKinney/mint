@@ -75,7 +75,7 @@ ID -> `string which matches the following regex: ^[a-zA-Z][a-zA-Z0-9_]*$`
 - [ ] Improve/overhaul error msgs
 - [ ] Document code
     - [ ] Describe less obvious functions w/comments (mostly in eval)
-    - [ ] Put relevant CFG bits before parser functions
+    - [x] ~~Put relevant CFG bits before parser functions~~
 - [ ] Clean up README & add screenshots/gifs using mint
 
 ## Longer term TODO
