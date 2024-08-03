@@ -282,3 +282,17 @@ Notes:
     - I will use GitHub issues for bugs I find and quick todo items
     - I will use the issues here for hurdles I run into while trying to implement/fix something
 
+## August 3rd, 2024
+
+Goals for today:
+
+- [x] Write the "Reporting bugs" wiki page
+- [ ] Write the "Using mint" wiki page
+
+Notes:
+
+- It's been a while
+- I have been working on the wiki lately which is all through GitHub, so I forgot to update this log
+- I also streamlined a few other things in the GitHub like issue templates
+- I've pretty much completely switched to using GitHub issues for my backlog (another reason I forgot to update this log)
+
