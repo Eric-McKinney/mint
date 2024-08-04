@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 #include <errno.h>
 #include "lexer.h"
@@ -30,7 +31,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    if (argc == 1) {
+    if (argc == 1 && isatty(0)) {
         printf(PROMPT);
         fflush(stdout);
     }
@@ -41,7 +42,7 @@ int main(int argc, char **argv) {
         sscanf(line, "%s", cmd);
 
         if (strcmp(cmd, "") == 0) {
-            if (argc == 1) {
+            if (argc == 1 && isatty(0)) {
                 printf(PROMPT);
                 fflush(stdout);
             }
@@ -54,7 +55,7 @@ int main(int argc, char **argv) {
 
         process_cmd(line, env);
 
-        if (argc == 1) {
+        if (argc == 1 && isatty(0)) {
             printf(PROMPT);
             fflush(stdout);
         }
