@@ -295,4 +295,5 @@ Notes:
 - I have been working on the wiki lately which is all through GitHub, so I forgot to update this log
 - I also streamlined a few other things in the GitHub like issue templates
 - I've pretty much completely switched to using GitHub issues for my backlog (another reason I forgot to update this log)
+- I randomly decided to stop the prompt from printing when input redirection is used (huge QoL improvement)
 
