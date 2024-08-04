@@ -7,11 +7,11 @@ assignees: ''
 
 ---
 
-**Problem Description (If the request is related to a problem)**
+## Problem Description (If the request is related to a problem)
 A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
 
-**Proposed Solution**
+## Proposed Solution
 A clear and concise description of what you want to happen.
 
-**Reference Material**
+## Reference Material
 Screenshots, urls, etc. to resources related to this request for reference or additional context.
