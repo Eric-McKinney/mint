@@ -1,7 +1,7 @@
 ---
 name: Documentation request
 about: Help improve the accessibility of information for this project
-title: 'Documentation Request: [CONTEXT_HERE]'
+title: "[DOCUMENTATION]: Short description of request goes here"
 labels: documentation
 assignees: ''
 
