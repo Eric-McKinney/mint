@@ -24,7 +24,7 @@ r: 5
 mint|> pi * r * r
 78.500000
 mint|> fn area(r) = pi*r*r
-area(r) pi * r * r
+area(r) = pi * r * r
 mint|> area(5)
 78.500000
 mint|> area(1)
