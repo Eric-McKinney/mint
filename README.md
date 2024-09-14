@@ -6,49 +6,32 @@
 
 ## Description
 
-Currently WIP. A math interpreter. Use either via command line or write a script.
+A math interpreter which supports variables and functions. Use either via command line or write a script.
 
 ## Functionality
 
-The idea is that mint will be able to interpret (and evaluate) any valid mathematical expression either in an
-interactive command line session or by being invoked on a script. I also plan to allow for loading/including scripts
-into the command line session to have access to variables and functions defined in that environment. This should also
-work for scripts, but I'm not sure yet how I'll avoid circular imports.
+Mint can interpret (and evaluate) any valid arithmetic expression either in an interactive command line session or by being invoked on a script.
 
-Inputs look something like this:
+See the [wiki](https://github.com/Eric-McKinney/mint/wiki) for more detailed explanations and examples, but anyways here's a brief example of what you can do:
 
 ```
-x = 3
-y = 4
-
-// a comment (must occur on its own line)
-
-z = x + y
-z2 = x+y
-
-// x and y are shadowed
-fn f(x, y) = x^(y+3)
-
-// z is used from outer scope
-fn f2(a) = 2*a - z
-
-// this also updates the z used by f2
-z = 22
-
-f(4,1)
-f(1,1+1) * (2 + 1)
+mint|> 1 + 2 + 3 + 4
+10
+mint|> pi = 3.14
+pi: 3.140000
+mint|> r = 5
+r: 5
+mint|> pi * r * r
+78.500000
+mint|> fn area(r) = pi*r*r
+area(r) pi * r * r
+mint|> area(5)
+78.500000
+mint|> area(1)
+3.140000
+mint|> r
+r: 5
 ```
-
-Right now I'm focusing on covering int/float arithmetic and function definitions. I will implement more functionality
-after. I plan on adding built in functions (sqrt, factorial, etc.), maybe sums and products, and relevant constants
-like pi and e. If I'm feeling adventurous I might try to implement complex numbers.
-
-## Implementation
-
-For the lexer I'm thinking have some struct for a token w/enum field (token type), 
-optional value field, and then a pointer field to the next token (it's going to be a linked list)
-
-The language should follow math associativity and precedence rules (obviously)
 
 ## CFG
 
@@ -65,28 +48,20 @@ ArgExpr -> AdditiveExpr`,` ArgExpr | AdditiveExpr\
 PrimaryExpr -> `int` | `float` | ID | `(`AdditiveExpr`)`\
 ID -> `string which matches the following regex: ^[a-zA-Z][a-zA-Z0-9_]*$`
 
-# TODO
-
-- [x] ~~Write lexer~~
-- [x] ~~Write parser~~
-- [x] ~~Write evaluator~~
-- [x] Write main cli/script-running loop
-    - [ ] Lots of testing
-- [ ] Improve/overhaul error msgs
-- [ ] Document code
-    - [ ] Describe less obvious functions w/comments (mostly in eval)
-    - [x] ~~Put relevant CFG bits before parser functions~~
-- [ ] Clean up README & add screenshots/gifs using mint
-
-## Longer term TODO
+## TODO
 
 - [ ] Explore parsing arithmetic using the [shunting yard algorithm](https://www.engr.mun.ca/~theo/Misc/exp_parsing.htm#shunting_yard)
 or the [precedence climbing algorithm](https://www.engr.mun.ca/~theo/Misc/exp_parsing.htm#climbing)
 - [ ] Add multiplication via (45)(3) syntax (change CFG too)
 - [ ] Add exponents
+- [ ] Add builtin functions like sqrt, factorial, sums, products, etc.
+- [ ] Add builtin constants like e and pi
 - [ ] Add trig functions (radians only)
     - [ ] Add deg\_to\_rad function
     - [ ] Add rad\_to\_deg function
 - [ ] Start adding version numbers, whatnot
-- [ ] Maybe add to package managers like homebrew?
+- [ ] Maybe add to package managers like homebrew/aur/nix?
+- [ ] Add ability to import scripts into mint shell session
+- [ ] Add ability to import scripts in other scripts
+    - [ ] Avoid circular imports
 
