@@ -287,7 +287,7 @@ Notes:
 Goals for today:
 
 - [x] Write the "Reporting bugs" wiki page
-- [ ] Write the "Using mint" wiki page
+- [ ] Write the "Using mint" wiki page (deferred)
 
 Notes:
 
@@ -296,4 +296,18 @@ Notes:
 - I also streamlined a few other things in the GitHub like issue templates
 - I've pretty much completely switched to using GitHub issues for my backlog (another reason I forgot to update this log)
 - I randomly decided to stop the prompt from printing when input redirection is used (huge QoL improvement)
+
+## September 14th, 2024
+
+Goals for today:
+
+- [x] Finish writing the "Using mint" wiki page
+- [x] Clean up README
+
+Notes:
+
+- I've been slacking on this project big time
+- I have time to work on mint, but I just haven't been doing that
+    - To be fair I've been working on some other projects 
+- The semester started, but I should still have plenty of free time
 
