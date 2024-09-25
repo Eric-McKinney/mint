@@ -64,4 +64,5 @@ or the [precedence climbing algorithm](https://www.engr.mun.ca/~theo/Misc/exp_pa
 - [ ] Add ability to import scripts into mint shell session
 - [ ] Add ability to import scripts in other scripts
     - [ ] Avoid circular imports
+- [ ] Add curses based tui which shows defined variables and their values in real time alongside mint shell
 
