@@ -2,20 +2,21 @@
 #define Lexer_h
 
 typedef enum {
-    TOK_LPAREN,
-    TOK_RPAREN,
-    TOK_DOT,
-    TOK_EQUAL,
     TOK_ADD,
-    TOK_SUB,
-    TOK_MULT,
+    TOK_COMMA,
     TOK_DIV,
-    TOK_FUN,
+    TOK_DOT,
     TOK_ENDLN,
-    TOK_INT,
+    TOK_EQUAL,
+    TOK_EXP,
     TOK_FLOAT,
+    TOK_FUN,
     TOK_ID,
-    TOK_COMMA
+    TOK_INT,
+    TOK_LPAREN,
+    TOK_MULT,
+    TOK_RPAREN,
+    TOK_SUB
 } Tok_t;
 
 typedef struct token {

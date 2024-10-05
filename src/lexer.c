@@ -10,8 +10,9 @@
 #define MAX_TOK_VAL_LEN 50 /* arbitrary upper limit on token value size (e.g. an integer) */
 #define MAX_TOK_STR_LEN MAX_TOK_LEN + MAX_TOK_VAL_LEN
 
-regex_t l_paren_re, r_paren_re, dot_re, equal_re, add_re, sub_re, mult_re;
-regex_t div_re, fun_re, endln_re, int_re, float_re, id_re, comma_re, whitespace_re;
+regex_t add_re, comma_re, dot_re, div_re, endln_re, equal_re, exp_re, float_re;
+regex_t fun_re, id_re, int_re, l_paren_re, mult_re, r_paren_re, sub_re; 
+regex_t whitespace_re;
 static void compile_regexs();
 static void free_regexs();
 static TokenList *tok(const char *input, unsigned int pos, unsigned int length);
@@ -129,6 +130,11 @@ static TokenList *tok(const char *input, unsigned int pos, unsigned int length) 
         t->token = TOK_DIV;
         t->next = tok(input, pos + 1, length);
         return t;
+    } else if (regexec(&exp_re, str, 0, NULL, 0) == 0) {
+        t = malloc(sizeof(TokenList));
+        t->token = TOK_EXP;
+        t->next = tok(input, pos + 1, length);
+        return t;
     } else if (regexec(&endln_re, str, 0, NULL, 0) == 0) {
         t = malloc(sizeof(TokenList));
         t->token = TOK_ENDLN;
@@ -148,38 +154,39 @@ static TokenList *tok(const char *input, unsigned int pos, unsigned int length) 
 }
 
 static void compile_regexs() {
-    regcomp(&l_paren_re,    "^\\(",                     REG_EXTENDED);
-    regcomp(&r_paren_re,    "^\\)",                     REG_EXTENDED);
-    regcomp(&dot_re,        "^\\.",                     REG_EXTENDED);
-    regcomp(&equal_re,      "^=",                       REG_EXTENDED);
     regcomp(&add_re,        "^\\+",                     REG_EXTENDED);
-    regcomp(&sub_re,        "^-",                       REG_EXTENDED);
-    regcomp(&mult_re,       "^\\*",                     REG_EXTENDED);
-    regcomp(&div_re,        "^/",                       REG_EXTENDED);
-    regcomp(&fun_re,        "^fn",                      REG_EXTENDED);
-    regcomp(&endln_re,      "^\n",                      REG_EXTENDED);
-    regcomp(&int_re,        "^(-?[0-9]+)",              REG_EXTENDED);
-    regcomp(&float_re,      "^(-?[0-9]+\\.[0-9]*)",     REG_EXTENDED);
-    regcomp(&id_re,         "^([a-zA-Z][a-zA-Z0-9_]*)", REG_EXTENDED);
     regcomp(&comma_re,      "^,",                       REG_EXTENDED);
+    regcomp(&div_re,        "^/",                       REG_EXTENDED);
+    regcomp(&dot_re,        "^\\.",                     REG_EXTENDED);
+    regcomp(&endln_re,      "^\n",                      REG_EXTENDED);
+    regcomp(&equal_re,      "^=",                       REG_EXTENDED);
+    regcomp(&exp_re,        "^\\^",                     REG_EXTENDED);
+    regcomp(&float_re,      "^(-?[0-9]+\\.[0-9]*)",     REG_EXTENDED);
+    regcomp(&fun_re,        "^fn",                      REG_EXTENDED);
+    regcomp(&id_re,         "^([a-zA-Z][a-zA-Z0-9_]*)", REG_EXTENDED);
+    regcomp(&int_re,        "^(-?[0-9]+)",              REG_EXTENDED);
+    regcomp(&l_paren_re,    "^\\(",                     REG_EXTENDED);
+    regcomp(&mult_re,       "^\\*",                     REG_EXTENDED);
+    regcomp(&r_paren_re,    "^\\)",                     REG_EXTENDED);
+    regcomp(&sub_re,        "^-",                       REG_EXTENDED);
     regcomp(&whitespace_re, "^([ \t])+",                REG_EXTENDED);
 }
 
 static void free_regexs() {
-    regfree(&l_paren_re);
-    regfree(&r_paren_re);
-    regfree(&dot_re);
-    regfree(&equal_re);
     regfree(&add_re);
-    regfree(&sub_re);
-    regfree(&mult_re);
-    regfree(&div_re);
-    regfree(&fun_re);
-    regfree(&endln_re);
-    regfree(&int_re);
-    regfree(&float_re);
-    regfree(&id_re);
     regfree(&comma_re);
+    regfree(&div_re);
+    regfree(&dot_re);
+    regfree(&endln_re);
+    regfree(&equal_re);
+    regfree(&float_re);
+    regfree(&fun_re);
+    regfree(&id_re);
+    regfree(&int_re);
+    regfree(&l_paren_re);
+    regfree(&mult_re);
+    regfree(&r_paren_re);
+    regfree(&sub_re);
     regfree(&whitespace_re);
 }
 
@@ -227,50 +234,53 @@ char *token_to_str(TokenList *tok_l) {
     }
     
     switch (tok_l->token) {
-        case TOK_LPAREN: 
-            strcpy(str, "TOK_LPAREN");
-            break;
-        case TOK_RPAREN:
-            strcpy(str, "TOK_RPAREN");
-            break;
-        case TOK_DOT:
-            strcpy(str, "TOK_DOT");
-            break;
-        case TOK_EQUAL:
-            strcpy(str, "TOK_EQUAL");
-            break;
         case TOK_ADD:
             strcpy(str, "TOK_ADD");
             break;
-        case TOK_SUB:
-            strcpy(str, "TOK_SUB");
-            break;
-        case TOK_MULT:
-            strcpy(str, "TOK_MULT");
+        case TOK_COMMA:
+            strcpy(str, "TOK_COMMA");
             break;
         case TOK_DIV:
             strcpy(str, "TOK_DIV");
             break;
-        case TOK_FUN:
-            strcpy(str, "TOK_FUN");
+        case TOK_DOT:
+            strcpy(str, "TOK_DOT");
             break;
         case TOK_ENDLN:
             strcpy(str, "TOK_ENDLN");
             break;
-        case TOK_INT:
-            sprintf(s, "TOK_INT %d", tok_l->value.i);
-            strcpy(str, s);
+        case TOK_EQUAL:
+            strcpy(str, "TOK_EQUAL");
+            break;
+        case TOK_EXP:
+            strcpy(str, "TOK_EXP");
             break;
         case TOK_FLOAT:
             sprintf(s, "TOK_FLOAT %f", tok_l->value.d);
             strcpy(str, s);
             break;
+        case TOK_FUN:
+            strcpy(str, "TOK_FUN");
+            break;
         case TOK_ID:
             sprintf(s, "TOK_ID %s", tok_l->value.id);
             strcpy(str, s);
             break;
-        case TOK_COMMA:
-            strcpy(str, "TOK_COMMA");
+        case TOK_INT:
+            sprintf(s, "TOK_INT %d", tok_l->value.i);
+            strcpy(str, s);
+            break;
+        case TOK_LPAREN:
+            strcpy(str, "TOK_LPAREN");
+            break;
+        case TOK_MULT:
+            strcpy(str, "TOK_MULT");
+            break;
+        case TOK_RPAREN:
+            strcpy(str, "TOK_RPAREN");
+            break;
+        case TOK_SUB:
+            strcpy(str, "TOK_SUB");
             break;
         default:
             strcpy(str, "Unrecognized token");
