@@ -34,6 +34,7 @@ static TokenList *match_token(TokenList *tok_l, Tok_t tok) {
     return NULL;
 }
 
+static ExprTree *parse_input(TokenList *tok_l, TokenList **out_tl);
 static ExprTree *parse_expr(TokenList *tok_l, TokenList **out_tl);
 static ExprTree *parse_function_expr(TokenList *tok_l, TokenList **out_tl);
 static ExprTree *parse_parameter_expr(TokenList *tok_l, TokenList **out_tl);
@@ -47,11 +48,32 @@ static ExprTree *parse_primary_expr(TokenList *tok_l, TokenList **out_tl);
 
 ExprTree *parse(TokenList *tok_l) {
     TokenList *t;
-    return parse_expr(tok_l, &t);
+    return parse_input(tok_l, &t);
 }
 
 /*
- * Expr -> FunctionExpr | AssignmentExpr | AdditiveExpr \n
+ * Input -> Expr \n | Comment \n | Expr Comment \n
+ */
+static ExprTree *parse_input(TokenList *tok_l, TokenList **out_tl) {
+    ExprTree *expr = NULL;
+    TokenList *t = tok_l;
+
+    if (tok_l->token != TOK_COMMENT) {
+        expr = parse_expr(tok_l, &t);
+    } else {
+        t = tok_l;
+    }
+
+    if (tok_l->token == TOK_COMMENT) {
+        t = match_token(t, TOK_COMMENT);
+    }
+
+    *out_tl = t;
+    return expr;
+}
+
+/*
+ * Expr -> FunctionExpr | AssignmentExpr | AdditiveExpr
  */
 static ExprTree *parse_expr(TokenList *tok_l, TokenList **out_tl) {
     ExprTree *add_expr;
@@ -81,7 +103,7 @@ static ExprTree *parse_expr(TokenList *tok_l, TokenList **out_tl) {
         default:
             add_expr = parse_additive_expr(tok_l, &t);
 
-            *out_tl = match_token(t, TOK_ENDLN);
+            *out_tl = t;
             return add_expr;
     }
 }

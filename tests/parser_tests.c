@@ -31,7 +31,9 @@ int main(int argc, char **argv) {
         "lexer->arithmetic assign",    /* var=2*(var+1)/12 */
         "lexer->function application", /* my_fun(0,arg, a, b, 2.0)*3 */
         "lexer->basic exponent",       /* 2^3 */
-        "lexer->complicated exponent"  /* (4*2)^(f(23 - 2)^3) */
+        "lexer->complicated exponent", /* (4*2)^(f(23 - 2)^3) */
+        "lexer->comment",              /* # a comment */
+        "lexer->math + comment"        /* 1 + 1 # a comment */
     };
     const char *t_ans[] = {
         "(Add(Int 1)(Int 2))",
@@ -48,7 +50,9 @@ int main(int argc, char **argv) {
         "(Assign(ID var)(Div(Mult(Int 2)(Add(ID var)(Int 1)))(Int 12)))",
         "(Mult(App(ID my_fun)(Arg(Int 0)(Arg(ID arg)(Arg(ID a)(Arg(ID b)(Arg(Float 2.000000)()))))))(Int 3))",
         "(Exp(Int 2)(Int 3))",
-        "(Exp(Mult(Int 4)(Int 2))(Exp(App(ID f)(Arg(Sub(Int 23)(Int 2))()))(Int 3)))"
+        "(Exp(Mult(Int 4)(Int 2))(Exp(App(ID f)(Arg(Sub(Int 23)(Int 2))()))(Int 3)))",
+        "()",
+        "(Add(Int 1)(Int 1))"
     };
     int num_tests = sizeof(t_names) / sizeof(char *), i, num_passed = 0;
     TokenList **inputs = create_inputs(num_tests);
@@ -297,6 +301,8 @@ static TokenList **create_inputs(int num_tests) {
     inputs[12] = tokenize("my_fun(0,arg, a, b, 2.0)*3\n");
     inputs[13] = tokenize("2^3\n");
     inputs[14] = tokenize("(4*2)^(f(23 - 2)^3)\n");
+    inputs[15] = tokenize("# a comment\n");
+    inputs[16] = tokenize("1 + 1 # a comment\n");
 
     return inputs;
 }
