@@ -35,10 +35,12 @@ r: 5
 
 ## CFG
 
-Expr -> FunctionExpr | AssignmentExpr | AdditiveExpr `\n`\
-FunctionExpr -> `fn` ID `(` ParamExpr `)` `=` AdditiveExpr `\n`\
+Input -> Expr `\n` | Comment `\n`
+Comment -> Expr `#` `any text` | `#` `any text`\
+Expr -> FunctionExpr | AssignmentExpr | AdditiveExpr\
+FunctionExpr -> `fn` ID `(` ParamExpr `)` `=` AdditiveExpr\
 ParamExpr -> ID`,` ParamExpr | ID\
-AssignmentExpr -> ID `=` AdditiveExpr `\n`\
+AssignmentExpr -> ID `=` AdditiveExpr\
 AdditiveExpr -> AdditiveExpr AdditiveOperator MultiplicativeExpr | MultiplicativeExpr\
 AdditiveOperator -> `+` | `-`\
 MultiplicativeExpr -> MultiplicativeExpr MultiplicativeOperator ExponentExpr | ExponentExpr\
