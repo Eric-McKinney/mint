@@ -316,7 +316,7 @@ Notes:
 Goals for today:
 
 - [x] Implement exponents
-- [ ] Implement comments
+- [x] Implement comments
 - [ ] Take steps toward readline support
 - [ ] Update wiki when done w/changes
 
@@ -329,3 +329,5 @@ Notes:
     - I could have comments be limited to being on their own line which I think looks cleaner
     - Although I'm not sure it makes sense to restrict user choice bc of my own stylistic preferences
     - Alright it's decided, comments can happen on their own line or the end of any other line
+- Finished comments too! I forgot how much fun this is
+
