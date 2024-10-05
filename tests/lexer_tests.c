@@ -16,6 +16,8 @@ static int run_test(Test *test);
 int main(int argc, char **argv) {
     Test tests[] = {
         {"empty_input", "", "[]"},
+        {"comment", "# a comment\n", "[TOK_COMMENT, TOK_ENDLN]"},
+        {"math + comment", "1 + 1 # a comment\n", "[TOK_INT 1, TOK_ADD, TOK_INT 1, TOK_COMMENT, TOK_ENDLN]"},
         {"arithmetic_toks", "+ - /*", "[TOK_ADD, TOK_SUB, TOK_DIV, TOK_MULT]"},
         {"other_toks", "().=^\n", "[TOK_LPAREN, TOK_RPAREN, TOK_DOT, TOK_EQUAL, TOK_EXP, TOK_ENDLN]"},
         {"fn_tok", "fn", "[TOK_FUN]"},

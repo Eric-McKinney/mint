@@ -4,6 +4,7 @@
 typedef enum {
     TOK_ADD,
     TOK_COMMA,
+    TOK_COMMENT,
     TOK_DIV,
     TOK_DOT,
     TOK_ENDLN,
