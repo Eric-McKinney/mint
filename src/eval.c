@@ -392,8 +392,14 @@ static void eval_binop(ExprTree **t, Env_t *env) {
                 v2->expr = Float;
             }
 
-            v->expr = Float;
-            v->value.d = pow(v1->value.d, v2->value.d);
+            if (v1_is_int && v2_is_int) {
+                v->expr = Int;
+                v->value.i = (int) pow(v1->value.d, v2->value.d);
+            } else {
+                v->expr = Float;
+                v->value.d = pow(v1->value.d, v2->value.d);
+            }
+
             break;
         default: {
             char *expr_str = expr_tree_to_str(tree);

@@ -44,6 +44,7 @@ static Input *create_input12();
 static Input *create_input13();
 static Input *create_input14();
 static Input *create_input15();
+static Input *create_input16();
 
 int main(int argc, char **argv) {
     Test tests[] = {
@@ -96,16 +97,18 @@ int main(int argc, char **argv) {
         /* var=2*(var+1)/12 where var = 11 in env */
         {"lexer->parser->self reassign", create_input13, {"(Assign(ID var)(Int 2))", "[(var : (Int 2))]"}},
         /* 2^3 */
-        {"lexer->parser->simple exponent", create_input14, {"(Float 8.000000)", "[]"}},
+        {"lexer->parser->simple exponent", create_input14, {"(Int 8)", "[]"}},
         /* (4*2)^(f(23 - 2)^3) where f(x) = x - 21 in env */
         {
             "lexer->parser->complicated exponent",
             create_input15,
             {
-                "(Float 1.000000)",
+                "(Int 1)",
                 "[(f : (Fun f (Param(ID x)())(Sub(ID x)(Int 21))))]"
             }
-        }
+        },
+        /* 64^0.5 */
+        {"lexer->parse->float exponent", create_input16, {"(Float 8.000000)", "[]"}}
     };
     int num_tests = sizeof(tests) / sizeof(Test), num_passed, suite_result;
 
@@ -552,6 +555,20 @@ static Input *create_input15() {
 
     free_token_list(tok_l);
     free_token_list(tok_l_2);
+
+    return input;
+}
+
+static Input *create_input16() {
+    Input *input = malloc(sizeof(Input));
+    TokenList *tok_l = tokenize("64^0.5\n");
+    ExprTree *tree = parse(tok_l);
+    Env_t *env = init_env();
+
+    input->tree = tree;
+    input->env = env;
+
+    free_token_list(tok_l);
 
     return input;
 }
