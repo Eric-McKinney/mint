@@ -41,8 +41,9 @@ ParamExpr -> ID`,` ParamExpr | ID\
 AssignmentExpr -> ID `=` AdditiveExpr `\n`\
 AdditiveExpr -> AdditiveExpr AdditiveOperator MultiplicativeExpr | MultiplicativeExpr\
 AdditiveOperator -> `+` | `-`\
-MultiplicativeExpr -> MultiplicativeExpr MultiplicativeOperator ApplicationExpr | ApplicationExpr\
+MultiplicativeExpr -> MultiplicativeExpr MultiplicativeOperator ExponentExpr | ExponentExpr\
 MultiplicativeOperator -> `*` | `/`\
+ExponentExpr -> AdditiveExpr `^` ApplicationExpr | ApplicationExpr
 ApplicationExpr -> ID`(`ArgExpr`)` | PrimaryExpr\
 ArgExpr -> AdditiveExpr`,` ArgExpr | AdditiveExpr\
 PrimaryExpr -> `int` | `float` | ID | `(`AdditiveExpr`)`\
