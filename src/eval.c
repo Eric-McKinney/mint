@@ -213,6 +213,10 @@ static int bind_args(ExprTree *args, ExprTree *params, Env_t *env);
 static void pop_params(ExprTree *params, int num_params, Env_t *env);
 
 ExprTree *eval(ExprTree **tree, Env_t *env) {
+    if (*tree == NULL) {
+        return NULL;
+    }
+
     switch ((*tree)->expr) {
         case Int:
         case Float:

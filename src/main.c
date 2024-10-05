@@ -96,7 +96,10 @@ static void process_cmd(char *cmd, Env_t *env) {
     }
 
     str = eval_result_to_str(tree);
-    printf("%s\n", str);
+
+    if (strlen(str) > 0) {
+        printf("%s\n", str);
+    }
 
     free(str);
     free_token_list(tok_l);
