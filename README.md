@@ -56,7 +56,6 @@ ID -> `string which matches the following regex: ^[a-zA-Z][a-zA-Z0-9_]*$`
 - [ ] Explore parsing arithmetic using the [shunting yard algorithm](https://www.engr.mun.ca/~theo/Misc/exp_parsing.htm#shunting_yard)
 or the [precedence climbing algorithm](https://www.engr.mun.ca/~theo/Misc/exp_parsing.htm#climbing)
 - [ ] Add multiplication via (45)(3) syntax (change CFG too)
-- [ ] Add exponents
 - [ ] Add builtin functions like sqrt, factorial, sums, products, etc.
 - [ ] Add builtin constants like e and pi
 - [ ] Add trig functions (radians only)
