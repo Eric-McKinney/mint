@@ -35,7 +35,7 @@ r: 5
 
 ## CFG
 
-Input -> Expr `\n` | Comment `\n`
+Input -> Expr `\n` | Comment `\n`\
 Comment -> Expr `#` `any text` | `#` `any text`\
 Expr -> FunctionExpr | AssignmentExpr | AdditiveExpr\
 FunctionExpr -> `fn` ID `(` ParamExpr `)` `=` AdditiveExpr\
