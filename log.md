@@ -311,3 +311,15 @@ Notes:
     - To be fair I've been working on some other projects 
 - The semester started, but I should still have plenty of free time
 
+## October 5th, 2024
+
+Goals for today:
+
+- [ ] Implement exponents
+- [ ] Implement comments
+- [ ] Take steps toward readline support
+
+Notes:
+
+- Enough slacking, I need to get working
+
