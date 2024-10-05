@@ -40,6 +40,7 @@ static ExprTree *parse_parameter_expr(TokenList *tok_l, TokenList **out_tl);
 static ExprTree *parse_assignment_expr(TokenList *tok_l, TokenList **out_tl);
 static ExprTree *parse_additive_expr(TokenList *tok_l, TokenList **out_tl);
 static ExprTree *parse_multiplicative_expr(TokenList *tok_l, TokenList **out_tl);
+static ExprTree *parse_exponent_expr(TokenList *tok_l, TokenList **out_tl);
 static ExprTree *parse_application_expr(TokenList *tok_l, TokenList **out_tl);
 static ExprTree *parse_arg_expr(TokenList *tok_l, TokenList **out_tl);
 static ExprTree *parse_primary_expr(TokenList *tok_l, TokenList **out_tl);
@@ -227,37 +228,68 @@ static ExprTree *parse_additive_expr(TokenList *tok_l, TokenList **out_tl) {
  */
 static ExprTree *parse_multiplicative_expr(TokenList *tok_l, TokenList **out_tl) {
     TokenList *t, *t2;
-    ExprTree *multiplicative_expr, *mult_expr, *app_expr;
+    ExprTree *multiplicative_expr, *mult_expr, *exp_expr;
 
     if (errno != 0) {
         return NULL;
     }
 
-    app_expr = parse_application_expr(tok_l, &t);
+    exp_expr = parse_exponent_expr(tok_l, &t);
 
     if (t == NULL || (t->token != TOK_MULT && t->token != TOK_DIV)) {
         *out_tl = t;
-        return app_expr;
+        return exp_expr;
     }
 
-    mult_expr = app_expr;
+    mult_expr = exp_expr;
     while (t != NULL && (t->token == TOK_MULT || t->token == TOK_DIV)) {
         Tok_t op = t->token;
 
         t2 = match_token(t, op);
-        app_expr = parse_application_expr(t2, &t);
+        exp_expr = parse_exponent_expr(t2, &t);
 
         multiplicative_expr = malloc(sizeof(ExprTree));
         multiplicative_expr->expr = Binop;
         multiplicative_expr->value.binop = (op == TOK_MULT) ? Mult : Div;
         multiplicative_expr->left = mult_expr;
-        multiplicative_expr->right = app_expr;
+        multiplicative_expr->right = exp_expr;
 
         mult_expr = multiplicative_expr;
     }
 
     *out_tl = t;
     return multiplicative_expr;
+}
+
+/*
+ * ExponentExpr -> ApplicationExpr ^ ApplicationExpr | ApplicationExpr
+ */
+static ExprTree *parse_exponent_expr(TokenList *tok_l, TokenList **out_tl) {
+    TokenList *t, *t2, *t3;
+    ExprTree *exponent_expr, *app_expr1, *app_expr2;
+
+    if (errno != 0) {
+        return NULL;
+    }
+
+    app_expr1 = parse_application_expr(tok_l, &t);
+
+    if (t == NULL || t->token != TOK_EXP) {
+        *out_tl = t;
+        return app_expr1;
+    }
+
+    t2 = match_token(t, TOK_EXP);
+    app_expr2 = parse_application_expr(t2, &t3);
+
+    exponent_expr = malloc(sizeof(ExprTree));
+    exponent_expr->expr = Binop;
+    exponent_expr->value.binop = Exp;
+    exponent_expr->left = app_expr1;
+    exponent_expr->right = app_expr2;
+
+    *out_tl = t3;
+    return exponent_expr;
 }
 
 /*

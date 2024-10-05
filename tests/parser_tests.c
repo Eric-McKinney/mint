@@ -17,19 +17,21 @@ static TokenList **create_inputs(int num_tests);
 
 int main(int argc, char **argv) {
     const char *t_names[] = {
-        "basic addition",             /* 1 + 2 */
-        "int float add sub",          /* 44 - 21 + 2.2 */
-        "arithmetic mix",             /* 2. * 4 / 12 + 5 */
-        "long add/sub",               /* 1 + 2 - 3 + 4 - 5 */
-        "long mult/div",              /* 1 * 2 / 3 * 4 / 5 */
-        "simple assign",              /* R = 500 */
-        "arithmetic assign",          /* circumference = 3.14 * 2 * r */
-        "function defn",              /* fn f(x, y) = x * y - 0.123456 */
-        "function application",       /* f(42, 0.01) */
-        "lexer->fn defn",             /* fn area(r) = 3.14 * r*r */
-        "lexer->parens",              /* 4 + 3 * (2 - 3) */
-        "lexer->arithmetic assign",   /* var=2*(var+1)/12 */
-        "lexer->function application" /* my_fun(0,arg, a, b, 2.0)*3 */
+        "basic addition",              /* 1 + 2 */
+        "int float add sub",           /* 44 - 21 + 2.2 */
+        "arithmetic mix",              /* 2. * 4 / 12 + 5 */
+        "long add/sub",                /* 1 + 2 - 3 + 4 - 5 */
+        "long mult/div",               /* 1 * 2 / 3 * 4 / 5 */
+        "simple assign",               /* R = 500 */
+        "arithmetic assign",           /* circumference = 3.14 * 2 * r */
+        "function defn",               /* fn f(x, y) = x * y - 0.123456 */
+        "function application",        /* f(42, 0.01) */
+        "lexer->fn defn",              /* fn area(r) = 3.14 * r*r */
+        "lexer->parens",               /* 4 + 3 * (2 - 3) */
+        "lexer->arithmetic assign",    /* var=2*(var+1)/12 */
+        "lexer->function application", /* my_fun(0,arg, a, b, 2.0)*3 */
+        "lexer->basic exponent",       /* 2^3 */
+        "lexer->complicated exponent"  /* (4*2)^(f(23 - 2)^3) */
     };
     const char *t_ans[] = {
         "(Add(Int 1)(Int 2))",
@@ -44,7 +46,9 @@ int main(int argc, char **argv) {
         "(Fun area (Param(ID r)())(Mult(Mult(Float 3.140000)(ID r))(ID r)))",
         "(Add(Int 4)(Mult(Int 3)(Sub(Int 2)(Int 3))))",
         "(Assign(ID var)(Div(Mult(Int 2)(Add(ID var)(Int 1)))(Int 12)))",
-        "(Mult(App(ID my_fun)(Arg(Int 0)(Arg(ID arg)(Arg(ID a)(Arg(ID b)(Arg(Float 2.000000)()))))))(Int 3))"
+        "(Mult(App(ID my_fun)(Arg(Int 0)(Arg(ID arg)(Arg(ID a)(Arg(ID b)(Arg(Float 2.000000)()))))))(Int 3))",
+        "(Exp(Int 2)(Int 3))",
+        "(Exp(Mult(Int 4)(Int 2))(Exp(App(ID f)(Arg(Sub(Int 23)(Int 2))()))(Int 3)))"
     };
     int num_tests = sizeof(t_names) / sizeof(char *), i, num_passed = 0;
     TokenList **inputs = create_inputs(num_tests);
@@ -291,6 +295,8 @@ static TokenList **create_inputs(int num_tests) {
     inputs[10] = tokenize("4 + 3 * (2 - 3)\n");
     inputs[11] = tokenize("var=2*(var+1)/12\n");
     inputs[12] = tokenize("my_fun(0,arg, a, b, 2.0)*3\n");
+    inputs[13] = tokenize("2^3\n");
+    inputs[14] = tokenize("(4*2)^(f(23 - 2)^3)\n");
 
     return inputs;
 }
