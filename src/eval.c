@@ -3,6 +3,7 @@
 #include <string.h>
 #include <errno.h>
 #include <err.h>
+#include <math.h>
 #include "eval.h"
 #include "parser.h"
 
@@ -379,6 +380,20 @@ static void eval_binop(ExprTree **t, Env_t *env) {
                 }
             }
             
+            break;
+        case Exp:
+            if (v1_is_int) {
+                v1->value.d = (double) v1->value.i;
+                v1->expr = Float;
+            }
+
+            if (v2_is_int) {
+                v2->value.d = (double) v2->value.i;
+                v2->expr = Float;
+            }
+
+            v->expr = Float;
+            v->value.d = pow(v1->value.d, v2->value.d);
             break;
         default: {
             char *expr_str = expr_tree_to_str(tree);

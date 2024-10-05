@@ -42,6 +42,8 @@ static Input *create_input10();
 static Input *create_input11();
 static Input *create_input12();
 static Input *create_input13();
+static Input *create_input14();
+static Input *create_input15();
 
 int main(int argc, char **argv) {
     Test tests[] = {
@@ -57,7 +59,7 @@ int main(int argc, char **argv) {
         {"long mult/div", create_input5, {"(Float 0.533333)", "[]"}},
         /* R = 500 */
         {"simple assign", create_input6, {"(Assign(ID R)(Int 500))", "[(R : (Int 500))]"}},
-        /* circumference = 3.14 * 2 * r (where r = 15 in env)*/
+        /* circumference = 3.14 * 2 * r where r = 15 in env */
         {
             "arithmetic assign",
             create_input7,
@@ -78,7 +80,7 @@ int main(int argc, char **argv) {
             create_input9,
             {"(Float 0.296544)", "[(f : (Fun f (Param(ID x)(Param(ID y)()))(Sub(Mult(ID x)(ID y))(Float 0.123456))))]"}
         },
-        /* num = num + 1 (where num = 42 in env) */
+        /* num = num + 1 where num = 42 in env */
         {"lexer->parser->reassign", create_input10, {"(Assign(ID num)(Int 43))", "[(num : (Int 43))]"}},
         /* fn area(r) = 3.14 * r*r */
         {
@@ -91,8 +93,19 @@ int main(int argc, char **argv) {
         },
         /* 4 + 3 * (2 - 3) */
         {"lexer->parser->parens arithmetic", create_input12, {"(Int 1)", "[]"}},
-        /* var=2*(var+1)/12 (where var = 11 in env) */
-        {"lexer->parser->self reassign", create_input13, {"(Assign(ID var)(Int 2))", "[(var : (Int 2))]"}}
+        /* var=2*(var+1)/12 where var = 11 in env */
+        {"lexer->parser->self reassign", create_input13, {"(Assign(ID var)(Int 2))", "[(var : (Int 2))]"}},
+        /* 2^3 */
+        {"lexer->parser->simple exponent", create_input14, {"(Float 8.000000)", "[]"}},
+        /* (4*2)^(f(23 - 2)^3) where f(x) = x - 21 in env */
+        {
+            "lexer->parser->complicated exponent",
+            create_input15,
+            {
+                "(Float 1.000000)",
+                "[(f : (Fun f (Param(ID x)())(Sub(ID x)(Int 21))))]"
+            }
+        }
     };
     int num_tests = sizeof(tests) / sizeof(Test), num_passed, suite_result;
 
@@ -507,6 +520,38 @@ static Input *create_input13() {
     input->env = env;
 
     free_token_list(tok_l);
+
+    return input;
+}
+
+static Input *create_input14() {
+    Input *input = malloc(sizeof(Input));
+    TokenList *tok_l = tokenize("2^3\n");
+    ExprTree *tree = parse(tok_l);
+    Env_t *env = init_env();
+
+    input->tree = tree;
+    input->env = env;
+
+    free_token_list(tok_l);
+
+    return input;
+}
+
+static Input *create_input15() {
+    Input *input = malloc(sizeof(Input));
+    TokenList *tok_l = tokenize("(4*2)^(f(23 - 2)^3)\n"), *tok_l_2;
+    ExprTree *tree = parse(tok_l);
+    Env_t *env = init_env();
+    
+    tok_l_2 = tokenize("fn f(x) = x - 21\n");
+    t_extend_env(env, "f", parse(tok_l_2));
+
+    input->tree = tree;
+    input->env = env;
+
+    free_token_list(tok_l);
+    free_token_list(tok_l_2);
 
     return input;
 }

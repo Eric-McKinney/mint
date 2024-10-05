@@ -1,6 +1,7 @@
 CC=gcc
 CFLAGS= -ansi -Wall -g -O0 -Wwrite-strings -Wshadow -pedantic-errors \
         -fstack-protector-all
+LDFLAGS= -lm
 
 SRC=src
 OBJ=obj
@@ -21,7 +22,7 @@ OBJS=$(patsubst %,$(OBJ)/%,$(_OBJS))
 all: $(OBJ) $(BIN)/mint
 $(BIN)/mint: $(OBJS)
 	mkdir -p $(BIN)
-	$(CC) -o $@ $^
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 lexer_tests: $(OBJ) $(TEST_BIN) $(TEST_BIN)/lexer_tests
 parser_tests: $(OBJ) $(TEST_BIN) $(TEST_BIN)/parser_tests
@@ -64,7 +65,7 @@ $(TEST_BIN)/parser_tests: $(OBJ)/parser_tests.o $(OBJ)/parser.o $(OBJ)/lexer.o
 	$(CC) -o $@ $^
 
 $(TEST_BIN)/eval_tests: $(OBJ)/eval_tests.o $(OBJ)/eval.o $(OBJ)/parser.o $(OBJ)/lexer.o
-	$(CC) -o $@ $^
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 $(OBJ)/lexer_tests.o: $(TEST_SRC)/lexer_tests.c $(SRC)/lexer.h $(TEST_SRC)/test.h
 	$(CC) $(CFLAGS) -c -o $@ $<
