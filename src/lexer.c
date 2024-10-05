@@ -179,6 +179,7 @@ static void free_regexs() {
     regfree(&dot_re);
     regfree(&endln_re);
     regfree(&equal_re);
+    regfree(&exp_re);
     regfree(&float_re);
     regfree(&fun_re);
     regfree(&id_re);
