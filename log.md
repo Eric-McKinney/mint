@@ -337,3 +337,17 @@ Notes:
     - Does it even make sense to call mint on a file at all? (instead have import functionality in shell)
     - I also want to enable use of mint in shell scripts (i.e. `mint 1 + 2` would yield 3 in a script)
 
+## October 6th, 2024
+
+Goals for today:
+
+- [ ] Progress on switching to readline
+
+Notes:
+
+- Ok so here's the decision on invocation behavior
+    - With no additional arguments, mint will start the shell/REPL
+    - Otherwise all additional arguments will be treated as an expression and the result of evaluation will be printed
+- In the future I want some sort of import statement which can run files through the interpreter, adding to the env
+    - Maybe have a flag like `-f` or something to run mint on a file from the command line
+
