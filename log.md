@@ -318,7 +318,7 @@ Goals for today:
 - [x] Implement exponents
 - [x] Implement comments
 - [ ] Take steps toward readline support
-- [ ] Update wiki when done w/changes
+- [x] Update wiki when done w/changes
 
 Notes:
 
