@@ -317,7 +317,7 @@ Goals for today:
 
 - [x] Implement exponents
 - [x] Implement comments
-- [ ] Take steps toward readline support
+- [x] Take steps toward readline support
 - [x] Update wiki when done w/changes
 
 Notes:
@@ -330,4 +330,10 @@ Notes:
     - Although I'm not sure it makes sense to restrict user choice bc of my own stylistic preferences
     - Alright it's decided, comments can happen on their own line or the end of any other line
 - Finished comments too! I forgot how much fun this is
+- Made a branch for readline support and did a lot of thinking
+    - readline doesn't capture the newline
+    - I probably don't need to pay attention to newlines anyways (so remove TOK\_ENDLN & remove \n from CFG)
+    - For invoking mint on a file, use fgets and discard newline (also change print behavior)
+    - Does it even make sense to call mint on a file at all? (instead have import functionality in shell)
+    - I also want to enable use of mint in shell scripts (i.e. `mint 1 + 2` would yield 3 in a script)
 
