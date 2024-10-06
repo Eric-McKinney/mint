@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 #include "lexer.h"
 #include "parser.h"
 #include "eval.h"
