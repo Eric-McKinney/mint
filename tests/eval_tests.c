@@ -124,7 +124,9 @@ int main(int argc, char **argv) {
     printf(C_SUITE_NAME("eval tests") "\n");
     printf("|\n");
 
+    compile_regexs();
     num_passed = run_all_tests(tests, num_tests);
+    free_regexs();
     suite_result = num_passed == num_tests ? SUCCESS : FAILURE;
 
     printf("|\n| Ran (%d/%d) tests successfully\n", num_passed, num_tests);
@@ -449,11 +451,11 @@ static Input *create_input8() {
 
 static Input *create_input9() {
     Input *input = malloc(sizeof(Input));
-    TokenList *tok_l = tokenize("f(42, 0.01)\n"), *tok_l_2;
+    TokenList *tok_l = tokenize("f(42, 0.01)"), *tok_l_2;
     ExprTree *tree = parse(tok_l);
     Env_t *env = init_env();
 
-    tok_l_2 = tokenize("fn f(x, y) = x * y - 0.123456\n");
+    tok_l_2 = tokenize("fn f(x, y) = x * y - 0.123456");
     t_extend_env(env, "f", parse(tok_l_2));
 
     input->tree = tree;
@@ -467,7 +469,7 @@ static Input *create_input9() {
 
 static Input *create_input10() {
     Input *input = malloc(sizeof(Input));
-    TokenList *tok_l = tokenize("num = num + 1\n");
+    TokenList *tok_l = tokenize("num = num + 1");
     ExprTree *tree = parse(tok_l);
     Env_t *env = init_env();
 
@@ -483,7 +485,7 @@ static Input *create_input10() {
 
 static Input *create_input11() {
     Input *input = malloc(sizeof(Input));
-    TokenList *tok_l = tokenize("fn area(r) = 3.14 * r*r\n");
+    TokenList *tok_l = tokenize("fn area(r) = 3.14 * r*r");
     ExprTree *tree = parse(tok_l);
     Env_t *env = init_env();
 
@@ -499,7 +501,7 @@ static Input *create_input11() {
 
 static Input *create_input12() {
     Input *input = malloc(sizeof(Input));
-    TokenList *tok_l = tokenize("4 + 3 * (2 - 3)\n");
+    TokenList *tok_l = tokenize("4 + 3 * (2 - 3)");
     ExprTree *tree = parse(tok_l);
     Env_t *env = init_env();
 
@@ -513,7 +515,7 @@ static Input *create_input12() {
 
 static Input *create_input13() {
     Input *input = malloc(sizeof(Input));
-    TokenList *tok_l = tokenize("var = 2*(var+1)/12\n");
+    TokenList *tok_l = tokenize("var = 2*(var+1)/12");
     ExprTree *tree = parse(tok_l);
     Env_t *env = init_env();
 
@@ -529,7 +531,7 @@ static Input *create_input13() {
 
 static Input *create_input14() {
     Input *input = malloc(sizeof(Input));
-    TokenList *tok_l = tokenize("2^3\n");
+    TokenList *tok_l = tokenize("2^3");
     ExprTree *tree = parse(tok_l);
     Env_t *env = init_env();
 
@@ -543,11 +545,11 @@ static Input *create_input14() {
 
 static Input *create_input15() {
     Input *input = malloc(sizeof(Input));
-    TokenList *tok_l = tokenize("(4*2)^(f(23 - 2)^3)\n"), *tok_l_2;
+    TokenList *tok_l = tokenize("(4*2)^(f(23 - 2)^3)"), *tok_l_2;
     ExprTree *tree = parse(tok_l);
     Env_t *env = init_env();
     
-    tok_l_2 = tokenize("fn f(x) = x - 21\n");
+    tok_l_2 = tokenize("fn f(x) = x - 21");
     t_extend_env(env, "f", parse(tok_l_2));
 
     input->tree = tree;
@@ -561,7 +563,7 @@ static Input *create_input15() {
 
 static Input *create_input16() {
     Input *input = malloc(sizeof(Input));
-    TokenList *tok_l = tokenize("64^0.5\n");
+    TokenList *tok_l = tokenize("64^0.5");
     ExprTree *tree = parse(tok_l);
     Env_t *env = init_env();
 

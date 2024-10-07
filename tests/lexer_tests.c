@@ -16,18 +16,18 @@ static int run_test(Test *test);
 int main(int argc, char **argv) {
     Test tests[] = {
         {"empty_input", "", "[]"},
-        {"comment", "# a comment\n", "[TOK_COMMENT, TOK_ENDLN]"},
-        {"math + comment", "1 + 1 # a comment\n", "[TOK_INT 1, TOK_ADD, TOK_INT 1, TOK_COMMENT, TOK_ENDLN]"},
+        {"comment", "# a comment", "[TOK_COMMENT]"},
+        {"math + comment", "1 + 1 # a comment", "[TOK_INT 1, TOK_ADD, TOK_INT 1, TOK_COMMENT]"},
         {"arithmetic_toks", "+ - /*", "[TOK_ADD, TOK_SUB, TOK_DIV, TOK_MULT]"},
-        {"other_toks", "().=^\n", "[TOK_LPAREN, TOK_RPAREN, TOK_DOT, TOK_EQUAL, TOK_EXP, TOK_ENDLN]"},
+        {"other_toks", "().=^", "[TOK_LPAREN, TOK_RPAREN, TOK_DOT, TOK_EQUAL, TOK_EXP]"},
         {"fn_tok", "fn", "[TOK_FUN]"},
         {"basic_addition", "1 + 3", "[TOK_INT 1, TOK_ADD, TOK_INT 3]"},
         {"float + int + float", "2.20 + 5+5.", "[TOK_FLOAT 2.200000, TOK_ADD, TOK_INT 5, TOK_ADD, TOK_FLOAT 5.000000]"},
         {"big ints", "232342 4444", "[TOK_INT 232342, TOK_INT 4444]"},
         {"negative nums", "-23 - -33.4563", "[TOK_INT -23, TOK_SUB, TOK_FLOAT -33.456300]"},
         {"ids", "id1 snake_case CamelCase", "[TOK_ID id1, TOK_ID snake_case, TOK_ID CamelCase]"},
-        {"real use", "R = 500\nR*5", "[TOK_ID R, TOK_EQUAL, TOK_INT 500, TOK_ENDLN, TOK_ID R, TOK_MULT, TOK_INT 5]"},
-        {"all whitespace", "      \t\t \n \t\t\t  ", "[TOK_ENDLN]"},
+        {"real use", "R = 500R*5", "[TOK_ID R, TOK_EQUAL, TOK_INT 500, TOK_ID R, TOK_MULT, TOK_INT 5]"},
+        {"all whitespace", "      \t\t  \t\t\t  ", "[]"},
         {"comma", ",,,", "[TOK_COMMA, TOK_COMMA, TOK_COMMA]"},
         {"function", "fn f(a, b) = a + b", 
          "[TOK_FUN, TOK_ID f, TOK_LPAREN, TOK_ID a, TOK_COMMA, TOK_ID b, TOK_RPAREN, TOK_EQUAL, TOK_ID a, TOK_ADD, TOK_ID b]"}
@@ -45,6 +45,8 @@ int main(int argc, char **argv) {
 
     printf(C_SUITE_NAME("lexer tests") "\n");
     printf("|\n");
+
+    compile_regexs();
     
     for (i = 0; i < num_tests; i++) {
         Test *t = &(tests[i]);
@@ -68,6 +70,8 @@ int main(int argc, char **argv) {
             printf(SEP);
         }
     }
+
+    free_regexs();
 
     printf("|\n| Ran (%d/%d) tests successfully\n", num_passed, num_tests);
     printf("| Test suite %s\n", num_passed == num_tests ? PASSED : FAILED);
