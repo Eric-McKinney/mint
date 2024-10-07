@@ -10,11 +10,9 @@
 #define MAX_TOK_VAL_LEN 50 /* arbitrary upper limit on token value size (e.g. an integer) */
 #define MAX_TOK_STR_LEN MAX_TOK_LEN + MAX_TOK_VAL_LEN
 
-regex_t add_re, comma_re, comment_re, dot_re, div_re, endln_re, equal_re, exp_re;
-regex_t float_re, fun_re, id_re, int_re, l_paren_re, mult_re, r_paren_re, sub_re; 
+regex_t add_re, comma_re, comment_re, dot_re, div_re, equal_re, exp_re, float_re;
+regex_t fun_re, id_re, int_re, l_paren_re, mult_re, r_paren_re, sub_re; 
 regex_t whitespace_re;
-static void compile_regexs();
-static void free_regexs();
 static TokenList *tok(const char *input, unsigned int pos, unsigned int length);
 
 TokenList *tokenize(const char *input) {
@@ -27,28 +25,26 @@ TokenList *tokenize(const char *input) {
         return NULL;
     }
     
-    compile_regexs();
     len = strlen(input);
     tok_l = tok(input, 0, len);
-    free_regexs();
 
     return tok_l;
 }
 
 static TokenList *tok(const char *input, unsigned int pos, unsigned int length) {
     const char *str = input + pos;
-    regmatch_t re_match[2];
+    regmatch_t re_match;
     TokenList *t;
 
     if (pos >= length) {
         return NULL;
     }
 
-    if (regexec(&whitespace_re, str, 1, re_match, 0) == 0) {
-        int match_length = re_match[0].rm_eo - re_match[0].rm_so;
+    if (regexec(&whitespace_re, str, 1, &re_match, 0) == 0) {
+        int match_length = re_match.rm_eo - re_match.rm_so;
         return tok(input, pos + match_length, length);
-    } else if (regexec(&id_re, str, 1, re_match, 0) == 0) {
-        int match_length = re_match[0].rm_eo - re_match[0].rm_so;
+    } else if (regexec(&id_re, str, 1, &re_match, 0) == 0) {
+        int match_length = re_match.rm_eo - re_match.rm_so;
         t = malloc(sizeof(TokenList));
 
         if (strncmp(str, "fn", 2) == 0) {
@@ -62,8 +58,8 @@ static TokenList *tok(const char *input, unsigned int pos, unsigned int length) 
         strncpy(t->value.id, str, match_length);
         t->next = tok(input, pos + match_length, length);
         return t;
-    } else if (regexec(&float_re, str, 1, re_match, 0) == 0) {
-        int match_length = re_match[0].rm_eo - re_match[0].rm_so;
+    } else if (regexec(&float_re, str, 1, &re_match, 0) == 0) {
+        int match_length = re_match.rm_eo - re_match.rm_so;
         double num;
         char *float_str = calloc(1, match_length + 1);
 
@@ -76,8 +72,8 @@ static TokenList *tok(const char *input, unsigned int pos, unsigned int length) 
         t->value.d = num;
         t->next = tok(input, pos + match_length, length);
         return t;
-    } else if (regexec(&int_re, str, 1, re_match, 0) == 0) {
-        int match_length = re_match[0].rm_eo - re_match[0].rm_so;
+    } else if (regexec(&int_re, str, 1, &re_match, 0) == 0) {
+        int match_length = re_match.rm_eo - re_match.rm_so;
         int num;
         char *int_str = calloc(1, match_length + 1);
 
@@ -135,16 +131,11 @@ static TokenList *tok(const char *input, unsigned int pos, unsigned int length) 
         t->token = TOK_EXP;
         t->next = tok(input, pos + 1, length);
         return t;
-    } else if (regexec(&comment_re, str, 2, re_match, 0) == 0) {
-        int match_length = re_match[1].rm_eo - re_match[1].rm_so;
+    } else if (regexec(&comment_re, str, 2, &re_match, 0) == 0) {
+        int match_length = re_match.rm_eo - re_match.rm_so;
         t = malloc(sizeof(TokenList));
         t->token = TOK_COMMENT;
         t->next = tok(input, pos + match_length, length);
-        return t;
-    } else if (regexec(&endln_re, str, 0, NULL, 0) == 0) {
-        t = malloc(sizeof(TokenList));
-        t->token = TOK_ENDLN;
-        t->next = tok(input, pos + 1, length);
         return t;
     } else if (regexec(&comma_re, str, 0, NULL, 0) == 0) {
         t = malloc(sizeof(TokenList));
@@ -159,13 +150,12 @@ static TokenList *tok(const char *input, unsigned int pos, unsigned int length) 
     return t;
 }
 
-static void compile_regexs() {
+void compile_regexs() {
     regcomp(&add_re,        "^\\+",                     REG_EXTENDED);
     regcomp(&comma_re,      "^,",                       REG_EXTENDED);
-    regcomp(&comment_re,    "^(#.*)\n",                 REG_EXTENDED);
+    regcomp(&comment_re,    "^(#.*)$",                  REG_EXTENDED);
     regcomp(&div_re,        "^/",                       REG_EXTENDED);
     regcomp(&dot_re,        "^\\.",                     REG_EXTENDED);
-    regcomp(&endln_re,      "^\n",                      REG_EXTENDED);
     regcomp(&equal_re,      "^=",                       REG_EXTENDED);
     regcomp(&exp_re,        "^\\^",                     REG_EXTENDED);
     regcomp(&float_re,      "^-?[0-9]+\\.[0-9]*",       REG_EXTENDED);
@@ -179,13 +169,12 @@ static void compile_regexs() {
     regcomp(&whitespace_re, "^([ \t])+",                REG_EXTENDED);
 }
 
-static void free_regexs() {
+void free_regexs() {
     regfree(&add_re);
     regfree(&comma_re);
     regfree(&comment_re);
     regfree(&div_re);
     regfree(&dot_re);
-    regfree(&endln_re);
     regfree(&equal_re);
     regfree(&exp_re);
     regfree(&float_re);
@@ -257,9 +246,6 @@ char *token_to_str(TokenList *tok_l) {
             break;
         case TOK_DOT:
             strcpy(str, "TOK_DOT");
-            break;
-        case TOK_ENDLN:
-            strcpy(str, "TOK_ENDLN");
             break;
         case TOK_EQUAL:
             strcpy(str, "TOK_EQUAL");

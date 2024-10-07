@@ -112,7 +112,7 @@ static ExprTree *parse_expr(TokenList *tok_l, TokenList **out_tl) {
  * FunctionExpr -> fn ID(ParamExpr) = AdditiveExpr \n
  */
 static ExprTree *parse_function_expr(TokenList *tok_l, TokenList **out_tl) {
-    TokenList *t, *t2, *t3, *t4, *t5, *t6, *t7, *t8;
+    TokenList *t, *t2, *t3, *t4, *t5, *t6, *t7;
     ExprTree *fun_expr, *param_expr, *body_expr;
     char *id, *id_cpy;
 
@@ -136,15 +136,13 @@ static ExprTree *parse_function_expr(TokenList *tok_l, TokenList **out_tl) {
 
     body_expr = parse_additive_expr(t6, &t7);
 
-    t8 = match_token(t7, TOK_ENDLN);
-
     fun_expr = malloc(sizeof(ExprTree));
     fun_expr->expr = Fun;
     fun_expr->value.id = id_cpy;
     fun_expr->left = param_expr;
     fun_expr->right = body_expr;
 
-    *out_tl = t8;
+    *out_tl = t7;
     return fun_expr;
 }
 
@@ -184,7 +182,7 @@ static ExprTree *parse_parameter_expr(TokenList *tok_l, TokenList **out_tl) {
  * AssignmentExpr -> ID = AdditiveExpr \n
  */
 static ExprTree *parse_assignment_expr(TokenList *tok_l, TokenList **out_tl) {
-    TokenList *t, *t2, *t3, *t4;
+    TokenList *t, *t2, *t3;
     ExprTree *assign_expr, *id_expr, *val_expr;
 
     if (errno != 0) {
@@ -194,14 +192,13 @@ static ExprTree *parse_assignment_expr(TokenList *tok_l, TokenList **out_tl) {
     id_expr = parse_primary_expr(tok_l, &t);
     t2 = match_token(t, TOK_EQUAL);
     val_expr = parse_additive_expr(t2, &t3);
-    t4 = match_token(t3, TOK_ENDLN);
 
     assign_expr = malloc(sizeof(ExprTree));
     assign_expr->expr = Assign;
     assign_expr->left = id_expr;
     assign_expr->right = val_expr;
 
-    *out_tl = t4;
+    *out_tl = t3;
     return assign_expr;
 }
 

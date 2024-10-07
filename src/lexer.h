@@ -7,7 +7,6 @@ typedef enum {
     TOK_COMMENT,
     TOK_DIV,
     TOK_DOT,
-    TOK_ENDLN,
     TOK_EQUAL,
     TOK_EXP,
     TOK_FLOAT,
