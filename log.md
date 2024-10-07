@@ -341,7 +341,7 @@ Notes:
 
 Goals for today:
 
-- [ ] Progress on switching to readline
+- [x] Progress on switching to readline
 
 Notes:
 
@@ -350,4 +350,5 @@ Notes:
     - Otherwise all additional arguments will be treated as an expression and the result of evaluation will be printed
 - In the future I want some sort of import statement which can run files through the interpreter, adding to the env
     - Maybe have a flag like `-f` or something to run mint on a file from the command line
+- I also want to keep support for input redirection
 
