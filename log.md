@@ -369,6 +369,10 @@ Issues:
     - Also only in repl where the line was scanned in with readline
     - The only problem with this is that the regcompile call is with THE SAME STRING LITERAL!!!
     - Clearly readline is touching some shared global variable similar to errno (but not errno) which messes things up
+2. Had issues with stack smashing after removing TOK\_ENDLN and mentions of \n in general
+    - As it turns out, when I changed re\_match back to being just one struct, I forgot to update the args on one call
+    - That call happened to be the comment\_re case where it was trying to jam two match structs into the space of one
+    - Thus, the stack had been smashed (oopsies xd)
 
 Fixes:
 
@@ -376,4 +380,6 @@ Fixes:
     - I was meaning to do this anyways because it doesn't make sense to compile the regexs for every tokenize call
     - Now regexs are compiled when the env is initialized and they are freed at the very end
     - Now I just need to update my tests
+2. After many minutes of debugging, I identified the argument I forgot to update and updated 1 character to fix it LOL
+    - Literally changed a 2 to a 1 and all is good now
 
