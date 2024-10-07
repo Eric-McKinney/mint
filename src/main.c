@@ -51,6 +51,40 @@ int main(int argc, char **argv) {
     return 0;
 }
 
+static int is_empty(const char *str) {
+    int i;
+
+    for (i = 0; i < strlen(str); i++) {
+        if (str[i] != ' ' && str[i] != '\t' && str[i] != '\n') {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+static void repl_loop(Env_t *env) {
+    char *line, *result;
+
+    while ((line = readline(PROMPT))) {
+        if (strcmp(line, "exit") == 0 || strcmp(line, "quit") == 0) {
+            break;
+        }
+
+        result = process_input(line, env);
+
+        if (result != NULL && strcmp(result, "") != 0) {
+            printf("%s\n", result);
+        }
+
+        if (!is_empty(line)) {
+            add_history(line);
+        }
+
+        free(result);
+    }
+}
+
 static char *aggregate_args(int argc, char **argv) {
     int i, expr_length = 0;
     char *expr;
@@ -89,29 +123,6 @@ static void process_file(FILE *file, Env_t *env) {
 
     free(result);
     fclose(file);
-}
-
-static void repl_loop(Env_t *env) {
-    char *line, *result;
-
-    while ((line = readline(PROMPT))) {
-        if (strcmp(line, "") == 0) {
-            continue;
-        }
-
-        if (strcmp(line, "exit") == 0 || strcmp(line, "quit") == 0) {
-            break;
-        }
-
-        result = process_input(line, env);
-
-        if (result != NULL) {
-            printf("%s\n", result);
-        }
-
-        add_history(line);
-        free(result);
-    }
 }
 
 static char *process_input(char *input, Env_t *env) {
