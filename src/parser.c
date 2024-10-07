@@ -58,6 +58,10 @@ static ExprTree *parse_input(TokenList *tok_l, TokenList **out_tl) {
     ExprTree *expr = NULL;
     TokenList *t = tok_l;
 
+    if (tok_l == NULL) {
+        return NULL;
+    }
+
     if (tok_l->token != TOK_COMMENT) {
         expr = parse_expr(tok_l, &t);
     } else {
@@ -80,12 +84,6 @@ static ExprTree *parse_expr(TokenList *tok_l, TokenList **out_tl) {
     TokenList *t;
 
     if (errno != 0) {
-        return NULL;
-    }
-
-    if (tok_l == NULL) {
-        errno = EINVAL;
-        warn("parser: Empty input");
         return NULL;
     }
 
