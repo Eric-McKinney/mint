@@ -352,3 +352,13 @@ Notes:
     - Maybe have a flag like `-f` or something to run mint on a file from the command line
 - I also want to keep support for input redirection
 
+## October 7th, 2024
+
+Goals for today:
+
+- [ ] Get working repl and input redirection with readline and fgets respectively
+
+Notes:
+
+- Midterms coming up, so I will probably have to take a break after this
+
