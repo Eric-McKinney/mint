@@ -17,55 +17,56 @@
 static void process_cmd(char *cmd, Env_t *env);
 
 int main(int argc, char **argv) {
-    FILE *input = stdin;
-    char line[BUF_SIZE] = {0};
     Env_t *env = init_env();
 
-    /* Determine input stream */
-    if (argc == 2) {
-        input = fopen(argv[1], "r");
-        if (input == NULL) {
-            fprintf(stderr, "File \"%s\" not found\n", argv[1]);
-            return 1;
+    /* determine invocation method */
+    if (argc == 1) {
+        if (isatty(0)) {
+            repl_loop(env);
+        } else {
+            process_file(stdin, env);
         }
-    } else if (argc > 2) {
-        fprintf(stderr, "%s: Too many args\n", argv[0]);
-        return 1;
+    } else if (argc > 1) {
+        /* process args as expr */
     }
 
-    if (argc == 1 && isatty(0)) {
-        printf(PROMPT);
-        fflush(stdout);
-    }
+    free_env(env);
+    return 0;
+}
 
-    while(fgets(line, BUF_SIZE, input)) {
+static void process_file(FILE *file, Env_t *env) {
+    char line[BUF_SIZE] = {0};
+
+    while(fgets(line, BUF_SIZE, file)) {
         char cmd[BUF_SIZE] = "";
 
         sscanf(line, "%s", cmd);
 
         if (strcmp(cmd, "") == 0) {
-            if (argc == 1 && isatty(0)) {
-                printf(PROMPT);
-                fflush(stdout);
-            }
             continue;
         }
 
-        if (strcmp(cmd, "exit") == 0 || strcmp(cmd, "quit") == 0) {
+        process_cmd(line, env);
+    }
+
+    fclose(file);
+}
+
+static void repl_loop(Env_t *env) {
+    char *line;
+
+    while ((line = readline(PROMPT))) {
+        if (strcmp(line, "") == 0) {
+            continue;
+        }
+
+        if (strcmp(line, "exit") == 0 || strcmp(line, "quit") == 0) {
             break;
         }
 
         process_cmd(line, env);
-
-        if (argc == 1 && isatty(0)) {
-            printf(PROMPT);
-            fflush(stdout);
-        }
+        add_history(line);
     }
-    
-    free_env(env);
-    fclose(input);
-    return 0;
 }
 
 static void process_cmd(char *cmd, Env_t *env) {
