@@ -131,7 +131,7 @@ static TokenList *tok(const char *input, unsigned int pos, unsigned int length) 
         t->token = TOK_EXP;
         t->next = tok(input, pos + 1, length);
         return t;
-    } else if (regexec(&comment_re, str, 2, &re_match, 0) == 0) {
+    } else if (regexec(&comment_re, str, 1, &re_match, 0) == 0) {
         int match_length = re_match.rm_eo - re_match.rm_so;
         t = malloc(sizeof(TokenList));
         t->token = TOK_COMMENT;
