@@ -356,9 +356,24 @@ Notes:
 
 Goals for today:
 
-- [ ] Get working repl and input redirection with readline and fgets respectively
+- [x] Get working repl and input redirection with readline and fgets respectively
 
 Notes:
 
 - Midterms coming up, so I will probably have to take a break after this
+
+Issues:
+
+1. Weird bug where any regex with a bracket in it would have regcompile set errno to 84, but still returned 0?
+    - errno 84 = EILSEQ = Invalid or incomplete multibyte or wide character
+    - Also only in repl where the line was scanned in with readline
+    - The only problem with this is that the regcompile call is with THE SAME STRING LITERAL!!!
+    - Clearly readline is touching some shared global variable similar to errno (but not errno) which messes things up
+
+Fixes:
+
+1. Move the call to regcomp
+    - I was meaning to do this anyways because it doesn't make sense to compile the regexs for every tokenize call
+    - Now regexs are compiled when the env is initialized and they are freed at the very end
+    - Now I just need to update my tests
 
