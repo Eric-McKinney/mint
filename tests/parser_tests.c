@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
         "(Add(Int 1)(Int 1))"
     };
     int num_tests = sizeof(t_names) / sizeof(char *), i, num_passed = 0;
-    TokenList **inputs = create_inputs(num_tests);
+    TokenList **inputs;
 
     if (argc == 2 && (strcmp(argv[1], "-v") == 0
                    || strcmp(argv[1], "--verbose") == 0)) {
@@ -68,6 +68,10 @@ int main(int argc, char **argv) {
     
     printf(C_SUITE_NAME("parser tests") "\n");
     printf("|\n");
+
+    compile_regexs();
+    inputs = create_inputs(num_tests);
+    free_regexs();
 
     for (i = 0; i < num_tests; i++) {
         Test t;
@@ -179,7 +183,6 @@ static TokenList **create_inputs(int num_tests) {
     t0 = append_token(NULL, TOK_INT, 1, 0, NULL);
     append_token(t0, TOK_ADD, 0, 0, NULL);
     append_token(t0, TOK_INT, 2, 0, NULL);
-    append_token(t0, TOK_ENDLN, 0, 0, NULL);
     inputs[0] = t0;
 
     t1 = append_token(NULL, TOK_INT, 44, 0, NULL);
@@ -187,7 +190,6 @@ static TokenList **create_inputs(int num_tests) {
     append_token(t1, TOK_INT, 21, 0, NULL);
     append_token(t1, TOK_ADD, 0, 0, NULL);
     append_token(t1, TOK_FLOAT, 0, 2.2, NULL);
-    append_token(t1, TOK_ENDLN, 0, 0, NULL);
     inputs[1] = t1;
 
     t2 = append_token(NULL, TOK_FLOAT, 0, 2., NULL);
@@ -197,7 +199,6 @@ static TokenList **create_inputs(int num_tests) {
     append_token(t2, TOK_INT, 12, 0, NULL);
     append_token(t2, TOK_ADD, 0, 0, NULL);
     append_token(t2, TOK_INT, 5, 0, NULL);
-    append_token(t2, TOK_ENDLN, 0, 0, NULL);
     inputs[2] = t2;
 
     t3 = append_token(NULL, TOK_INT, 1, 0, NULL);
@@ -209,7 +210,6 @@ static TokenList **create_inputs(int num_tests) {
     append_token(t3, TOK_INT, 4, 0, NULL);
     append_token(t3, TOK_SUB, 0, 0, NULL);
     append_token(t3, TOK_INT, 5, 0, NULL);
-    append_token(t3, TOK_ENDLN, 0, 0, NULL);
     inputs[3] = t3;
 
     t4 = append_token(NULL, TOK_INT, 1, 0, NULL);
@@ -221,7 +221,6 @@ static TokenList **create_inputs(int num_tests) {
     append_token(t4, TOK_INT, 4, 0, NULL);
     append_token(t4, TOK_DIV, 0, 0, NULL);
     append_token(t4, TOK_INT, 5, 0, NULL);
-    append_token(t4, TOK_ENDLN, 0, 0, NULL);
     inputs[4] = t4;
 
     {
@@ -231,7 +230,6 @@ static TokenList **create_inputs(int num_tests) {
     t5 = append_token(NULL, TOK_ID, 0, 0, id);
     append_token(t5, TOK_EQUAL, 0, 0, NULL);
     append_token(t5, TOK_INT, 500, 0, NULL);
-    append_token(t5, TOK_ENDLN, 0, 0, NULL);
     inputs[5] = t5;
     }
 
@@ -248,7 +246,6 @@ static TokenList **create_inputs(int num_tests) {
     append_token(t6, TOK_INT, 2, 0, NULL);
     append_token(t6, TOK_MULT, 0, 0, NULL);
     append_token(t6, TOK_ID, 0, 0, id2);
-    append_token(t6, TOK_ENDLN, 0, 0, NULL);
     inputs[6] = t6;
     }
 
@@ -277,7 +274,6 @@ static TokenList **create_inputs(int num_tests) {
     append_token(t7, TOK_ID, 0, 0, id5);
     append_token(t7, TOK_SUB, 0, 0, NULL);
     append_token(t7, TOK_FLOAT, 0, 0.123456, NULL);
-    append_token(t7, TOK_ENDLN, 0, 0, NULL);
     inputs[7] = t7;
     }
 
@@ -291,18 +287,17 @@ static TokenList **create_inputs(int num_tests) {
     append_token(t8, TOK_COMMA, 0, 0, NULL);
     append_token(t8, TOK_FLOAT, 0, 0.01, NULL);
     append_token(t8, TOK_RPAREN, 0, 0, NULL);
-    append_token(t8, TOK_ENDLN, 0, 0, NULL);
     inputs[8] = t8;
     }
 
-    inputs[9] = tokenize("fn area(r) = 3.14 * r*r\n");
-    inputs[10] = tokenize("4 + 3 * (2 - 3)\n");
-    inputs[11] = tokenize("var=2*(var+1)/12\n");
-    inputs[12] = tokenize("my_fun(0,arg, a, b, 2.0)*3\n");
-    inputs[13] = tokenize("2^3\n");
-    inputs[14] = tokenize("(4*2)^(f(23 - 2)^3)\n");
-    inputs[15] = tokenize("# a comment\n");
-    inputs[16] = tokenize("1 + 1 # a comment\n");
+    inputs[9] = tokenize("fn area(r) = 3.14 * r*r");
+    inputs[10] = tokenize("4 + 3 * (2 - 3)");
+    inputs[11] = tokenize("var=2*(var+1)/12");
+    inputs[12] = tokenize("my_fun(0,arg, a, b, 2.0)*3");
+    inputs[13] = tokenize("2^3");
+    inputs[14] = tokenize("(4*2)^(f(23 - 2)^3)");
+    inputs[15] = tokenize("# a comment");
+    inputs[16] = tokenize("1 + 1 # a comment");
 
     return inputs;
 }
