@@ -45,6 +45,7 @@ static Input *create_input13();
 static Input *create_input14();
 static Input *create_input15();
 static Input *create_input16();
+static Input *create_input17();
 
 int main(int argc, char **argv) {
     Test tests[] = {
@@ -108,7 +109,9 @@ int main(int argc, char **argv) {
             }
         },
         /* 64^0.5 */
-        {"lexer->parse->float exponent", create_input16, {"(Float 8.000000)", "[]"}}
+        {"lexer->parser->float exponent", create_input16, {"(Float 8.000000)", "[]"}},
+        /* x where x = 5 in env */
+        {"lexer->parser->lone variable", create_input17, {"(Int 5)", "[(x : (Int 5))]"}}
     };
     int num_tests = sizeof(tests) / sizeof(Test), num_passed, suite_result;
 
@@ -566,6 +569,22 @@ static Input *create_input16() {
     TokenList *tok_l = tokenize("64^0.5");
     ExprTree *tree = parse(tok_l);
     Env_t *env = init_env();
+
+    input->tree = tree;
+    input->env = env;
+
+    free_token_list(tok_l);
+
+    return input;
+}
+
+static Input *create_input17() {
+    Input *input = malloc(sizeof(Input));
+    TokenList *tok_l = tokenize("x");
+    ExprTree *tree = parse(tok_l);
+    Env_t *env = init_env();
+
+    t_extend_env(env, "x", add_node(NULL, Int, 5, 0, NULL, Add, 0));
 
     input->tree = tree;
     input->env = env;
