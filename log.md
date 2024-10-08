@@ -383,3 +383,11 @@ Fixes:
 2. After many minutes of debugging, I identified the argument I forgot to update and updated 1 character to fix it LOL
     - Literally changed a 2 to a 1 and all is good now
 
+## October 8th, 2024
+
+Goals for today:
+
+- [x] Do some final manual testing of readline-support branch for different invocation methods
+- [x] Merge and close out readline-support branch
+- [x] Update wiki
+
