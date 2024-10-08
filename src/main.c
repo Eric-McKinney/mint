@@ -94,6 +94,7 @@ static char *aggregate_args(int argc, char **argv) {
     }
 
     expr = malloc(expr_length + 1);
+    expr[0] = '\0';
 
     for (i = 1; i < argc; i++) {
         strcat(expr, argv[i]);
