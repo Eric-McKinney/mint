@@ -94,7 +94,7 @@ static ExprTree *parse_expr(TokenList *tok_l, TokenList **out_tl) {
             #pragma GCC diagnostic push
             #pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
             /* The above is to ignore a warning for implicit fall through caused by this case */
-            if (tok_l->next->token == TOK_EQUAL) {
+            if (tok_l->next != NULL && tok_l->next->token == TOK_EQUAL) {
                 return parse_assignment_expr(tok_l, out_tl);
             }
             #pragma GCC diagnostic pop
