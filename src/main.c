@@ -104,24 +104,26 @@ static char *aggregate_args(int argc, char **argv) {
 }
 
 static void process_file(FILE *file, Env_t *env) {
-    char line[BUF_SIZE] = {0}, *result = NULL;
+    char line[BUF_SIZE] = {0}, *result = NULL, *result_to_print = NULL;
 
     while(fgets(line, BUF_SIZE, file)) {
-        free(result);
-        line[strlen(line) - 1] = '\0';
-
-        if (strcmp(line, "") == 0) {
-            continue;
-        }
+        line[strlen(line) - 1] = '\0'; /* strip newline */
 
         result = process_input(line, env);
+
+        if (result != NULL && strcmp(result, "") != 0) {
+            free(result_to_print);
+            result_to_print = result;
+        } else {
+            free(result);
+        }
     }
     
-    if (result != NULL) {
-        printf("%s\n", result);
+    if (result_to_print != NULL) {
+        printf("%s\n", result_to_print);
     }
 
-    free(result);
+    free(result_to_print);
     fclose(file);
 }
 
