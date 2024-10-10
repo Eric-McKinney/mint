@@ -74,11 +74,11 @@ static TokenList *tok(const char *input, unsigned int pos, unsigned int length) 
         return t;
     } else if (regexec(&int_re, str, 1, &re_match, 0) == 0) {
         int match_length = re_match.rm_eo - re_match.rm_so;
-        int num;
+        long int num;
         char *int_str = calloc(1, match_length + 1);
 
         strncpy(int_str, str, match_length);
-        num = atoi(int_str);
+        num = atol(int_str);
         free(int_str);
         t = malloc(sizeof(TokenList));
 
