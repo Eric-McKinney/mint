@@ -81,6 +81,7 @@ static void repl_loop(Env_t *env) {
             add_history(line);
         }
 
+        free(line);
         free(result);
     }
 }
