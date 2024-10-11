@@ -391,3 +391,17 @@ Goals for today:
 - [x] Merge and close out readline-support branch
 - [x] Update wiki
 
+## October 11th, 2024
+
+Goals for today:
+
+- [ ] Add error for integer overflow
+- [ ] Allow longer variable names or add error for exceeding max length
+- [ ] Fix accidental closures (evaluation of function and variable definitions)
+
+Notes:
+
+- Forgot to make an entry yesterday, but here's what I did:
+    - Finally switched to long int, merging Justin's PR in the process
+    - Fixed some small bugs related to parsing undefined function applications and division by 0
+
