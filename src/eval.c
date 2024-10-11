@@ -431,12 +431,20 @@ static void eval_assign(ExprTree *tree, Env_t *env) {
 static void eval_application(ExprTree **t, Env_t *env) {
     ExprTree *tree = *t;
     ExprTree *fun = lookup(env, tree->left->value.id);
-    ExprTree *fun_body = fun->right;
-    ExprTree *params = fun->left;
+    ExprTree *params, *fun_body, *ret_val;
     ExprTree *args = tree->right;
-    ExprTree *ret_val;
     int num_params, num_args_bound;
     
+    /* lookup failed because the function is not in env */
+    if (fun == NULL) {
+        /* errno already set by lookup, but just to be clear there's an error */
+        errno = EINVAL;
+        return;
+    }
+
+    params = fun->left;
+    fun_body = fun->right;
+
     eval_arguments(&(args), env);
     num_params = push_params(params, env);
     num_args_bound = bind_args(args, params, env);
