@@ -367,6 +367,12 @@ static void eval_binop(ExprTree **t, Env_t *env) {
 
             break;
         case Div:
+            if ((v2_is_int ? v2->value.i : v2->value.d) == 0) {
+                errno = EINVAL;
+                warnx("error: division by 0");
+                return;
+            }
+
             if (v->expr == Int) {
                 if (v1->value.i % v2->value.i == 0) {
                     v->value.i = v1->value.i / v2->value.i;
