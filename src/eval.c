@@ -404,7 +404,7 @@ static void eval_binop(ExprTree **t, Env_t *env) {
 
             if (v1_is_int && v2_is_int) {
                 v->expr = Int;
-                v->value.i = (int) pow(v1->value.d, v2->value.d);
+                v->value.i = (long int) pow(v1->value.d, v2->value.d);
             } else {
                 v->expr = Float;
                 v->value.d = pow(v1->value.d, v2->value.d);
