@@ -395,13 +395,27 @@ Goals for today:
 
 Goals for today:
 
-- [ ] Add error for integer overflow
-- [ ] Allow longer variable names or add error for exceeding max length
-- [ ] Fix accidental closures (evaluation of function and variable definitions)
+- [ ] Add error for integer overflow (deferred)
+- [ ] Allow longer variable names or add error for exceeding max length (deferred)
+- [ ] Fix accidental closures (evaluation of function and variable definitions) (deferred)
 
 Notes:
 
 - Forgot to make an entry yesterday, but here's what I did:
     - Finally switched to long int, merging Justin's PR in the process
     - Fixed some small bugs related to parsing undefined function applications and division by 0
+
+## October 13th, 2024
+
+- [ ] See if it makes sense to store all numbers as doubles
+- [ ] Add error for integer overflow
+- [ ] Allow longer variable names or add error for exceeding max length
+- [ ] Fix accidental closures (evaluation of function and variable definitions)
+
+Notes:
+
+- So it turns out I was busier than expected outside of this project yesterday and the day before
+- It also turns out that checking for integer over/underflow was a little more difficult than anticipated
+    - I also began to think about float over/underflow
+    - Now I'm thinking it might just make more sense to store all numbers as doubles
 
