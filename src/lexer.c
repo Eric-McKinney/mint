@@ -79,6 +79,18 @@ static TokenList *tok(const char *input, unsigned int pos, unsigned int length) 
 
         strncpy(int_str, str, match_length);
         num = atol(int_str);
+
+        if (errno == ERANGE) {
+            warnx(
+                "error: int %s does not fall within storable range of -9223372036854775808 to 9223372036854775807\n\
+             try declaring it as a float instead (i.e. %s.0)",
+                int_str,
+                int_str
+            );
+            free(int_str);
+            return NULL;
+        }
+
         free(int_str);
         t = malloc(sizeof(TokenList));
 
