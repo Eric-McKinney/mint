@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <err.h>
 #include <math.h>
+#include <limits.h>
 #include "eval.h"
 #include "parser.h"
 
@@ -300,6 +301,77 @@ static void eval_fun(ExprTree **t, Env_t *env) {
     pop_params(tree->left, num_params, env);
 }
 
+/*
+ * Checks binary operation for integer overflow or underflow.
+ * Returns 1 if overflow is detected, 2 if underflow is detected, and 0 otherwise.
+ */
+static int check_int_limits(long v1, long v2, Operator_t op) {
+    int overflow = 1, underflow = 2, op_is_ok = 0;
+
+    switch(op) {
+        case Add: {
+            int both_pos = v1 > 0 && v2 > 0;
+            int both_neg = v1 < 0 && v2 < 0;
+
+            if (both_pos && v1 > LONG_MAX - v2) {
+                return overflow;
+            }
+
+            if (both_neg && v1 < LONG_MIN + v2) {
+                return underflow;
+            }
+
+            return op_is_ok;
+        }
+        case Sub: {
+            int pos_neg = v1 > 0 && v2 < 0;
+            int neg_pos = v1 < 0 && v2 > 0;
+
+            if (pos_neg && v1 > LONG_MAX + v2) {
+                return overflow;
+            }
+
+            if (neg_pos && v1 < LONG_MIN + v2) {
+                return underflow;
+            }
+
+            return op_is_ok;
+        }
+        case Mult: {
+            int same_sign = (v1 > 0 && v2 > 0) || (v1 < 0 && v2 < 0);
+            int diff_sign = !same_sign;
+            /* I tried using fabs, but casting back and forth loses precision */
+            v1 = v1 >= 0 ? v1 : -1 * v1;  
+            v2 = v2 >= 0 ? v2 : -1 * v2;
+
+            if (same_sign && v1 > LONG_MAX / v2) {
+                return overflow;
+            }
+
+            if (diff_sign && -v1 < LONG_MIN / v2) {
+                return underflow;
+            }
+
+            return op_is_ok;
+        }
+        case Exp: {
+            int both_pos = v1 > 0 && v2 > 0;
+
+            if (both_pos && v1 >= pow(LONG_MAX, 1.0/v2)) {
+                return overflow;
+            }
+
+            return op_is_ok;
+        }
+        default:
+            return op_is_ok;
+    }
+}
+
+static int check_float_limits(double v1, double v2, Operator_t op) {
+    return 0;
+}
+
 static void eval_binop(ExprTree **t, Env_t *env) {
     ExprTree *tree = *t;
     ExprTree *v1, *v2, *v;
@@ -322,6 +394,49 @@ static void eval_binop(ExprTree **t, Env_t *env) {
     v->expr = (v1_is_float || v2_is_float) ? Float : Int;
     v->left = NULL;
     v->right = NULL;
+
+    switch (v->expr) {
+        case Int:
+            switch (check_int_limits(v1->value.i, v2->value.i, tree->value.binop)) {
+                case 1:
+                    errno = ERANGE;
+                    warnx("error: integer overflow detected");
+                    return;
+                case 2:
+                    errno = ERANGE;
+                    warnx("error: integer underflow detected");
+                    return;
+                case 0:
+                    break;
+                default:
+                    errno = EINVAL;
+                    warnx("unexpected return value while checking int limits for binop");
+                    return;
+            }
+            break;
+        case Float:
+            switch (check_float_limits(v1->value.d, v2->value.d, tree->value.binop)) {
+                case 1:
+                    errno = ERANGE;
+                    warnx("error: float overflow detected");
+                    return;
+                case 2:
+                    errno = ERANGE;
+                    warnx("error: float underflow detected");
+                    return;
+                case 0:
+                    break;
+                default:
+                    errno = EINVAL;
+                    warnx("unexpected return value while checking float limits for binop");
+                    return;
+            }
+            break;
+        default:
+            errno = EINVAL;
+            warnx("unexpected expression type while checking for over/underflow");
+            return;
+    }
 
     switch (tree->value.binop) {
         case Add:
