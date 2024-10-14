@@ -407,10 +407,10 @@ Notes:
 
 ## October 13th, 2024
 
-- [ ] See if it makes sense to store all numbers as doubles
-- [ ] Add error for integer overflow
-- [ ] Allow longer variable names or add error for exceeding max length
-- [ ] Fix accidental closures (evaluation of function and variable definitions)
+- [ ] See if it makes sense to store all numbers as doubles (deferred)
+- [x] Add error for integer overflow
+- [ ] Allow longer variable names or add error for exceeding max length (deferred)
+- [ ] Fix accidental closures (evaluation of function and variable definitions) (deferred)
 
 Notes:
 
@@ -418,4 +418,8 @@ Notes:
 - It also turns out that checking for integer over/underflow was a little more difficult than anticipated
     - I also began to think about float over/underflow
     - Now I'm thinking it might just make more sense to store all numbers as doubles
+- As it turns out, I'm still busy lol (and will be until midterms are over)
+- I did add errors for integer overlow in a new branch, but I'm holding off on merging it
+    - First I want to see how viable using only doubles for everything is
+    - If that doesn't go well, I'll tidy up the existing code
 
