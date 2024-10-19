@@ -423,3 +423,17 @@ Notes:
     - First I want to see how viable using only doubles for everything is
     - If that doesn't go well, I'll tidy up the existing code
 
+## October 19th, 2024
+
+Goals for today:
+
+- [x] See if it makes sense to store all numbers as doubles
+- [ ] Tidy up existing eval code
+- [ ] Allow longer variable names or add error for exceeding max length
+- [ ] Fix accidental closures (evaluation of function and variable definitions)
+
+Notes:
+
+- Midterms are over
+- I don't want to go the route of doubles only because it feels hacky and potentially causes a loss of precision
+
