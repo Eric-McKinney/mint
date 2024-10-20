@@ -372,6 +372,29 @@ static int check_float_limits(double v1, double v2, Operator_t op) {
     return 0;
 }
 
+static void interpret_limit_check(int check_result, int is_int) {
+    char i[] = "integer";
+    char d[] = "float";
+    char *type = (is_int ? i : d);
+
+    switch(check_result) {
+        case 1:
+            errno = ERANGE;
+            warnx("error: %s overflow detected", type);
+            return;
+        case 2:
+            errno = ERANGE;
+            warnx("error: %s underflow detected", type);
+            return;
+        case 0:
+            return;
+        default:
+            errno = EINVAL;
+            warnx("unexpected return value while checking %s limits for binop", type);
+            return;
+    }
+}
+
 static void eval_binop(ExprTree **t, Env_t *env) {
     ExprTree *tree = *t;
     ExprTree *v1, *v2, *v;
@@ -395,42 +418,20 @@ static void eval_binop(ExprTree **t, Env_t *env) {
     v->left = NULL;
     v->right = NULL;
 
+    if (v->expr == Float) {
+        if (v1_is_int) {
+            v1->value.d = (double) v1->value.i;
+        } else if (v2_is_int) {
+            v2->value.d = (double) v2->value.i;
+        }
+    }
+
     switch (v->expr) {
         case Int:
-            switch (check_int_limits(v1->value.i, v2->value.i, tree->value.binop)) {
-                case 1:
-                    errno = ERANGE;
-                    warnx("error: integer overflow detected");
-                    return;
-                case 2:
-                    errno = ERANGE;
-                    warnx("error: integer underflow detected");
-                    return;
-                case 0:
-                    break;
-                default:
-                    errno = EINVAL;
-                    warnx("unexpected return value while checking int limits for binop");
-                    return;
-            }
+            interpret_limit_check(check_int_limits(v1->value.i, v2->value.i, tree->value.binop), 1);
             break;
         case Float:
-            switch (check_float_limits(v1->value.d, v2->value.d, tree->value.binop)) {
-                case 1:
-                    errno = ERANGE;
-                    warnx("error: float overflow detected");
-                    return;
-                case 2:
-                    errno = ERANGE;
-                    warnx("error: float underflow detected");
-                    return;
-                case 0:
-                    break;
-                default:
-                    errno = EINVAL;
-                    warnx("unexpected return value while checking float limits for binop");
-                    return;
-            }
+            interpret_limit_check(check_float_limits(v1->value.d, v2->value.d, tree->value.binop), 0);
             break;
         default:
             errno = EINVAL;
@@ -443,13 +444,7 @@ static void eval_binop(ExprTree **t, Env_t *env) {
             if (v->expr == Int) {
                 v->value.i = v1->value.i + v2->value.i;
             } else {
-                if (v1_is_float && v2_is_int) {
-                    v->value.d = v1->value.d + v2->value.i;
-                } else if (v1_is_int && v2_is_float) {
-                    v->value.d = v1->value.i + v2->value.d;
-                } else {
-                    v->value.d = v1->value.d + v2->value.d;
-                }
+                v->value.d = v1->value.d + v2->value.d;
             }
 
             break;
@@ -457,13 +452,7 @@ static void eval_binop(ExprTree **t, Env_t *env) {
             if (v->expr == Int) {
                 v->value.i = v1->value.i - v2->value.i;
             } else {
-                if (v1_is_float && v2_is_int) {
-                    v->value.d = v1->value.d - v2->value.i;
-                } else if (v1_is_int && v2_is_float) {
-                    v->value.d = v1->value.i - v2->value.d;
-                } else {
-                    v->value.d = v1->value.d - v2->value.d;
-                }
+                v->value.d = v1->value.d - v2->value.d;
             }
 
             break;
@@ -471,18 +460,12 @@ static void eval_binop(ExprTree **t, Env_t *env) {
             if (v->expr == Int) {
                 v->value.i = v1->value.i * v2->value.i;
             } else {
-                if (v1_is_float && v2_is_int) {
-                    v->value.d = v1->value.d * v2->value.i;
-                } else if (v1_is_int && v2_is_float) {
-                    v->value.d = v1->value.i * v2->value.d;
-                } else {
-                    v->value.d = v1->value.d * v2->value.d;
-                }
+                v->value.d = v1->value.d * v2->value.d;
             }
 
             break;
         case Div:
-            if ((v2_is_int ? v2->value.i : v2->value.d) == 0) {
+            if ((v->expr == Int ? v2->value.i : v2->value.d) == 0) {
                 errno = EINVAL;
                 warnx("error: division by 0");
                 return;
@@ -496,32 +479,17 @@ static void eval_binop(ExprTree **t, Env_t *env) {
                     v->value.d = (double) v1->value.i / (double) v2->value.i;
                 }
             } else {
-                if (v1_is_float && v2_is_int) {
-                    v->value.d = v1->value.d / v2->value.i;
-                } else if (v1_is_int && v2_is_float) {
-                    v->value.d = v1->value.i / v2->value.d;
-                } else {
-                    v->value.d = v1->value.d / v2->value.d;
-                }
+                v->value.d = v1->value.d / v2->value.d;
             }
             
             break;
         case Exp:
-            if (v1_is_int) {
+            if (v->expr == Int) {
                 v1->value.d = (double) v1->value.i;
-                v1->expr = Float;
-            }
-
-            if (v2_is_int) {
                 v2->value.d = (double) v2->value.i;
-                v2->expr = Float;
-            }
 
-            if (v1_is_int && v2_is_int) {
-                v->expr = Int;
                 v->value.i = (long int) pow(v1->value.d, v2->value.d);
             } else {
-                v->expr = Float;
                 v->value.d = pow(v1->value.d, v2->value.d);
             }
 
