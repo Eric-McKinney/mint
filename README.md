@@ -21,16 +21,16 @@ mint|> pi = 3.14
 pi: 3.140000
 mint|> r = 5
 r: 5
-mint|> pi * r * r
+mint|> pi * r^2
 78.500000
-mint|> fn area(r) = pi*r*r
-area(r) = pi * r * r
+mint|> fn area(r) = pi*r^2
+area(r) = pi * r^2
 mint|> area(5)
 78.500000
 mint|> area(1)
 3.140000
 mint|> r
-r: 5
+5
 ```
 
 ## CFG
