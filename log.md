@@ -429,12 +429,14 @@ Goals for today:
 
 - [x] See if it makes sense to store all numbers as doubles
 - [x] Tidy up existing eval code
-- [ ] Allow longer variable names or add error for exceeding max length
-- [ ] Fix accidental closures (evaluation of function and variable definitions)
+- [ ] Allow longer variable names or add error for exceeding max length (deferred)
+- [ ] Fix accidental closures (evaluation of function and variable definitions) (deferred)
 
 Notes:
 
 - Midterms are over
 - I don't want to go the route of doubles only because it feels hacky and potentially causes a loss of precision
 - Much happier with eval code after tidying up eval\_binop (although it is still very long)
+- Despite my newfound free time I am still loafing around
+- Maybe I will make an effort to work on mint this week (big maybe though)
 
