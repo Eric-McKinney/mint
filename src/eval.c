@@ -204,16 +204,21 @@ char *env_to_str(Env_t *env) {
     return str;
 }
 
+static ExprTree *eval_expr(ExprTree **tree, Env_t *env, char in_fun);
 static void eval_fun(ExprTree **t, Env_t *env);
-static void eval_binop(ExprTree **t, Env_t *env);
+static void eval_binop(ExprTree **t, Env_t *env, char in_fun);
 static void eval_assign(ExprTree *tree, Env_t *env);
-static void eval_application(ExprTree **t, Env_t *env);
-static void eval_arguments(ExprTree **t, Env_t *env);
+static void eval_application(ExprTree **t, Env_t *env, char in_fun);
+static void eval_arguments(ExprTree **t, Env_t *env, char in_fun);
 static int push_params(ExprTree *params, Env_t *env);
 static int bind_args(ExprTree *args, ExprTree *params, Env_t *env);
 static void pop_params(ExprTree *params, int num_params, Env_t *env);
 
 ExprTree *eval(ExprTree **tree, Env_t *env) {
+    return eval_expr(tree, env, 0);
+}
+
+static ExprTree *eval_expr(ExprTree **tree, Env_t *env, char in_fun) {
     if (*tree == NULL) {
         return NULL;
     }
@@ -223,22 +228,25 @@ ExprTree *eval(ExprTree **tree, Env_t *env) {
         case Float:
             return *tree;
         case ID: {
-            ExprTree *value = lookup(env, (*tree)->value.id);
-            free_expr_tree(*tree);
-            *tree = value;
+            if (!in_fun) {
+                ExprTree *value = lookup(env, (*tree)->value.id);
+                free_expr_tree(*tree);
+                *tree = value;
+            }
+
             break;
         }
         case Fun:
             eval_fun(tree, env);
             break;
         case Binop:
-            eval_binop(tree, env);
+            eval_binop(tree, env, in_fun);
             break;
         case Assign:
             eval_assign(*tree, env);
             break;
         case Application:
-            eval_application(tree, env);
+            eval_application(tree, env, in_fun);
             break;
         case Argument:
             errno = EINVAL;
@@ -292,7 +300,7 @@ static void eval_fun(ExprTree **t, Env_t *env) {
     int num_params;
 
     num_params = push_params(tree->left, env);
-    eval(&(tree->right), env);
+    eval_expr(&(tree->right), env, 1);
 
     if (validate_params(tree->left, tree->value.id) == 0) {
         extend_env(env, tree->value.id, tree);
@@ -395,13 +403,13 @@ static void interpret_limit_check(int check_result, int is_int) {
     }
 }
 
-static void eval_binop(ExprTree **t, Env_t *env) {
+static void eval_binop(ExprTree **t, Env_t *env, char in_fun) {
     ExprTree *tree = *t;
     ExprTree *v1, *v2, *v;
     int can_simplify, v1_is_int, v1_is_float, v2_is_int, v2_is_float;
 
-    v1 = eval(&(tree->left), env);
-    v2 = eval(&(tree->right), env);
+    v1 = eval_expr(&(tree->left), env, in_fun);
+    v2 = eval_expr(&(tree->right), env, in_fun);
 
     v1_is_int = v1->expr == Int;
     v1_is_float = v1->expr == Float;
@@ -517,7 +525,7 @@ static void eval_assign(ExprTree *tree, Env_t *env) {
     }
 }
 
-static void eval_application(ExprTree **t, Env_t *env) {
+static void eval_application(ExprTree **t, Env_t *env, char in_fun) {
     ExprTree *tree = *t;
     ExprTree *fun = lookup(env, tree->left->value.id);
     ExprTree *params, *fun_body, *ret_val;
@@ -534,7 +542,7 @@ static void eval_application(ExprTree **t, Env_t *env) {
     params = fun->left;
     fun_body = fun->right;
 
-    eval_arguments(&(args), env);
+    eval_arguments(&(args), env, in_fun);
     num_params = push_params(params, env);
     num_args_bound = bind_args(args, params, env);
 
@@ -545,22 +553,27 @@ static void eval_application(ExprTree **t, Env_t *env) {
         return;
     }
 
+    if (in_fun) {
+        pop_params(params, num_params, env);
+        return;
+    }
+
     ret_val = eval(&fun_body, env);
     pop_params(params, num_params, env);
 
     free_expr_tree(tree);
 
-    fun->right = NULL;
+    fun->right = NULL;  /* fun->right is currently the ret_val & don't want to free it yet  */
     free_expr_tree(fun);
 
     *t = ret_val;
 }
 
-static void eval_arguments(ExprTree **t, Env_t *env) {
+static void eval_arguments(ExprTree **t, Env_t *env, char in_fun) {
     ExprTree *arg = *t;
 
     while (arg != NULL) {
-        eval(&(arg->left), env);
+        eval_expr(&(arg->left), env, in_fun);
         arg = arg->right;
     }
 }
