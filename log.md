@@ -440,3 +440,17 @@ Notes:
 - Despite my newfound free time I am still loafing around
 - Maybe I will make an effort to work on mint this week (big maybe though)
 
+## October 24th, 2024
+
+Goals for today:
+
+- [ ] Fix accidental closures
+- [ ] If there's time replace "MAX\_LENGTH" type macros with a way to allow indefinite length values to be printed
+    - (i.e. IDs and numbers)
+
+Notes:
+
+- As it would turn out, it was a big maybe that I would make an effort this week lol
+- Hopefully I can get some solid work in today, but I don't expect too much
+- Same goes for tomorrow and this weekend, but realistically I'm busy doing stuff with friends
+
