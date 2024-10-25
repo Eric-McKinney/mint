@@ -228,10 +228,13 @@ static ExprTree *eval_expr(ExprTree **tree, Env_t *env, char in_fun) {
         case Float:
             return *tree;
         case ID: {
+            ExprTree *value = lookup(env, (*tree)->value.id);
+
             if (!in_fun) {
-                ExprTree *value = lookup(env, (*tree)->value.id);
                 free_expr_tree(*tree);
                 *tree = value;
+            } else {
+                free(value);
             }
 
             break;
