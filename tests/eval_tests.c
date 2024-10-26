@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
             }
         },
         {
-            "lexer->parser->function application",
+            "function application",
             {"f(42, 0.01)", {"f", NULL}, {"fn f(x, y) = x * y - 0.123456", NULL}},
             {
                 "(Float 0.296544)",
@@ -78,13 +78,12 @@ int main(int argc, char **argv) {
             }
         },
         {
-            "lexer->parser->reassign",
+            "reassign",
             {"num = num + 1", {"num", NULL}, {"42", NULL}},
             {"(Assign(ID num)(Int 43))", "[(num : (Int 43))]", NOERR}
         },
-        /* fn area(r) = 3.14 * r*r */
         {
-            "lexer->parser->fn defn",
+            "function defn w/shadowed variable",
             {"fn area(r) = 3.14 * r*r", {"r", NULL}, {"4", NULL}},
             {
                 "(Fun area (Param(ID r)())(Mult(Mult(Float 3.140000)(ID r))(ID r)))",
@@ -92,15 +91,15 @@ int main(int argc, char **argv) {
                 NOERR
             }
         },
-        {"lexer->parser->parens arithmetic", {"4 + 3 * (2 - 3)", {NULL}, {NULL}}, {"(Int 1)", "[]", NOERR}},
+        {"parens arithmetic", {"4 + 3 * (2 - 3)", {NULL}, {NULL}}, {"(Int 1)", "[]", NOERR}},
         {
-            "lexer->parser->self reassign",
+            "self reassign",
             {"var=2*(var+1)/12", {"var", NULL}, {"11", NULL}},
             {"(Assign(ID var)(Int 2))", "[(var : (Int 2))]", NOERR}
         },
-        {"lexer->parser->simple exponent", {"2^3", {NULL}, {NULL}}, {"(Int 8)", "[]", NOERR}},
+        {"simple exponent", {"2^3", {NULL}, {NULL}}, {"(Int 8)", "[]", NOERR}},
         {
-            "lexer->parser->complicated exponent",
+            "complicated exponent",
             {"(4*2)^(f(23 - 2)^3)", {"f", NULL}, {"fn f(x) = x - 21", NULL}},
             {
                 "(Int 1)",
@@ -108,11 +107,11 @@ int main(int argc, char **argv) {
                 NOERR
             }
         },
-        {"lexer->parser->float exponent", {"64^0.5", {NULL}, {NULL}}, {"(Float 8.000000)", "[]", NOERR}},
-        {"lexer->parser->lone variable", {"x", {"x", NULL}, {"5", NULL}}, {"(Int 5)", "[(x : (Int 5))]", NOERR}},
-        {"lexer->parser->undefined variable", {"x", {NULL}, {NULL}}, {"()", "[]", EINVAL}},
+        {"float exponent", {"64^0.5", {NULL}, {NULL}}, {"(Float 8.000000)", "[]", NOERR}},
+        {"lone variable", {"x", {"x", NULL}, {"5", NULL}}, {"(Int 5)", "[(x : (Int 5))]", NOERR}},
+        {"lone undefined variable", {"x", {NULL}, {NULL}}, {"()", "[]", EINVAL}},
         {
-            "lexer->parser->expression w/undefined variable",
+            "expression w/undefined variable",
             {"3 - 2*x - y", {"x", NULL}, {"3", NULL}},
             {"(Sub(Int -3)())", "[(x : (Int 3))]", EINVAL}
         }
