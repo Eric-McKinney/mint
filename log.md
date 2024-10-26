@@ -473,4 +473,7 @@ Notes:
     - May lead to finding more bugs to fix too
     - Also there's not much merit in testing just eval because it will never be used on its own in practice
     - Also also the lexer and parser tests should weed out most of the bugs related to their parts, so it not as bad
+- Pretty hard to test for the closure fix since it involves evaluating several expressions in the same env
+    - I did test manually of course, but it would be better to have automated tests
+    - For now I'll let it slide
 
