@@ -414,6 +414,10 @@ static void eval_binop(ExprTree **t, Env_t *env, char in_fun) {
     v1 = eval_expr(&(tree->left), env, in_fun);
     v2 = eval_expr(&(tree->right), env, in_fun);
 
+    if (v1 == NULL || v2 == NULL) {
+        return;
+    }
+
     v1_is_int = v1->expr == Int;
     v1_is_float = v1->expr == Float;
     v2_is_int = v2->expr == Int;
