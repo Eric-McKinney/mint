@@ -444,13 +444,33 @@ Notes:
 
 Goals for today:
 
-- [ ] Fix accidental closures
-- [ ] If there's time replace "MAX\_LENGTH" type macros with a way to allow indefinite length values to be printed
+- [x] Fix accidental closures
+- [x] Add check for error correctness in eval tests
+- [x] If there's time replace "MAX\_LENGTH" type macros with a way to allow indefinite length values to be printed
     - (i.e. IDs and numbers)
+    - There was not time lol
 
 Notes:
 
 - As it would turn out, it was a big maybe that I would make an effort this week lol
 - Hopefully I can get some solid work in today, but I don't expect too much
 - Same goes for tomorrow and this weekend, but realistically I'm busy doing stuff with friends
+- Fixed accidental closures, but want to add tests for them before merging
+
+## October 26th, 2024
+
+Goals for today:
+
+- [x] Rework eval test infrastructure
+- [ ] Merge accidental closure fix
+
+Notes:
+
+- The eval tests are kinda sad and poorly structured, so I redid them
+    - The old format was mostly to allow for custom-built input trees to test only eval stuff
+    - In reality it was clunky and took up a lot of space
+    - Sending everything through the lexer and parser is just simpler and harder to screw up on the testing side
+    - May lead to finding more bugs to fix too
+    - Also there's not much merit in testing just eval because it will never be used on its own in practice
+    - Also also the lexer and parser tests should weed out most of the bugs related to their parts, so it not as bad
 
