@@ -114,6 +114,11 @@ int main(int argc, char **argv) {
             "expression w/undefined variable",
             {"3 - 2*x - y", {"x", NULL}, {"3", NULL}},
             {"(Sub(Int -3)())", "[(x : (Int 3))]", EINVAL}
+        },
+        {
+            "function defn w/undefined variable",
+            {"fn f(x) = x - y", {NULL}, {NULL}},
+            {"(Fun f (Param(ID x)())(Sub(ID x)(ID y)))", "[]", EINVAL}
         }
     };
     int num_tests = sizeof(tests) / sizeof(Test), num_passed, suite_result;
