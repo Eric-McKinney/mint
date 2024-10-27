@@ -462,7 +462,7 @@ Notes:
 Goals for today:
 
 - [x] Rework eval test infrastructure
-- [ ] Merge accidental closure fix
+- [x] Merge accidental closure fix
 
 Notes:
 
@@ -476,4 +476,11 @@ Notes:
 - Pretty hard to test for the closure fix since it involves evaluating several expressions in the same env
     - I did test manually of course, but it would be better to have automated tests
     - For now I'll let it slide
+
+## October 27th, 2024
+
+Goals for today:
+
+- [ ] Add errors for functions with no params and params w/same name as function
+- [ ] Add tests for the above fixes
 
