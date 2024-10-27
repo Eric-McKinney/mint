@@ -278,6 +278,12 @@ static int validate_params(ExprTree *params, const char *fun_id) {
     while (params != NULL) {
         p[i] = params->left->value.id;
 
+        if (strcmp(p[i], fun_id) == 0) {
+            errno = EINVAL;
+            warnx("Invalid parameter \"%s\" copies function name", p[i]);
+            return -1;
+        }
+
         for (j = 0; j < i; j++) {
             if (strcmp(p[j], p[i]) == 0) {
                 errno = EINVAL;
