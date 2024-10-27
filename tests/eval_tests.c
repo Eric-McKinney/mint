@@ -119,6 +119,11 @@ int main(int argc, char **argv) {
             "function defn w/undefined variable",
             {"fn f(x) = x - y", {NULL}, {NULL}},
             {"(Fun f (Param(ID x)())(Sub(ID x)(ID y)))", "[]", EINVAL}
+        },
+        {
+            "function defn w/param same as function name",
+            {"fn f(f) = 5*f", {NULL}, {NULL}},
+            {"(Fun f (Param(ID f)())(Mult(Int 5)(ID f)))", "[]", EINVAL}
         }
     };
     int num_tests = sizeof(tests) / sizeof(Test), num_passed, suite_result;
