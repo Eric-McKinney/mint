@@ -481,6 +481,10 @@ Notes:
 
 Goals for today:
 
-- [ ] Add errors for functions with no params and params w/same name as function
-- [ ] Add tests for the above fixes
+- [x] Add errors for functions with no params and params w/same name as function
+- [ ] Add tests for the above fixes (halfway done)
+
+Notes:
+
+- Gonna need to redo the parser tests like I did for eval so I can test for errors (tomorrow or whenever I get to it)
 
