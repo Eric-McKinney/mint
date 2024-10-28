@@ -25,7 +25,7 @@ static TokenList *match_token(TokenList *tok_l, Tok_t tok) {
     arg = token_to_str(tok_l);
 
     errno = EINVAL;
-    warn("parser: Expected %s from input %s, got %s\n", expected, input, arg);
+    warnx("error: Expected %s from input %s, got %s\n", expected, input, arg);
     
     free(expected);
     free(input);
@@ -129,6 +129,11 @@ static ExprTree *parse_function_expr(TokenList *tok_l, TokenList **out_tl) {
 
     param_expr = parse_parameter_expr(t3, &t4);
 
+    if (errno != 0) {
+        free_expr_tree(param_expr);
+        return NULL;
+    }
+
     t5 = match_token(t4, TOK_RPAREN);
     t6 = match_token(t5, TOK_EQUAL);
 
@@ -157,7 +162,12 @@ static ExprTree *parse_parameter_expr(TokenList *tok_l, TokenList **out_tl) {
 
     id_expr = parse_primary_expr(tok_l, &t);
 
-    if (t->token == TOK_COMMA) {
+    if (errno != 0) {
+        free_expr_tree(id_expr);
+        return NULL;
+    }
+
+    if (t != NULL && t->token == TOK_COMMA) {
         t2 = match_token(t, TOK_COMMA);
         param_expr = parse_parameter_expr(t2, &t3);
 
@@ -375,7 +385,14 @@ static ExprTree *parse_arg_expr(TokenList *tok_l, TokenList **out_tl) {
 
     add_expr = parse_additive_expr(tok_l, &t);
 
-    if (t->token == TOK_COMMA) {
+    if (errno != 0) {
+        free_expr_tree(add_expr);
+
+        *out_tl = NULL;
+        return NULL;
+    }
+
+    if (t != NULL && t->token == TOK_COMMA) {
         t2 = match_token(t, TOK_COMMA);
         arg_expr = parse_arg_expr(t2, &t3);
         
@@ -404,6 +421,14 @@ static ExprTree *parse_primary_expr(TokenList *tok_l, TokenList **out_tl) {
     char *id, *id_cpy;
 
     if (errno != 0) {
+        return NULL;
+    }
+
+    if (tok_l == NULL) {
+        errno = EINVAL;
+        warnx("Input ended before expected");
+
+        *out_tl = NULL;
         return NULL;
     }
 
@@ -447,6 +472,7 @@ static ExprTree *parse_primary_expr(TokenList *tok_l, TokenList **out_tl) {
             errno = EINVAL;
             warn("parser: unrecognized primary expression with remaining tokens:\n%s\n", tl_str);
             free(tl_str);
+
             *out_tl = NULL;
             return NULL;
         }
