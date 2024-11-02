@@ -488,3 +488,10 @@ Notes:
 
 - Gonna need to redo the parser tests like I did for eval so I can test for errors (tomorrow or whenever I get to it)
 
+## November 2nd, 2024
+
+Goals for today:
+
+- [ ] Rewrite parser test infrastructure
+- [ ] Add tests for error when functions or function applications have no params
+
