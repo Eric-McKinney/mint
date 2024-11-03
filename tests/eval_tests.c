@@ -11,7 +11,6 @@
 #include "test.h"
 
 #define MAX_TEST_ENV_SIZE 5
-#define NOERR 0
 
 typedef struct {
     ExprTree *tree;
@@ -140,9 +139,7 @@ int main(int argc, char **argv) {
     printf(C_SUITE_NAME("eval tests") "\n");
     printf("|\n");
 
-    compile_regexs();
     num_passed = run_all_tests(tests, num_tests);
-    free_regexs();
     suite_result = num_passed == num_tests ? SUCCESS : FAILURE;
 
     printf("|\n| Ran (%d/%d) tests successfully\n", num_passed, num_tests);
@@ -223,16 +220,17 @@ static int run_test(const Test *test) {
     after_env_str = env_to_str(input->env);
 
     if (verbose) {
-        printf("| input: %s\n", input_str);
-        printf("|--------------------\n");
+        printf("| raw string input:      %s\n", test->raw_input.expr_str);
+        printf("| expression tree input: %s\n", input_str);
+        printf(SMALL_SEP);
         printf("| env (before eval): %s\n", before_env_str);
         printf("| env (after eval):  %s\n", after_env_str);
         printf("| expected env:      %s\n", test->ans.env);
-        printf("|--------------------\n");
+        printf(SMALL_SEP);
         printf("| errno (before eval): %d\n", errno_before);
         printf("| errno (after eval):  %d\n", errno);
         printf("| expected errno:      %d\n", test->ans.err);
-        printf("|--------------------\n");
+        printf(SMALL_SEP);
         printf("| eval return val: %p\n", (void *) tree);
         printf("| evaluated tree:  %s\n", tree_str);
         printf("| expected tree:   %s\n", test->ans.tree);
@@ -276,11 +274,14 @@ static Input *create_input(const Raw_Input *raw_input) {
     const char * const *env_ids = raw_input->env_ids;
     const char * const *env_raw_vals = raw_input->env_raw_vals;
     Input *input = malloc(sizeof(Input));
-    TokenList *tok_l = tokenize(raw_input->expr_str);
-    ExprTree *tree = parse(tok_l);
+    TokenList *tok_l;
+    ExprTree *tree;
     Env_t *env = init_env();
     int i = 0;
 
+    compile_regexs();
+    tok_l = tokenize(raw_input->expr_str);
+    tree = parse(tok_l);
     free_token_list(tok_l);
 
     while (env_raw_vals[i] != NULL && env_ids[i] != NULL) {
@@ -292,6 +293,8 @@ static Input *create_input(const Raw_Input *raw_input) {
         free_token_list(e_tok_l);
         i++;
     }
+
+    free_regexs();
 
     input->tree = tree;
     input->env = env;
