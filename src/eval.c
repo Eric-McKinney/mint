@@ -234,7 +234,7 @@ static ExprTree *eval_expr(ExprTree **tree, Env_t *env, char in_fun) {
                 free_expr_tree(*tree);
                 *tree = value;
             } else {
-                free(value);
+                free_expr_tree(value);
             }
 
             break;
