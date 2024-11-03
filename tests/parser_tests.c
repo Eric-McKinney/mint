@@ -69,7 +69,9 @@ int main(int argc, char **argv) {
             {"(Exp(Mult(Int 4)(Int 2))(Exp(App(ID f)(Arg(Sub(Int 23)(Int 2))()))(Int 3)))", NOERR}
         },
         {"comment", "# a comment", {"()", NOERR}},
-        {"math + comment", "1 + 1 # a comment", {"(Add(Int 1)(Int 1))", NOERR}}
+        {"math + comment", "1 + 1 # a comment", {"(Add(Int 1)(Int 1))", NOERR}},
+        {"function definition w/no params", "fn f() = 4", {"()", EINVAL}},
+        {"function application w/no args", "f()", {"(App(ID f)())", EINVAL}}
     };
     int num_tests = sizeof(tests) / sizeof(Test), num_passed;
 
