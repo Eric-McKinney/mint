@@ -130,6 +130,7 @@ static ExprTree *parse_function_expr(TokenList *tok_l, TokenList **out_tl) {
     param_expr = parse_parameter_expr(t3, &t4);
 
     if (errno != 0) {
+        free(id_cpy);
         free_expr_tree(param_expr);
         return NULL;
     }
