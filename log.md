@@ -492,6 +492,14 @@ Notes:
 
 Goals for today:
 
-- [ ] Rewrite parser test infrastructure
-- [ ] Add tests for error when functions or function applications have no params
+- [x] Rewrite parser test infrastructure
+- [x] Add tests for error when functions or function applications have no params
+
+Notes:
+
+- Felt good to clean up parser tests like that
+- I should probably get around to doing the same with the lexer tests
+- I also need to add more error test cases for the parser
+    - There are sooooooo many possible malformed inputs
+    - I also want to check that there are no memory leaks
 
