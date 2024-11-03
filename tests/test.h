@@ -11,11 +11,13 @@
 /* test outputs */
 #define SUCCESS 0
 #define FAILURE 1
+#define NOERR 0
 #define PASSED GREEN "PASSED" END_COLOR
 #define FAILED RED "FAILED" END_COLOR
 
-/* separator */
+/* separators */
 #define SEP "|------------------------------------------------------------|\n"
+#define SMALL_SEP "|--------------------\n"
 
 /* color formatting macros */
 #define C_SUITE_NAME(x) BLUE_HL x END_COLOR
