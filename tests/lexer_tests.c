@@ -48,7 +48,10 @@ int main(int argc, char **argv) {
             "fn f(a, b) = a + b", 
             {"[TOK_FUN, TOK_ID f, TOK_LPAREN, TOK_ID a, TOK_COMMA, TOK_ID b, TOK_RPAREN, TOK_EQUAL, TOK_ID a,"
              " TOK_ADD, TOK_ID b]", NOERR}
-        }
+        },
+        {"unrecognized token", "&", {"[]", EINVAL}},
+        {"unrecognized tokens", "~&`", {"[]", EINVAL}},
+        {"unrecognized recognized combo", "123 - &4", {"[TOK_INT 123, TOK_SUB]", EINVAL}}
     };
     int num_tests = sizeof(tests) / sizeof(Test), num_passed;
 
