@@ -46,7 +46,8 @@ int main(int argc, char **argv) {
         {
             "function",
             "fn f(a, b) = a + b", 
-            {"[TOK_FUN, TOK_ID f, TOK_LPAREN, TOK_ID a, TOK_COMMA, TOK_ID b, TOK_RPAREN, TOK_EQUAL, TOK_ID a, TOK_ADD, TOK_ID b]", NOERR}
+            {"[TOK_FUN, TOK_ID f, TOK_LPAREN, TOK_ID a, TOK_COMMA, TOK_ID b, TOK_RPAREN, TOK_EQUAL, TOK_ID a,"
+             " TOK_ADD, TOK_ID b]", NOERR}
         }
     };
     int num_tests = sizeof(tests) / sizeof(Test), num_passed;
