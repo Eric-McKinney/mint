@@ -503,3 +503,14 @@ Notes:
     - There are sooooooo many possible malformed inputs
     - I also want to check that there are no memory leaks
 
+## November 8th, 2024
+
+Goals for today:
+
+- [ ] Rewrite lexer test infrastructure
+- [ ] Add some error test cases for lexer
+- [ ] Add more error test cases for parser
+    - Ending input early
+    - Missing operands
+    - Missing operators
+
