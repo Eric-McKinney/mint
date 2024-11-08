@@ -153,13 +153,12 @@ static TokenList *tok(const char *input, unsigned int pos, unsigned int length) 
         t = malloc(sizeof(TokenList));
         t->token = TOK_COMMA;
         t->next = tok(input, pos + 1, length);
+        return t;
     } else {
         errno = EINVAL;
-        warn("Invalid token starting with \"%c\" at position %u", str[pos], pos);
+        warnx("error: Invalid token starting with \"%c\" at index %u", str[0], pos);
         return NULL;
     }
-    
-    return t;
 }
 
 void compile_regexs() {
