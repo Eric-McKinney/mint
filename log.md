@@ -507,8 +507,8 @@ Notes:
 
 Goals for today:
 
-- [ ] Rewrite lexer test infrastructure
-- [ ] Add some error test cases for lexer
+- [x] Rewrite lexer test infrastructure
+- [x] Add some error test cases for lexer
 - [ ] Add more error test cases for parser
     - Ending input early
     - Missing operands
