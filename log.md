@@ -518,5 +518,10 @@ Goals for today:
 
 Goals for today:
 
-- [ ] Add more error tests (see previous entry)
+- [x] Add more error tests (see previous entry)
+- [ ] Add functions to lexer.c for converting tokens to strings with just their values
+
+Notes:
+
+- Could make do with even more parser tests tbh (there's a lot of possible malformed inputs)
 
