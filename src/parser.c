@@ -68,11 +68,19 @@ static ExprTree *parse_input(TokenList *tok_l, TokenList **out_tl) {
         t = tok_l;
     }
 
-    if (tok_l->token == TOK_COMMENT) {
+    if (t != NULL && t->token == TOK_COMMENT) {
         t = match_token(t, TOK_COMMENT);
     }
 
-    *out_tl = t;
+    if (errno == 0 && t != NULL) {
+        char *tok_l_str = token_list_to_str(t);
+
+        errno = EINVAL;
+        warnx("error: parsing ended early with remaining tokens: %s", tok_l_str);
+
+        free(tok_l_str);
+    }
+    
     return expr;
 }
 
@@ -121,6 +129,11 @@ static ExprTree *parse_function_expr(TokenList *tok_l, TokenList **out_tl) {
     t = match_token(tok_l, TOK_FUN);
     t2 = match_token(t, TOK_ID);
 
+    if (errno != 0) {
+        *out_tl = NULL;
+        return NULL;
+    }
+
     id = t->value.id;
     id_cpy = malloc(strlen(id) + 1);
     strcpy(id_cpy, id);
@@ -158,6 +171,17 @@ static ExprTree *parse_parameter_expr(TokenList *tok_l, TokenList **out_tl) {
     ExprTree *parameter_expr, *param_expr, *id_expr;
 
     if (errno != 0) {
+        return NULL;
+    }
+
+    if (tok_l != NULL && tok_l->token != TOK_ID) {
+        char *tok_str = token_to_str(tok_l);
+
+        errno = EINVAL;
+        warnx("error: malformed parameter \"%s\"", tok_str);
+
+        free(tok_str);
+        *out_tl = NULL;
         return NULL;
     }
 
@@ -328,6 +352,14 @@ static ExprTree *parse_application_expr(TokenList *tok_l, TokenList **out_tl) {
     ExprTree *application_expr, *primary_expr, *id_expr, *arg_expr;
 
     if (errno != 0) {
+        return NULL;
+    }
+
+    if (tok_l == NULL) {
+        errno = EINVAL;
+        warnx("error: incomplete expression");
+
+        *out_tl = NULL;
         return NULL;
     }
 
