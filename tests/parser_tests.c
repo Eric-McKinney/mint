@@ -71,7 +71,13 @@ int main(int argc, char **argv) {
         {"comment", "# a comment", {"()", NOERR}},
         {"math + comment", "1 + 1 # a comment", {"(Add(Int 1)(Int 1))", NOERR}},
         {"function definition w/no params", "fn f() = 4", {"()", EINVAL}},
-        {"function application w/no args", "f()", {"(App(ID f)())", EINVAL}}
+        {"function application w/no args", "f()", {"(App(ID f)())", EINVAL}},
+        {"addition missing first operand", "+ 2", {"()", EINVAL}},
+        {"addition missing second operand", "1 +", {"(Add(Int 1)())", EINVAL}},
+        {"missing operator", "2 3", {"(Int 2)", EINVAL}},
+        {"improper assign", "4 = 5", {"(Int 4)", EINVAL}},
+        {"improper function defn", "fn 3(x) = 34", {"()", EINVAL}},
+        {"improper function param", "fn f(3) = 3 + 4", {"()", EINVAL}}
     };
     int num_tests = sizeof(tests) / sizeof(Test), num_passed;
 
