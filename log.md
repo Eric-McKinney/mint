@@ -509,8 +509,14 @@ Goals for today:
 
 - [x] Rewrite lexer test infrastructure
 - [x] Add some error test cases for lexer
-- [ ] Add more error test cases for parser
+- [ ] Add more error test cases for parser (deferred)
     - Ending input early
     - Missing operands
     - Missing operators
+
+## November 11th, 2024
+
+Goals for today:
+
+- [ ] Add more error tests (see previous entry)
 
