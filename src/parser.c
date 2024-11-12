@@ -11,21 +11,38 @@
 #define MAX_NODE_STR_LEN MAX_NODE_LEN + MAX_NODE_VAL_LEN
 
 static TokenList *match_token(TokenList *tok_l, Tok_t tok) {
-    TokenList expected_token = {0}; /* only for token_to_str call below */
     char *expected, *input, *arg;
     
+    if (errno != 0) {
+        return NULL;
+    }
     if (tok_l != NULL && tok_l->token == tok) {
         return tok_l->next;
     }
 
-    expected_token.token = tok;
+    switch (tok) {
+        case TOK_ID:
+            expected = malloc(6);
+            strcpy(expected, "an ID");
+            break;
+        case TOK_INT:
+        case TOK_FLOAT:
+            expected = malloc(9);
+            strcpy(expected, "a number");
+            break;
+        default: {
+            TokenList t = {0};
+            t.token = tok;
 
-    expected = token_to_str(&expected_token);
-    input = token_list_to_str(tok_l);
-    arg = token_to_str(tok_l);
+            expected = token_value_to_str(&t);
+        }
+    }
+
+    input = token_values_to_str(tok_l);
+    arg = token_value_to_str(tok_l);
 
     errno = EINVAL;
-    warnx("error: Expected %s from input %s, got %s\n", expected, input, arg);
+    warnx("error: expected %s from input \"%s\", but got \"%s\" instead", expected, input, arg);
     
     free(expected);
     free(input);
@@ -73,10 +90,10 @@ static ExprTree *parse_input(TokenList *tok_l, TokenList **out_tl) {
     }
 
     if (errno == 0 && t != NULL) {
-        char *tok_l_str = token_list_to_str(t);
+        char *tok_l_str = token_values_to_str(t);
 
         errno = EINVAL;
-        warnx("error: parsing ended early with remaining tokens: %s", tok_l_str);
+        warnx("error: parsing ended early with remaining tokens: \"%s\"", tok_l_str);
 
         free(tok_l_str);
     }
@@ -175,7 +192,7 @@ static ExprTree *parse_parameter_expr(TokenList *tok_l, TokenList **out_tl) {
     }
 
     if (tok_l != NULL && tok_l->token != TOK_ID) {
-        char *tok_str = token_to_str(tok_l);
+        char *tok_str = token_value_to_str(tok_l);
 
         errno = EINVAL;
         warnx("error: malformed parameter \"%s\"", tok_str);
@@ -367,7 +384,7 @@ static ExprTree *parse_application_expr(TokenList *tok_l, TokenList **out_tl) {
         case TOK_ID:
             #pragma GCC diagnostic push
             #pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
-            /* The above is to ignore a warning for implicit fall through caused by this case */
+            /* ignoring warning because IDs can mean fn application (so break) or just a variable (so fallthrough) */
             if (tok_l->next != NULL && tok_l->next->token == TOK_LPAREN) {
                 break;
             }
@@ -380,11 +397,12 @@ static ExprTree *parse_application_expr(TokenList *tok_l, TokenList **out_tl) {
             *out_tl = t;
             return primary_expr;
         default: {
-            /* TODO: Consider printing original input str (convert back) instead of token list */
-            char *tl_str = token_list_to_str(tok_l);
+            char *tok_l_str = token_values_to_str(tok_l);
+
             errno = EINVAL;
-            warn("parser: failed to find primary expression with remaining tokens:\n%s", tl_str);
-            free(tl_str);
+            warnx("error: failed to find ID or number with remaining input: \"%s\"", tok_l_str);
+            free(tok_l_str);
+
             *out_tl = NULL;
             return NULL;
         }
@@ -459,7 +477,7 @@ static ExprTree *parse_primary_expr(TokenList *tok_l, TokenList **out_tl) {
 
     if (tok_l == NULL) {
         errno = EINVAL;
-        warnx("Input ended before expected");
+        warnx("error: input ended before expected");
 
         *out_tl = NULL;
         return NULL;
@@ -499,12 +517,12 @@ static ExprTree *parse_primary_expr(TokenList *tok_l, TokenList **out_tl) {
             *out_tl = t3;
             return add_expr;
         default: {
-            char *tl_str = token_list_to_str(tok_l);
+            char *tok_l_str = token_values_to_str(tok_l);
             free(p_expr);
 
             errno = EINVAL;
-            warn("parser: unrecognized primary expression with remaining tokens:\n%s\n", tl_str);
-            free(tl_str);
+            warnx("error: unrecognized primary expression with remaining tokens:\"%s\"", tok_l_str);
+            free(tok_l_str);
 
             *out_tl = NULL;
             return NULL;
