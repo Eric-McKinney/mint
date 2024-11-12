@@ -109,7 +109,7 @@ static ExprTree *lookup(Env_t *env, const char *id) {
         return copy_expr_tree(e->data);
     } else {
         errno = EINVAL;
-        warnx("error: Unbound identifier: %s\n", id);
+        warnx("error: unbound identifier: %s\n", id);
         return NULL;
     }
 }
@@ -137,7 +137,7 @@ static void shrink_env(Env_t *env, const char *id, int qty) {
 
     if (e == NULL) {
         errno = EINVAL;
-        warnx("error: Failed to shrink environment: cannot find identifier %s\n", id);
+        warnx("error: couldn't find identifier %s when attempting to shrink environment\n", id);
         return;
     }
 
@@ -253,16 +253,16 @@ static ExprTree *eval_expr(ExprTree **tree, Env_t *env, char in_fun) {
             break;
         case Argument:
             errno = EINVAL;
-            warnx("error: Argument expression outside of function application\n");
+            warnx("error: argument expression outside of function application\n");
             return NULL;
         case Parameter:
             errno = EINVAL;
-            warnx("error: Parameter expression outside of function definition\n");
+            warnx("error: parameter expression outside of function definition\n");
             return NULL;
         default: {
             char *expr_str = expr_tree_to_str(*tree);
             errno = EINVAL;
-            warnx("error: Failed to evaluate unrecognized expression: %s\n", expr_str);
+            warnx("error: failed to evaluate unrecognized expression: %s\n", expr_str);
             free(expr_str);
             return NULL;
         }
@@ -280,14 +280,14 @@ static int validate_params(ExprTree *params, const char *fun_id) {
 
         if (strcmp(p[i], fun_id) == 0) {
             errno = EINVAL;
-            warnx("Invalid parameter \"%s\" copies function name", p[i]);
+            warnx("error: parameter %s copies function name", p[i]);
             return -1;
         }
 
         for (j = 0; j < i; j++) {
             if (strcmp(p[j], p[i]) == 0) {
                 errno = EINVAL;
-                warnx("Duplicate parameter \"%s\" in %s\n", p[i], fun_id);
+                warnx("error: duplicate parameter %s in definition of function %s\n", p[i], fun_id);
                 dupes++;
                 break;
             }
@@ -407,7 +407,7 @@ static void interpret_limit_check(int check_result, int is_int) {
             return;
         default:
             errno = EINVAL;
-            warnx("unexpected return value while checking %s limits for binop", type);
+            warnx("error: unexpected return value while checking %s limits for binop", type);
             return;
     }
 }
@@ -456,7 +456,7 @@ static void eval_binop(ExprTree **t, Env_t *env, char in_fun) {
             break;
         default:
             errno = EINVAL;
-            warnx("unexpected expression type while checking for over/underflow");
+            warnx("error: unexpected expression type while checking for over/underflow");
             return;
     }
 
@@ -518,7 +518,7 @@ static void eval_binop(ExprTree **t, Env_t *env, char in_fun) {
         default: {
             char *expr_str = expr_tree_to_str(tree);
             errno = EINVAL;
-            warnx("error: Failed to evaluate unrecognized binary operator expression: %s\n", expr_str);
+            warnx("error: failed to evaluate unrecognized binary operator expression: %s\n", expr_str);
             free(expr_str);
             return;
         }
@@ -561,7 +561,7 @@ static void eval_application(ExprTree **t, Env_t *env, char in_fun) {
 
     if (num_params != num_args_bound) {
         errno = EINVAL;
-        warnx("In application of %s: received %d arguments, expected %d\n", fun->value.id, num_args_bound, num_params);
+        warnx("error: in application of %s, received %d arguments but expected %d\n", fun->value.id, num_args_bound, num_params);
         pop_params(params, num_params, env);
         return;
     }
