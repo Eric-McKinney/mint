@@ -519,9 +519,16 @@ Goals for today:
 Goals for today:
 
 - [x] Add more error tests (see previous entry)
-- [ ] Add functions to lexer.c for converting tokens to strings with just their values
+- [ ] Add functions to lexer.c for converting tokens to strings with just their values (deferred)
 
 Notes:
 
 - Could make do with even more parser tests tbh (there's a lot of possible malformed inputs)
+
+## November 12th, 2024
+
+Goals for today:
+
+- [ ] Add functions to lexer.c for converting tokens to strings with just their values
+- [ ] Switch some error messages to use these ^ new functions
 
