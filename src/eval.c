@@ -109,7 +109,7 @@ static ExprTree *lookup(Env_t *env, const char *id) {
         return copy_expr_tree(e->data);
     } else {
         errno = EINVAL;
-        warnx("error: unbound identifier: %s\n", id);
+        warnx("error: unbound identifier: %s", id);
         return NULL;
     }
 }
