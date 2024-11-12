@@ -216,7 +216,7 @@ void free_token_list(TokenList *tok_l) {
     free_token(tok_l);
 }
 
-static int count_tokens(TokenList *tok_l) {
+static int count_tokens(const TokenList *tok_l) {
     int num_tok = 0;
 
     while (tok_l != NULL) {
@@ -227,13 +227,13 @@ static int count_tokens(TokenList *tok_l) {
     return num_tok;
 }
 
-void print_token_list(TokenList *tok_l) {
+void print_token_list(const TokenList *tok_l) {
     char *tok_l_str = token_list_to_str(tok_l);
     printf("%s\n", tok_l_str);
     free(tok_l_str);
 }
 
-char *token_to_str(TokenList *tok_l) {
+char *token_to_str(const TokenList *tok_l) {
     char *str = malloc(MAX_TOK_STR_LEN + 1);
     char s[MAX_TOK_VAL_LEN] = {0};
 
@@ -298,7 +298,7 @@ char *token_to_str(TokenList *tok_l) {
     return str;
 }
 
-char *token_list_to_str(TokenList *tok_l) {
+char *token_list_to_str(const TokenList *tok_l) {
     char *str;
     int num_tok = count_tokens(tok_l);
 
@@ -320,5 +320,89 @@ char *token_list_to_str(TokenList *tok_l) {
     }
 
     strcat(str, "]");
+    return str;
+}
+
+char *token_value_to_str(const TokenList *tok_l) {
+    char *str, s[MAX_TOK_VAL_LEN] = {0};
+
+    if (tok_l == NULL) {
+        return calloc(1,1);
+    }
+
+    str = malloc(MAX_TOK_STR_LEN + 1);
+
+    switch (tok_l->token) {
+        case TOK_ADD:
+            strcpy(str, " + ");
+            break;
+        case TOK_COMMA:
+            strcpy(str, ", ");
+            break;
+        case TOK_COMMENT:
+            str[0] = '\0';
+            break;
+        case TOK_DIV:
+            strcpy(str, " / ");
+            break;
+        case TOK_DOT:
+            strcpy(str, ".");
+            break;
+        case TOK_EQUAL:
+            strcpy(str, " = ");
+            break;
+        case TOK_EXP:
+            strcpy(str, "^");
+            break;
+        case TOK_FLOAT:
+            sprintf(s, "%f", tok_l->value.d);
+            strcpy(str, s);
+            break;
+        case TOK_FUN:
+            strcpy(str, "fn ");
+            break;
+        case TOK_ID:
+            sprintf(s, "%s", tok_l->value.id);
+            strcpy(str, s);
+            break;
+        case TOK_INT:
+            sprintf(s, "%ld", tok_l->value.i);
+            strcpy(str, s);
+            break;
+        case TOK_LPAREN:
+            strcpy(str, "(");
+            break;
+        case TOK_MULT:
+            strcpy(str, " * ");
+            break;
+        case TOK_RPAREN:
+            strcpy(str, ")");
+            break;
+        case TOK_SUB:
+            strcpy(str, " - ");
+            break;
+        default:
+            strcpy(str, "Unrecognized token");
+    }
+
+    return str;
+}
+
+char *token_values_to_str(const TokenList *tok_l) {
+    char *str;
+    int num_tok = count_tokens(tok_l);
+
+    str = malloc(num_tok * MAX_TOK_STR_LEN + 1); 
+    str[0] = '\0';
+
+    while (tok_l != NULL) {
+        char *tok_str = token_value_to_str(tok_l);
+
+        strcat(str, tok_str);
+        free(tok_str);
+
+        tok_l = tok_l->next;
+    }
+
     return str;
 }

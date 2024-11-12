@@ -33,8 +33,10 @@ TokenList *tokenize(const char *input);
 void compile_regexs();
 void free_regexs();
 void free_token_list(TokenList *tok_l);
-void print_token_list(TokenList *tok_l);
-char *token_to_str(TokenList *tok_l);
-char *token_list_to_str(TokenList *tok_l);
+void print_token_list(const TokenList *tok_l);
+char *token_to_str(const TokenList *tok_l);
+char *token_list_to_str(const TokenList *tok_l);
+char *token_value_to_str(const TokenList *tok_l);
+char *token_values_to_str(const TokenList *tok_l);
 
 #endif
