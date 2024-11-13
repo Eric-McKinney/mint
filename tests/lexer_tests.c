@@ -34,8 +34,8 @@ int main(int argc, char **argv) {
         {"basic_addition", "1 + 3", {"[TOK_INT 1, TOK_ADD, TOK_INT 3]", NOERR}},
         {
             "float + int + float",
-            "2.20 + 5+5.",
-            {"[TOK_FLOAT 2.200000, TOK_ADD, TOK_INT 5, TOK_ADD, TOK_FLOAT 5.000000]", NOERR}
+            ".20 + 5+5.",
+            {"[TOK_FLOAT 0.200000, TOK_ADD, TOK_INT 5, TOK_ADD, TOK_FLOAT 5.000000]", NOERR}
         },
         {"big ints", "232342 4444", {"[TOK_INT 232342, TOK_INT 4444]", NOERR}},
         {"negative nums", "-23 - -33.4563", {"[TOK_INT -23, TOK_SUB, TOK_FLOAT -33.456300]", NOERR}},
