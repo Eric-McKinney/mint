@@ -557,3 +557,9 @@ Notes:
     - Well that's a problem for later tbh
     - Could be useful for diagnosing failed tests though
 
+## November 13th, 2024
+
+Goals for today:
+
+- [ ] Document every currently existing error for mint in the wiki
+
