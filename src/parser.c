@@ -42,7 +42,7 @@ static TokenList *match_token(TokenList *tok_l, Tok_t tok) {
     arg = token_value_to_str(tok_l);
 
     errno = EINVAL;
-    warnx("error: expected %s from input \"%s\", but got \"%s\" instead", expected, input, arg);
+    warnx("error: (E1001) expected %s from input \"%s\", but got \"%s\" instead", expected, input, arg);
     
     free(expected);
     free(input);
@@ -93,7 +93,7 @@ static ExprTree *parse_input(TokenList *tok_l, TokenList **out_tl) {
         char *tok_l_str = token_values_to_str(t);
 
         errno = EINVAL;
-        warnx("error: parsing ended early with remaining tokens: \"%s\"", tok_l_str);
+        warnx("error: (E1002) parsing ended early with remaining tokens: \"%s\"", tok_l_str);
 
         free(tok_l_str);
     }
@@ -195,7 +195,7 @@ static ExprTree *parse_parameter_expr(TokenList *tok_l, TokenList **out_tl) {
         char *tok_str = token_value_to_str(tok_l);
 
         errno = EINVAL;
-        warnx("error: malformed parameter \"%s\"", tok_str);
+        warnx("error: (E1003) malformed parameter \"%s\"", tok_str);
 
         free(tok_str);
         *out_tl = NULL;
@@ -374,7 +374,7 @@ static ExprTree *parse_application_expr(TokenList *tok_l, TokenList **out_tl) {
 
     if (tok_l == NULL) {
         errno = EINVAL;
-        warnx("error: incomplete expression");
+        warnx("error: (E1004) incomplete expression");
 
         *out_tl = NULL;
         return NULL;
@@ -400,7 +400,7 @@ static ExprTree *parse_application_expr(TokenList *tok_l, TokenList **out_tl) {
             char *tok_l_str = token_values_to_str(tok_l);
 
             errno = EINVAL;
-            warnx("error: failed to find ID or number with remaining input: \"%s\"", tok_l_str);
+            warnx("error: (E1006) failed to find ID or number with remaining input: \"%s\"", tok_l_str);
             free(tok_l_str);
 
             *out_tl = NULL;
@@ -477,7 +477,7 @@ static ExprTree *parse_primary_expr(TokenList *tok_l, TokenList **out_tl) {
 
     if (tok_l == NULL) {
         errno = EINVAL;
-        warnx("error: input ended before expected");
+        warnx("error: (E1007) input ended before expected");
 
         *out_tl = NULL;
         return NULL;
@@ -521,7 +521,7 @@ static ExprTree *parse_primary_expr(TokenList *tok_l, TokenList **out_tl) {
             free(p_expr);
 
             errno = EINVAL;
-            warnx("error: unrecognized primary expression with remaining tokens:\"%s\"", tok_l_str);
+            warnx("error: (E1008) unrecognized primary expression with remaining tokens:\"%s\"", tok_l_str);
             free(tok_l_str);
 
             *out_tl = NULL;

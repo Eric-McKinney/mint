@@ -21,7 +21,7 @@ TokenList *tokenize(const char *input) {
 
     if (!input) {
         errno = EINVAL;
-        warn("lexer: input is NULL");
+        warnx("error: (E0005) input is NULL");
         return NULL;
     }
     
@@ -82,8 +82,8 @@ static TokenList *tok(const char *input, unsigned int pos, unsigned int length) 
 
         if (errno == ERANGE) {
             warnx(
-                "error: int %s does not fall within storable range of -9223372036854775808 to 9223372036854775807\n\
-             try declaring it as a float instead (i.e. %s.0)",
+                "error: (E0001) int %s does not fall within storable range of -9223372036854775808 to "
+                "9223372036854775807\ntry declaring it as a float instead (i.e. %s.0)",
                 int_str,
                 int_str
             );
@@ -156,7 +156,7 @@ static TokenList *tok(const char *input, unsigned int pos, unsigned int length) 
         return t;
     } else {
         errno = EINVAL;
-        warnx("error: Invalid token starting with \"%c\" at index %u", str[0], pos);
+        warnx("error: (E0002) Invalid token starting with \"%c\" at index %u", str[0], pos);
         return NULL;
     }
 }
