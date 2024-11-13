@@ -162,22 +162,22 @@ static TokenList *tok(const char *input, unsigned int pos, unsigned int length) 
 }
 
 void compile_regexs() {
-    regcomp(&add_re,        "^\\+",                     REG_EXTENDED);
-    regcomp(&comma_re,      "^,",                       REG_EXTENDED);
-    regcomp(&comment_re,    "^(#.*)$",                  REG_EXTENDED);
-    regcomp(&div_re,        "^/",                       REG_EXTENDED);
-    regcomp(&dot_re,        "^\\.",                     REG_EXTENDED);
-    regcomp(&equal_re,      "^=",                       REG_EXTENDED);
-    regcomp(&exp_re,        "^\\^",                     REG_EXTENDED);
-    regcomp(&float_re,      "^-?[0-9]+\\.[0-9]*",       REG_EXTENDED);
-    regcomp(&fun_re,        "^fn",                      REG_EXTENDED);
-    regcomp(&id_re,         "^[a-zA-Z][a-zA-Z0-9_]*",   REG_EXTENDED);
-    regcomp(&int_re,        "^-?[0-9]+",                REG_EXTENDED);
-    regcomp(&l_paren_re,    "^\\(",                     REG_EXTENDED);
-    regcomp(&mult_re,       "^\\*",                     REG_EXTENDED);
-    regcomp(&r_paren_re,    "^\\)",                     REG_EXTENDED);
-    regcomp(&sub_re,        "^-",                       REG_EXTENDED);
-    regcomp(&whitespace_re, "^([ \t])+",                REG_EXTENDED);
+    regcomp(&add_re,        "^\\+",                                 REG_EXTENDED);
+    regcomp(&comma_re,      "^,",                                   REG_EXTENDED);
+    regcomp(&comment_re,    "^(#.*)$",                              REG_EXTENDED);
+    regcomp(&div_re,        "^/",                                   REG_EXTENDED);
+    regcomp(&dot_re,        "^\\.",                                 REG_EXTENDED);
+    regcomp(&equal_re,      "^=",                                   REG_EXTENDED);
+    regcomp(&exp_re,        "^\\^",                                 REG_EXTENDED);
+    regcomp(&float_re,      "^-?([0-9]+\\.[0-9]*|[0-9]*\\.[0-9]+)", REG_EXTENDED);
+    regcomp(&fun_re,        "^fn",                                  REG_EXTENDED);
+    regcomp(&id_re,         "^[a-zA-Z][a-zA-Z0-9_]*",               REG_EXTENDED);
+    regcomp(&int_re,        "^-?[0-9]+",                            REG_EXTENDED);
+    regcomp(&l_paren_re,    "^\\(",                                 REG_EXTENDED);
+    regcomp(&mult_re,       "^\\*",                                 REG_EXTENDED);
+    regcomp(&r_paren_re,    "^\\)",                                 REG_EXTENDED);
+    regcomp(&sub_re,        "^-",                                   REG_EXTENDED);
+    regcomp(&whitespace_re, "^([ \t])+",                            REG_EXTENDED);
 }
 
 void free_regexs() {
