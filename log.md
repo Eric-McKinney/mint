@@ -529,6 +529,31 @@ Notes:
 
 Goals for today:
 
-- [ ] Add functions to lexer.c for converting tokens to strings with just their values
-- [ ] Switch some error messages to use these ^ new functions
+- [x] Add functions to lexer.c for converting tokens to strings with just their values
+- [x] Switch some error messages to use these ^ new functions
+- [x] Add error codes/numbers to errors for easier reference in and by the wiki
+
+Notes:
+
+- Devising a system for error codes is more complicated than I would have initially imagined
+    - It should be easy to add new codes without having to do anything to existing codes
+    - Codes should all be the same length
+    - Codes should be unique for each error message
+    - Ideally the code would convey some information about the error
+    - Realistically it's better to simply devise a system to quickly and easily create unique codes
+    - Something like E1234
+    - I'd like to at least convey which of lexer, parser, or evaluator the error occurred in
+    - Would be nice to convey if the error was due to bad input or internal mishaps
+- Here's what I'm settling on for error code formatting
+    - Starts with E and then 4 digits (so hypothetically 9999 possible codes which should be way, way more than enough)
+    - Realistically not using E0000 so we can split 3 ways evenly between lexer, parser, and evaluator
+    - However, I doubt that errors will occur evenly between the three (so lets say 10% lexer, 60% parser, & 30% eval)
+    - I'll allocate 0000-0999 to lexer, 1000-6999 to parser, and 7000-9999 to evaluator
+    - Errors solely due to internal mishaps will be divisible by 5 and the rest are for everything else
+    - When I say "solely due to internal mishaps" I mean something that shouldn't be caused by user input
+    - (e.g. the default case of a switch statement which shouldn't be possible to reach)
+    - When I say "everything else" I mean if it's not 100% certain to be a so called "internal mishap" then it counts
+- Perhaps I should consider adding some sort of logging at some point
+    - Well that's a problem for later tbh
+    - Could be useful for diagnosing failed tests though
 
