@@ -287,7 +287,7 @@ static int validate_params(ExprTree *params, const char *fun_id) {
         for (j = 0; j < i; j++) {
             if (strcmp(p[j], p[i]) == 0) {
                 errno = EINVAL;
-                warnx("error: (E7003) duplicate parameter %s in definition of function %s\n", p[i], fun_id);
+                warnx("error: (E7003) duplicate parameter %s in definition of function %s", p[i], fun_id);
                 dupes++;
                 break;
             }
@@ -518,7 +518,7 @@ static void eval_binop(ExprTree **t, Env_t *env, char in_fun) {
         default: {
             char *expr_str = expr_tree_to_str(tree);
             errno = EINVAL;
-            warnx("error: (E7035) failed to evaluate unrecognized binary operator expression: %s\n", expr_str);
+            warnx("error: (E7035) failed to evaluate unrecognized binary operator expression: %s", expr_str);
             free(expr_str);
             return;
         }
@@ -561,7 +561,7 @@ static void eval_application(ExprTree **t, Env_t *env, char in_fun) {
 
     if (num_params != num_args_bound) {
         errno = EINVAL;
-        warnx("error: (E7008) in application of %s, received %d arguments but expected %d\n", fun->value.id, num_args_bound, num_params);
+        warnx("error: (E7008) in application of %s, received %d arguments but expected %d", fun->value.id, num_args_bound, num_params);
         pop_params(params, num_params, env);
         return;
     }
