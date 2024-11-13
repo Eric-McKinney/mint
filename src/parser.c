@@ -42,7 +42,7 @@ static TokenList *match_token(TokenList *tok_l, Tok_t tok) {
     arg = token_value_to_str(tok_l);
 
     errno = EINVAL;
-    warnx("error: (E1001) expected %s from input \"%s\", but got \"%s\" instead", expected, input, arg);
+    warnx("error: (E1001) expected %s from remaining input \"%s\", but got \"%s\" instead", expected, input, arg);
     
     free(expected);
     free(input);
