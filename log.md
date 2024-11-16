@@ -561,5 +561,11 @@ Notes:
 
 Goals for today:
 
-- [ ] Document every currently existing error for mint in the wiki
+- [ ] Document every currently existing error for mint in the wiki (deferred)
+
+## November 16th, 2024
+
+Goals for today:
+
+- [ ] Continue documenting every currently existing error for mint in the wiki
 
