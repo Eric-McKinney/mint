@@ -573,10 +573,12 @@ Goals for today:
 
 Goals for today:
 
-- [ ] Finish(?) documenting errors in the wiki
+- [ ] Finish(?) documenting errors in the wiki (deferred)
 
 Notes:
 
 - Aaaaaannd it's been a month 😭
 - Well the semester is over now, so I will hopefully put more time into this project
+- Yeah too many more errors to document to finish today
+- Also this is so terribly boring and I feel like I'm not writing it well
 
