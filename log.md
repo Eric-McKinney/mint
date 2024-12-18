@@ -567,5 +567,16 @@ Goals for today:
 
 Goals for today:
 
-- [ ] Continue documenting every currently existing error for mint in the wiki
+- [ ] Continue documenting every currently existing error for mint in the wiki (deferred)
+
+## December 17th, 2024
+
+Goals for today:
+
+- [ ] Finish(?) documenting errors in the wiki
+
+Notes:
+
+- Aaaaaannd it's been a month 😭
+- Well the semester is over now, so I will hopefully put more time into this project
 
