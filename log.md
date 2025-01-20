@@ -582,3 +582,10 @@ Notes:
 - Yeah too many more errors to document to finish today
 - Also this is so terribly boring and I feel like I'm not writing it well
 
+## January 19th, 2025
+
+Notes:
+
+- Yeah I decided working on this project while doing a winter class was a bit much, so I uh... didn't
+- Probably won't do anything noteworthy until next semester starts bc I want to enjoy the rest of my break
+
