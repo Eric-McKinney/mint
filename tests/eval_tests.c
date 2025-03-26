@@ -123,7 +123,8 @@ int main(int argc, char **argv) {
             "function defn w/param same as function name",
             {"fn f(f) = 5*f", {NULL}, {NULL}},
             {"(Fun f (Param(ID f)())(Mult(Int 5)(ID f)))", "[]", EINVAL}
-        }
+        },
+        {"negative exponents", {"10^-3 + 5^-2", {NULL}, {NULL}}, {"(Float 0.041000)", "[]", NOERR}}
     };
     int num_tests = sizeof(tests) / sizeof(Test), num_passed, suite_result;
 
