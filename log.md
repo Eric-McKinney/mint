@@ -589,3 +589,20 @@ Notes:
 - Yeah I decided working on this project while doing a winter class was a bit much, so I uh... didn't
 - Probably won't do anything noteworthy until next semester starts bc I want to enjoy the rest of my break
 
+## March 26th, 2025
+
+Notes:
+
+- I may have lied about starting up when the semester started
+- Back bc I found an annoying bug when doing my hw using mint
+- Not gonna make any more promises about continuing development since I clearly don't honor them
+- That being said, I don't plan to drop this project ever (I will simply be inactive for long periods of time)
+
+Issues:
+
+1. Negative exponents dont evaluate properly most of the time
+    - I simply didn't account for this, so an integer base and an integer exponent is treated as an integer result
+
+Fixes:
+
+- Issue 1 of today was fixed simply by making a caveat for negative exponents where I don't cast the result to an int
