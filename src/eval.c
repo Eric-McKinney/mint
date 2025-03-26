@@ -509,7 +509,13 @@ static void eval_binop(ExprTree **t, Env_t *env, char in_fun) {
                 v1->value.d = (double) v1->value.i;
                 v2->value.d = (double) v2->value.i;
 
-                v->value.i = (long int) pow(v1->value.d, v2->value.d);
+                /* negative exponent can cause expr to evaluate to float */
+                if (v2->value.d < 0) {
+                    v->expr = Float;
+                    v->value.d = pow(v1->value.d, v2->value.d);
+                } else {
+                    v->value.i = (long int) pow(v1->value.d, v2->value.d);
+                }
             } else {
                 v->value.d = pow(v1->value.d, v2->value.d);
             }
