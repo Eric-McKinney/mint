@@ -33,7 +33,7 @@ mint|> r
 5
 ```
 
-## CFG
+## Context Free Grammar (CFG)
 
 Input -> Expr | Comment | Expr Comment\
 Comment -> `#` `any text`\
@@ -49,7 +49,7 @@ ExponentExpr -> ApplicationExpr `^` ApplicationExpr | ApplicationExpr\
 ApplicationExpr -> ID`(`ArgExpr`)` | PrimaryExpr\
 ArgExpr -> AdditiveExpr`,` ArgExpr | AdditiveExpr\
 PrimaryExpr -> `int` | `float` | ID | `(`AdditiveExpr`)`\
-ID -> `string which matches the following regex: ^[a-zA-Z][a-zA-Z0-9_]*$`
+ID -> `a letter followed by zero or more letters, numbers, and underscores`
 
 ## TODO
 
