@@ -357,6 +357,12 @@ static int check_int_limits(long v1, long v2, Operator_t op) {
         case Mult: {
             int same_sign = (v1 > 0 && v2 > 0) || (v1 < 0 && v2 < 0);
             int diff_sign = !same_sign;
+
+            /* avoid dividing by 0 below (also definitely in bounds) */
+            if (v2 == 0) {
+                return op_is_ok;
+            }
+
             /* I tried using fabs, but casting back and forth loses precision */
             v1 = v1 >= 0 ? v1 : -1 * v1;  
             v2 = v2 >= 0 ? v2 : -1 * v2;
