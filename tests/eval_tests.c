@@ -48,6 +48,7 @@ int main(int argc, char **argv) {
         {"arithmetic mix", {"2. * 4 / 12 + 5", {NULL}, {NULL}}, {"(Float 5.666667)", "[]", NOERR}},
         {"long add/sub", {"1 + 2 - 3 + 4 - 5", {NULL}, {NULL}}, {"(Int -1)", "[]", NOERR}},
         {"long mult/div", {"1 * 2 / 3 * 4 / 5", {NULL}, {NULL}}, {"(Float 0.533333)", "[]", NOERR}},
+        {"times zero", {"2 * 0 + 0 * 2", {NULL}, {NULL}}, {"(Int 0)", "[]", NOERR}},
         {"simple assign", {"R = 500", {NULL}, {NULL}}, {"(Assign(ID R)(Int 500))", "[(R : (Int 500))]", NOERR}},
         {
             "arithmetic assign",
