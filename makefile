@@ -22,7 +22,7 @@ OBJS=$(patsubst %,$(OBJ)/%,$(_OBJS))
 all: $(OBJ) $(BIN)/mint
 $(BIN)/mint: $(OBJS)
 	mkdir -p $(BIN)
-	$(CC) -o $@ $^ $(LDFLAGS) -lreadline
+	$(CC) -o $@ $^ $(LDFLAGS) -lreadline -ltinfo
 
 lexer_tests: $(OBJ) $(TEST_BIN) $(TEST_BIN)/lexer_tests
 parser_tests: $(OBJ) $(TEST_BIN) $(TEST_BIN)/parser_tests
