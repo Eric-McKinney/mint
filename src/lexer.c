@@ -49,7 +49,7 @@ static TokenList *tok(const char *input, unsigned int pos, unsigned int length) 
 
         if (match_length > MAX_TOK_VAL_LEN) {
             errno = ENAMETOOLONG;  /* originally for file names but cmon */
-            warnx("error: (E0003) variable name too long");
+            warnx("error: (E0003) name too long");
             free(t);
             return NULL;
         }
