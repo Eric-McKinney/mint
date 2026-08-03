@@ -6,8 +6,8 @@
 #include <err.h>
 #include "lexer.h"
 
-#define MAX_TOK_LEN 11     /* longest tok is TOK_COMMENT = 11 chars                       */
-#define MAX_TOK_VAL_LEN 50 /* arbitrary upper limit on token value size (e.g. an integer) */
+#define MAX_TOK_LEN 11     /* longest tok is TOK_COMMENT = 11 chars                  */
+#define MAX_TOK_VAL_LEN 50 /* arbitrary upper limit on token value size (e.g. an id) */
 #define MAX_TOK_STR_LEN MAX_TOK_LEN + MAX_TOK_VAL_LEN
 
 regex_t add_re, comma_re, comment_re, dot_re, div_re, equal_re, exp_re, float_re;
@@ -46,6 +46,13 @@ static TokenList *tok(const char *input, unsigned int pos, unsigned int length) 
     } else if (regexec(&id_re, str, 1, &re_match, 0) == 0) {
         int match_length = re_match.rm_eo - re_match.rm_so;
         t = malloc(sizeof(TokenList));
+
+        if (match_length > MAX_TOK_VAL_LEN) {
+            errno = ENAMETOOLONG;  /* originally for file names but cmon */
+            warnx("error: (E0003) variable name too long");
+            free(t);
+            return NULL;
+        }
 
         if (strncmp(str, "fn", 2) == 0) {
             t->token = TOK_FUN;
