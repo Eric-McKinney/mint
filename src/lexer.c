@@ -331,7 +331,7 @@ char *token_list_to_str(const TokenList *tok_l) {
 }
 
 char *token_value_to_str(const TokenList *tok_l) {
-    char *str, s[MAX_TOK_VAL_LEN] = {0};
+    char *str, s[MAX_TOK_VAL_LEN + 1] = {0};
 
     if (tok_l == NULL) {
         return calloc(1,1);

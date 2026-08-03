@@ -579,7 +579,7 @@ static char *expr_tree_to_str_aux(ExprTree *tree, int *size) {
 
     strcpy(str, "(");
     switch (tree->expr) {
-        char s[MAX_NODE_VAL_LEN];
+        char s[MAX_NODE_VAL_LEN + 1];
 
         case Int:
             sprintf(s, "Int %ld", tree->value.i);

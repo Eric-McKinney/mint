@@ -696,7 +696,7 @@ static char *eval_result_to_str_aux(ExprTree *tree, int *size) {
                     sprintf(str, "%s * %s", lstr, rstr);
                     break;
                 case Div: {
-                    char lexp[MAX_NODE_VAL_LEN], rexp[MAX_NODE_VAL_LEN];
+                    char lexp[MAX_NODE_VAL_LEN + 1], rexp[MAX_NODE_VAL_LEN + 1];
 
                     if (!is_primary_expr(tree->left)) {
                         sprintf(lexp, "(%s)", lstr);
@@ -714,7 +714,7 @@ static char *eval_result_to_str_aux(ExprTree *tree, int *size) {
                     break;
                 }
                 case Exp: {
-                    char lexp[MAX_NODE_VAL_LEN], rexp[MAX_NODE_VAL_LEN];
+                    char lexp[MAX_NODE_VAL_LEN + 1], rexp[MAX_NODE_VAL_LEN + 1];
 
                     if (!is_primary_expr(tree->left)) {
                         sprintf(lexp, "(%s)", lstr);
