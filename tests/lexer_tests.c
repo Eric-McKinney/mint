@@ -51,7 +51,17 @@ int main(int argc, char **argv) {
         },
         {"unrecognized token", "&", {"[]", EINVAL}},
         {"unrecognized tokens", "~&`", {"[]", EINVAL}},
-        {"unrecognized recognized combo", "123 - &4", {"[TOK_INT 123, TOK_SUB]", EINVAL}}
+        {"unrecognized recognized combo", "123 - &4", {"[TOK_INT 123, TOK_SUB]", EINVAL}},
+        {
+            "var name too long",
+            "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx = 1",
+            {"[]", ENAMETOOLONG}
+        },
+        {
+            "fn name too long",
+            "fn xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx(y) = 0",
+            {"[TOK_FUN]", ENAMETOOLONG}
+        },
     };
     int num_tests = sizeof(tests) / sizeof(Test), num_passed;
 
