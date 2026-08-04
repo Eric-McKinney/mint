@@ -606,3 +606,15 @@ Issues:
 Fixes:
 
 - Issue 1 of today was fixed simply by making a caveat for negative exponents where I don't cast the result to an int
+
+## August 4th, 2026
+
+Notes:
+
+- It's been a long time
+- I really don't feel like updating this log every time I make commits on this project
+- I think saving log entries for novel problems and bugs is for the best anyways
+- I made a maximum number of characters an ID is allowed to have
+  - I really considered allowing an arbitrary number of characters
+  - Decided that was stupid and it's ok to be opinionated in this case
+  - Seriously 50 characters is more than enough
