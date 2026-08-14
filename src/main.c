@@ -13,6 +13,28 @@
 #define END_COLOR "\033[0m"
 #define PROMPT TEAL "mint" END_COLOR "|> "
 #define BUF_SIZE 1024
+#define VERSION_MSG "mint 0.1.0\n"
+#define HELP_MSG "Usage: mint\n" \
+    "   or: mint EXPRESSION\n" \
+    "   or: mint OPTION\n" \
+    "Start and interactive session, evaluate a math EXPRESSION when given as an\n" \
+    "argument, or print help or version info.\n" \
+    "\n" \
+    "An EXPRESSION is a sequence of numbers separated by operators. Operators like:\n" \
+    "+ for addition\n" \
+    "- for subtraction\n" \
+    "* for multiplication\n" \
+    "/ for division\n" \
+    "^ for exponentiation\n" \
+    "\n" \
+    "Normal math order of operations is obeyed (i.e. PEMDAS) so 1 + 4 * 3 is 13\n" \
+    "whereas (1 + 4) * 3 is 15 because of the parentheses.\n" \
+    "\n" \
+    "Available OPTIONs are:\n" \
+    "  --help     print this help message and exit\n" \
+    "  --version  print version info and exit\n" \
+    "\n" \
+    "For more info see the online wiki: <https://github.com/Eric-McKinney/mint/wiki>\n"
 
 static char *process_input(char *input, Env_t *env);
 static char *aggregate_args(int argc, char **argv);
@@ -24,7 +46,11 @@ int main(int argc, char **argv) {
     compile_regexs();
 
     /* determine invocation method */
-    if (argc == 1) {
+    if (argc >= 2 && strcmp(argv[1], "--help") == 0) {
+        printf(HELP_MSG);
+    } else if (argc >= 2 && strcmp(argv[1], "--version") == 0) {
+        printf(VERSION_MSG);
+    } else if (argc == 1) {
         if (isatty(0)) {
             repl_loop(env);
         } else {
