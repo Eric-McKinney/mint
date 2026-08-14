@@ -618,3 +618,13 @@ Notes:
   - I really considered allowing an arbitrary number of characters
   - Decided that was stupid and it's ok to be opinionated in this case
   - Seriously 50 characters is more than enough
+
+## August 14th, 2026
+
+Notes:
+
+- Slow progress bc I've been busy and lazy
+- I had to update the compile flags because ansi C has a much shorter max length on
+string literals (this is for the help message)
+- Also trying to add GPLv3 license at some point so I'm studying what I need to do to
+be compliant with its terms
