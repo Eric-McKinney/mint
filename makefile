@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS= -ansi -Wall -g -O0 -Wwrite-strings -Wshadow -pedantic-errors \
+CFLAGS= -std=c99 -Wall -g -O0 -Wwrite-strings -Wshadow -pedantic-errors \
         -fstack-protector-all
 LDFLAGS= -lm
 
