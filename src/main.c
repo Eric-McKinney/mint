@@ -16,23 +16,53 @@
 #define VERSION_MSG "mint 0.1.0\n"
 #define HELP_MSG "Usage: mint\n" \
     "   or: mint EXPRESSION\n" \
+    "   or: mint < FILE\n" \
     "   or: mint OPTION\n" \
-    "Start and interactive session, evaluate a math EXPRESSION when given as an\n" \
-    "argument, or print help or version info.\n" \
-    "\n" \
-    "An EXPRESSION is a sequence of numbers separated by operators. Operators like:\n" \
-    "+ for addition\n" \
-    "- for subtraction\n" \
-    "* for multiplication\n" \
-    "/ for division\n" \
-    "^ for exponentiation\n" \
-    "\n" \
-    "Normal math order of operations is obeyed (i.e. PEMDAS) so 1 + 4 * 3 is 13\n" \
-    "whereas (1 + 4) * 3 is 15 because of the parentheses.\n" \
+    "Start an interactive session, evaluate a math EXPRESSION when given as an\n" \
+    "argument, evaluate EXPRESSIONs from a FILE, or print help or version info.\n" \
     "\n" \
     "Available OPTIONs are:\n" \
     "  --help     print this help message and exit\n" \
     "  --version  print version info and exit\n" \
+    "\n" \
+    "An EXPRESSION is a sequence of numbers separated by operators. Operators like:\n" \
+    "  + for addition\n" \
+    "  - for subtraction\n" \
+    "  * for multiplication\n" \
+    "  / for division\n" \
+    "  ^ for exponentiation\n" \
+    "\n" \
+    "Normal math order of operations is obeyed, so in order of evaluation:\n" \
+    "  Parentheses\n" \
+    "  Exponents\n" \
+    "  Multiplication and division (left to right)\n" \
+    "  Addition and subtraction (left to right)\n" \
+    "\n" \
+    "In an interactive session, variables and functions are also available. To assign\n" \
+    "a value to a variable, use the = operator between the variable name and its\n" \
+    "value. To use a variable's value, simply use its name in an expression. Here \n" \
+    "are some examples:\n" \
+    "  x = 4\n" \
+    "  y = 2^8\n" \
+    "  longVariableName = 44 - 8\n" \
+    "  with_underscores = x * y\n" \
+    "  with_1_numbers2 = x / y\n" \
+    "\n" \
+    "To define a function use the fn keyword followed by the function name and any\n" \
+    "parameters it takes in a comma separated list in parentheses, then a = followed\n" \
+    "by an expression to be the function body. To apply a function, simply use its\n" \
+    "name followed by any arguments in a comma separated list wrapped in parentheses.\n" \
+    "Here are some examples:\n" \
+    "  fn f(x) = x + 4\n" \
+    "  fn g(y) = f(y / 2)\n" \
+    "  fn my_function(a, b, c) = a * b - c\n" \
+    "\n" \
+    "To end an interactive session, type exit or quit and hit enter. The keybind\n" \
+    "ctrl+d will work too.\n" \
+    "\n" \
+    "When input redirection is used to read from a FILE, the functionality is the\n" \
+    "same as an interactive session, but only the result of the last expression is\n" \
+    "printed.\n" \
     "\n" \
     "For more info see the online wiki: <https://github.com/Eric-McKinney/mint/wiki>\n"
 
