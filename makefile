@@ -14,7 +14,7 @@ PARSER_LOG=$(TEST_LOG)/parser_tests.log
 EVAL_LOG=$(TEST_LOG)/eval_tests.log
 GREP=grep --color=always
 
-_OBJS= main.o lexer.o parser.o eval.o
+_OBJS= main.o lexer.o parser.o eval.o graph.o
 OBJS=$(patsubst %,$(OBJ)/%,$(_OBJS))
 
 .PHONY: all lexer_tests parser_tests eval_tests vvlexer_tests vvparser_tests vveval_tests tests runtests vvtests clean
@@ -64,7 +64,7 @@ $(TEST_BIN)/lexer_tests: $(OBJ)/lexer_tests.o $(OBJ)/lexer.o
 $(TEST_BIN)/parser_tests: $(OBJ)/parser_tests.o $(OBJ)/parser.o $(OBJ)/lexer.o
 	$(CC) -o $@ $^
 
-$(TEST_BIN)/eval_tests: $(OBJ)/eval_tests.o $(OBJ)/eval.o $(OBJ)/parser.o $(OBJ)/lexer.o
+$(TEST_BIN)/eval_tests: $(OBJ)/eval_tests.o $(OBJ)/eval.o $(OBJ)/graph.o $(OBJ)/parser.o $(OBJ)/lexer.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 $(OBJ)/lexer_tests.o: $(TEST_SRC)/lexer_tests.c $(SRC)/lexer.h $(TEST_SRC)/test.h
@@ -86,6 +86,9 @@ $(OBJ)/parser.o: $(SRC)/parser.c $(SRC)/parser.h $(SRC)/lexer.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(OBJ)/eval.o: $(SRC)/eval.c $(SRC)/eval.h
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(OBJ)/graph.o: $(SRC)/graph.c $(SRC)/graph.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(OBJ):
