@@ -2,6 +2,7 @@
 #define Graph_h
 
 typedef struct vertex {
+    const char *id;
     unsigned int degree;  /* out-degree i.e. num edges starting from this node */
     struct vertex **connections;
 } Vertex_t;
@@ -13,7 +14,7 @@ typedef struct {
 
 Graph_t *create_graph(unsigned int num_nodes);
 void free_graph(Graph_t *graph);
-void add_connection(Graph_t *graph, unsigned int from_idx, unsigned int to_idx);
+void add_connection(Graph_t *graph, const char *from_id, const char *to_id);
 int contains_cycle(const Graph_t *graph);
 
 #endif

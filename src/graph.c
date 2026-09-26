@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include "graph.h"
 
 Graph_t *create_graph(unsigned int num_nodes) {
@@ -10,7 +11,27 @@ Graph_t *create_graph(unsigned int num_nodes) {
     return graph;
 }
 
-void add_connection(Graph_t *graph, unsigned int from_idx, unsigned int to_idx) {
+static unsigned int lookup(Graph_t *graph, const char *id) {
+    for (unsigned int i = 0; i < graph->num_nodes; i++) {
+        Vertex_t *v = graph->nodes + i;
+
+        if (v->id == NULL) {
+            v->id = id;
+            return i;
+        }
+
+        if (strcmp(id, v->id) == 0) {
+            return i;
+        }
+    }
+
+    return graph->num_nodes;
+}
+
+void add_connection(Graph_t *graph, const char *from_id, const char *to_id) {
+    unsigned int from_idx = lookup(graph, from_id);
+    unsigned int to_idx = lookup(graph, to_id);
+
     if (from_idx >= graph->num_nodes || to_idx >= graph->num_nodes) {
         return;
     }
