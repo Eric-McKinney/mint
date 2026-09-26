@@ -7,6 +7,7 @@
 #include <limits.h>
 #include "eval.h"
 #include "parser.h"
+#include "graph.h"
 
 #define MAX_PARAMS 50       /* arbitrary upper limit on how many params a function can have */
 #define MAX_NODE_VAL_LEN 50 /* arbitrary upper limit on value length for a node in chars (i.e. an ID or float) */
@@ -304,6 +305,61 @@ static int validate_params(ExprTree *params, const char *fun_id) {
     return 0;
 }
 
+static unsigned int count_existing_funs(Env_t *env) {
+    Env_t *curr = env->next;
+    unsigned int num_funs = 0;
+
+    while (curr != NULL) {
+        if (curr->data->expr == Fun) {
+            num_funs++;
+        }
+        curr = curr->next;
+    }
+
+    return num_funs;
+}
+
+static void connect_fun_dependencies(Graph_t *fun_graph, ExprTree *fun_body,
+                                     const char *fun_id) {
+    if (fun_body == NULL) {
+        return;
+    }
+
+    if (fun_body->expr == Application) {
+        add_connection(fun_graph, fun_id, fun_body->left->value.id);
+    }
+
+    connect_fun_dependencies(fun_graph, fun_body->left, fun_id);
+    connect_fun_dependencies(fun_graph, fun_body->right, fun_id);
+}
+
+static int check_no_recursion(ExprTree *fun_body, const char *fun_id, Env_t *env) {
+    unsigned int num_funs_in_env = count_existing_funs(env);
+    Graph_t *fun_graph = create_graph(num_funs_in_env + 1);
+
+    connect_fun_dependencies(fun_graph, fun_body, fun_id);
+
+    Env_t *curr = env->next;
+    while (curr != NULL) {
+        if (curr->data->expr == Fun) {
+            connect_fun_dependencies(fun_graph, curr->data->right,
+                                     curr->data->value.id);
+        }
+
+        curr = curr->next;
+    }
+
+    int has_recursion = 0;
+    if (contains_cycle(fun_graph)) {
+        has_recursion = 1;
+        errno = EINVAL;
+        warnx("error: (E7009) function is infinitely recursive");
+    }
+
+    free_graph(fun_graph);
+    return has_recursion;
+}
+
 static void eval_fun(ExprTree **t, Env_t *env) {
     ExprTree *tree = *t;
     int num_params;
@@ -311,7 +367,8 @@ static void eval_fun(ExprTree **t, Env_t *env) {
     num_params = push_params(tree->left, env);
     eval_expr(&(tree->right), env, 1);
 
-    if (validate_params(tree->left, tree->value.id) == 0) {
+    if (validate_params(tree->left, tree->value.id) == 0
+            && check_no_recursion(tree->right, tree->value.id, env) == 0) {
         extend_env(env, tree->value.id, tree);
     }
 
