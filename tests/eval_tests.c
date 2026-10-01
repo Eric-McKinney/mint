@@ -125,7 +125,26 @@ int main(int argc, char **argv) {
             {"fn f(f) = 5*f", {NULL}, {NULL}},
             {"(Fun f (Param(ID f)())(Mult(Int 5)(ID f)))", "[]", EINVAL}
         },
-        {"negative exponents", {"10^-3 + 5^-2", {NULL}, {NULL}}, {"(Float 0.041000)", "[]", NOERR}}
+        {"negative exponents", {"10^-3 + 5^-2", {NULL}, {NULL}}, {"(Float 0.041000)", "[]", NOERR}},
+        {
+            "recursive function",
+            {"fn f(x) = f(x)", {"f", NULL}, {"fn f(x) = x", NULL}},
+            {
+                "(Fun f (Param(ID x)())(App(ID f)(Arg(ID x)())))",
+                "[(f : (Fun f (Param(ID x)())(ID x)))]",
+                EINVAL
+            }
+        },
+        {
+            "mutually recursive functions",
+            {"fn g(y) = f(y)", {"g", "f", NULL}, {"fn g(y) = y", "fn f(x) = g(x)", NULL}},
+            {
+                "(Fun g (Param(ID y)())(App(ID f)(Arg(ID y)())))",
+                "[(f : (Fun f (Param(ID x)())(App(ID g)(Arg(ID x)())))), "
+                    "(g : (Fun g (Param(ID y)())(ID y)))]",
+                EINVAL
+            }
+        }
     };
     int num_tests = sizeof(tests) / sizeof(Test), num_passed, suite_result;
 
